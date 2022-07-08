@@ -26,8 +26,24 @@ verify_arguments(int argc, const char *argv[])
 void
 calculate_integrals(const char *access_token, webqc_job_t *job_handler)
 {
+    const char *water_xyz_geometry =
+            "3\n"
+            "H2O\n"
+            "O 0.00000000 0.00000000 -0.07223463\n"
+            "H 0.83020871 0.00000000  0.53109206\n"
+            "H 0.00000000 0.53109206  0.56568542\n";
+
     webqc_return_value_t errors = init_webqc_return_value();
-    errors.error_code = 0;
+
+    bool res = submit_two_electron_integrals_job(
+            "sto-3g",
+            water_xyz_geometry,
+            access_token,
+            job_handler,
+            &errors
+    ) ;
+
+
     if ( errors.error_code != 0 )
     {
         exit(1);
