@@ -44,7 +44,7 @@ calculate_integrals(const char *access_token, webqc_job_t *job_handler)
     ) ;
 
 
-    if ( errors.error_code != 0 )
+    if ( ! res )
     {
         exit(1);
     }
