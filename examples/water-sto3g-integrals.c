@@ -24,7 +24,7 @@ verify_arguments(int argc, const char *argv[])
 
 
 void
-calculate_integrals(const char *access_token, webqc_job_t *job_handler)
+calculate_integrals(const char *access_token, WQC *job_handler)
 {
     const char *water_xyz_geometry =
             "3\n"
@@ -36,10 +36,10 @@ calculate_integrals(const char *access_token, webqc_job_t *job_handler)
     webqc_return_value_t errors = init_webqc_return_value();
 
     bool res = submit_two_electron_integrals_job(
+            job_handler,
             "sto-3g",
             water_xyz_geometry,
             access_token,
-            job_handler,
             &errors
     ) ;
 
@@ -51,29 +51,25 @@ calculate_integrals(const char *access_token, webqc_job_t *job_handler)
 }
 
 void
-save_integrals( webqc_job_t job_handler, const char *output_filename)
+save_integrals( WQC *job_handler, const char *output_filename)
 {
-    webqc_return_value_t errors = init_webqc_return_value();
-    errors.error_code = 0;
-    if ( errors.error_code != 0 )
-    {
-        exit(1);
-    }
 }
 
 
 int
 main(int argc, const char *argv[])
 {
-    webqc_job_t job_handler = BAD_JOB_HANDLER;
+    WQC *handler = wqc_init();
 
     verify_arguments(argc, argv);
     const char *access_token = argv[1];
     const char *output_filename = argv[2];
 
-    calculate_integrals(access_token, &job_handler);
+    calculate_integrals(access_token, handler);
 
-    save_integrals(job_handler, output_filename);
+    save_integrals(handler, output_filename);
+
+    wqc_cleanup(handler);
 
     return 0;
 }
