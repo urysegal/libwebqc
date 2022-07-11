@@ -4,6 +4,7 @@
 #define MAX_WEBQC_ERROR_MESSAGE_LEN (128) ///< Maximum size of error message in webqc_return_value_t;
 
 #define WEBQC_SUCCESS (0) ///< Call was successful
+#define WEBQC_ERROR_UNKNOWN_OPTION (1) ///< An unknown option was passed to the API
 
 typedef uint64_t error_code_t; ///< Numerical error code
 

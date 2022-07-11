@@ -7,7 +7,7 @@ SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -pthread")
 
 set(CMAKE_C_STANDARD 23)
 
-add_library(libwebqc SHARED libwebqc.c)
+add_library(libwebqc SHARED libwebqc.c include/webqc-options.h webqc-options.c)
 
 add_executable(water-sto3g-integrals examples/water-sto3g-integrals.c)
 target_include_directories(water-sto3g-integrals PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
@@ -18,7 +18,7 @@ target_link_libraries(water-sto3g-integrals libwebqc)
 option(BUILD_DOC "Build documentation" ON)
 
 # check if Doxygen is installed
-find_package(Doxygen)
+find_package(Doxygen REQUIRED dot)
 if (DOXYGEN_FOUND)
     # set input and output files
     set(DOXYGEN_IN ${CMAKE_CURRENT_SOURCE_DIR}/docs/Doxyfile.in)
