@@ -1,6 +1,8 @@
 #pragma once
 
-#define BAD_JOB_HANDLER (0) ///< Bad WebQC job ID, e.g. returned when creating a new job failed.
+#include <stdint.h>
+
+
 #define MAX_WEBQC_ERROR_MESSAGE_LEN (128) ///< Maximum size of error message in webqc_return_value_t;
 
 #define WEBQC_SUCCESS (0) ///< Call was successful

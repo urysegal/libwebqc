@@ -1,6 +1,11 @@
 #pragma once
 #include <stdint.h>
 #include <stdbool.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include "include/webqc-errors.h"
 #include "include/webqc-options.h"
 
@@ -46,20 +51,20 @@ typedef struct two_electron_integrals_job_parameters_tag {
 /// \param job_parameters Parameters for the job
 /// \return true on successful submission of the job, false otherwise
 bool wqc_submit_job
-(
-        WQC *handler,
-        wqc_job_type job_type,
-        void *job_parameters
-) ;
+        (
+                WQC *handler,
+                wqc_job_type job_type,
+                void *job_parameters
+        );
 
 
 /// Get a reply for the given job. If result is not yet ready, wait for it.
 /// \param handler handler the job was submitted on
 /// \return true on successful retrival and if the job completed successfully, false otherwise
 bool wqc_get_reply
-(
-        WQC *handler
-) ;
+        (
+                WQC *handler
+        );
 
 
 //! Set up an option for a WQC call
@@ -81,3 +86,7 @@ void wqc_set_error(
         WQC *handler,
         error_code_t code
 );
+
+#ifdef __cplusplus
+} // "extern C"
+#endif

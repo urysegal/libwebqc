@@ -1,5 +1,7 @@
 cmake_minimum_required(VERSION 3.16)
-project(libwebqc C)
+project(libwebqc)
+
+set(CMAKE_VERBOSE_MAKEFILE ON)
 
 SET(GCC_WERR_COMPILE_FLAGS "-Wall -Werror")
 SET(CMAKE_C_FLAGS  "${CMAKE_C_FLAGS} ${GCC_WERR_COMPILE_FLAGS} -fsanitize=address")
@@ -7,12 +9,14 @@ SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -pthread")
 
 set(CMAKE_C_STANDARD 23)
 
-add_library(libwebqc SHARED libwebqc.c include/webqc-options.h webqc-options.c)
+add_library(libwebqc SHARED libwebqc.c webqc-options.c webqc-errors.c)
 
 add_executable(water-sto3g-integrals examples/water-sto3g-integrals.c)
 target_include_directories(water-sto3g-integrals PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 add_dependencies(water-sto3g-integrals libwebqc)
 target_link_libraries(water-sto3g-integrals libwebqc)
+
+add_subdirectory (test)
 
 # first we can indicate the documentation build as an option and set it to ON by default
 option(BUILD_DOC "Build documentation" ON)
