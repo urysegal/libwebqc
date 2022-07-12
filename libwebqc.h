@@ -6,6 +6,12 @@
 
 typedef struct webqc_handler_t WQC; ///< A handler to a WQC operation. When starting an asynchronous job, a WQC is returned to the caller.
 
+/// List of all the possible calls to WecQC service
+typedef enum wqc_job_types_tag {
+    TWO_ELECTRONS_INTEGRAL = 1 /// Calculate all two-electrons repulsion integrals
+} wqc_job_type;
+
+
 //! Initialize a new job handler. You must call wqc_cleanup when the job is done and you do not need any more information
 //! about it.
 //! \return a new WQC handler
@@ -25,19 +31,36 @@ bool wqc_get_last_error(
         webqc_return_value_t *error_structure
 );
 
-//! Submit a job to calculate all the two-electron integrals for a given geometry in XYZ format. The basis set is
-//! downloaded from the Basis Set Exchange. This is the simplest case, with no screening or symmetry consideration.
-//! \param handler a job handler that will make the call and keep its status
-//! \param basis_set_name basis set names. It must be prsent on the Basis Set Exchange at https://www.basissetexchange.org/
-//! \param geometry XYZ-file formatted screen. FOr example, a content of an XYZ file. See for example https://openbabel.org/wiki/XYZ_(format)
-//! \return true on success, false on failure
+/// @brief Parameters for a jobs that calculates the two-electrons repulsion integrals in the given
+/// basis set on the given geormtry. The Geometry is in XYZ format.
+typedef struct two_electron_integrals_job_parameters_tag {
+    const char *basis_set_name; /// basis set name. It must be prsent on the Basis Set Exchange at https://www.basissetexchange.org/
+    const char *geometry; /// XYZ-file formatted screen. FOr example, a content of an XYZ file. See for example https://openbabel.org/wiki/XYZ_(format)
+} two_electron_integrals_job_parameters;
 
-bool wqc_submit_two_electron_integrals_job
+
+/// Submit an asynchronous job to the WQC server. It is not alowed to submit two jobs on the same handler without
+/// calling wqc_reset on the handler first.
+/// \param handler Handler to submit the job on, created by wqc_init()
+/// \param job_type Which type of job to perform
+/// \param job_parameters Parameters for the job
+/// \return true on successful submission of the job, false otherwise
+bool wqc_submit_job
 (
         WQC *handler,
-        const char *basis_set_name,
-        const char *geometry
+        wqc_job_type job_type,
+        void *job_parameters
 ) ;
+
+
+/// Get a reply for the given job. If result is not yet ready, wait for it.
+/// \param handler handler the job was submitted on
+/// \return true on successful retrival and if the job completed successfully, false otherwise
+bool wqc_get_reply
+(
+        WQC *handler
+) ;
+
 
 //! Set up an option for a WQC call
 //! \param handler a job handler to set options on

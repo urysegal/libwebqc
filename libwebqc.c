@@ -40,3 +40,15 @@ void wqc_set_error(WQC *handler, error_code_t code)
     const char *error_message = wqc_get_error_by_code(code);
     strncpy(handler->return_value.error_message, error_message, MAX_WEBQC_ERROR_MESSAGE_LEN);
 }
+
+
+bool wqc_get_last_error(WQC *handler, webqc_return_value_t *error_structure)
+{
+    bool res = false;
+    if ( handler && error_structure )
+    {
+        *error_structure = handler->return_value;
+        res = true;
+    }
+    return res;
+}

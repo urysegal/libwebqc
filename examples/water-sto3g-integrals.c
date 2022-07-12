@@ -4,10 +4,10 @@
 #include "libwebqc.h"
 
 /*
- * Example program that loads all the two-electron integrals needed for the water molecule and saves them in
- * a local file.
+ * Example program that loads all the two-electron integrals needed for building the hamiltonian of
+ * the water molecule and saves them in a file.
  *
- * Parameters are the access token and a filename to save the integrals in.
+ * Parameter is a filename to save the integrals in.
  *
  */
 
@@ -33,11 +33,12 @@ calculate_integrals(WQC *job_handler)
             "H 0.83020871 0.00000000  0.53109206\n"
             "H 0.00000000 0.53109206  0.56568542\n";
 
+    two_electron_integrals_job_parameters parameters = { "sto-3g", water_xyz_geometry};
 
-    bool res = wqc_submit_two_electron_integrals_job(
+    bool res = wqc_submit_job(
             job_handler,
-            "sto-3g",
-            water_xyz_geometry
+            TWO_ELECTRONS_INTEGRAL,
+            &parameters
     ) ;
 
 
@@ -53,6 +54,16 @@ calculate_integrals(WQC *job_handler)
 void
 save_integrals( WQC *job_handler, const char *output_filename)
 {
+    bool res = wqc_get_reply( job_handler ) ;
+
+    if ( ! res )
+    {
+        webqc_return_value_t error;
+        wqc_get_last_error(job_handler, &error);
+        fprintf(stderr, "Error %lu: %s\n", error.error_code, error.error_message);
+        exit(1);
+    }
+
 }
 
 
