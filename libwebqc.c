@@ -20,6 +20,7 @@ WQC *wqc_init()
 {
     WQC *handler = malloc(sizeof (struct webqc_handler_t));
     handler->return_value = init_webqc_return_value();
+    handler->access_token = NULL;
     return handler;
 }
 
