@@ -2,7 +2,7 @@
 
 #define WQC_FREE_ACCESS_TOKEN "webqc-free-access"
 
-typedef enum
+typedef enum wqc_option_type
 {
     WQC_OPTION_ACCESS_TOKEN = 1,
 } wqc_option_t;

@@ -24,7 +24,7 @@ handle_access_token_option(WQC *handler, wqc_option_t option, va_list *ap)
     }
     else
     {
-        handler->return_value.error_code=foo;
+        wqc_set_error(handler, WEBQC_BAD_OPTION_VALUE);
     }
     return result;
 }
@@ -66,6 +66,7 @@ bool wqc_set_option(
 
     if ( ! option_found )
     {
+        wqc_set_error(handler, WEBQC_ERROR_UNKNOWN_OPTION);
         handler->return_value.error_code = WEBQC_ERROR_UNKNOWN_OPTION;
     }
 

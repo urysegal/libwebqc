@@ -5,6 +5,8 @@
 
 #define WEBQC_SUCCESS (0) ///< Call was successful
 #define WEBQC_ERROR_UNKNOWN_OPTION (1) ///< An unknown option was passed to the API
+#define WEBQC_BAD_OPTION_VALUE (2) ///< An illegal option value was passed
+
 
 typedef uint64_t error_code_t; ///< Numerical error code
 
@@ -25,3 +27,11 @@ typedef struct webqc_return_value_tag {
 //! @brief Initialize variables of type  webqc_return_value_t.
 //! \return empty webqc_return_value_t.
 webqc_return_value_t init_webqc_return_value();
+
+//! @brief return the error message associated with the error code
+//! \param error_code error code
+//! \return read-only string that contains the corresponding error message
+const char *
+wqc_get_error_by_code(
+        error_code_t error_code
+);

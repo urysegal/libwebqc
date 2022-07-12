@@ -50,3 +50,11 @@ bool wqc_set_option(
         ...
 );
 
+
+//! Set the error code on the handler. Error message is also set automatically.
+//! \param handler Handler to set the error on
+//! \param code the error code to set
+void wqc_set_error(
+        WQC *handler,
+        error_code_t code
+);
