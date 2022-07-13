@@ -13,6 +13,10 @@ static struct webqc_error_strings {
         {
              WEBQC_BAD_OPTION_VALUE,
              "An illegal option value was passed"
+        } ,
+        {
+                WEBQC_NOT_IMPLEMENTED,
+                "The operation is not implemented yet"
         }
 };
 

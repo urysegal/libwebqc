@@ -3,7 +3,15 @@ include(CTest)
 SET(CMAKE_CXX_FLAGS  "${CMAKE_C_FLAGS} ${GCC_WERR_COMPILE_FLAGS} -fsanitize=address")
 SET(CMAKE_CXX_FLAGS "${CMAKE_C_FLAGS} -pthread")
 
-find_package(Catch2 2 REQUIRED)
+Include(FetchContent)
+FetchContent_Declare(
+        Catch2
+        GIT_REPOSITORY https://github.com/catchorg/Catch2.git
+        GIT_TAG        v3.0.1 # or a later release
+)
+
+FetchContent_MakeAvailable(Catch2)
+
 include (Catch)
 
 add_executable(test-options test-options.cpp)

@@ -9,16 +9,16 @@ webqc_return_value_t init_webqc_return_value()
 {
     webqc_return_value_t rv;
     rv.error_code = WEBQC_SUCCESS;
-    rv.error_message[0]= '\0';
+    rv.error_message[0] = '\0';
     rv.file = NULL;
     rv.func = NULL;
-    rv.line=0;
-    return  rv;
+    rv.line = 0;
+    return rv;
 }
 
 WQC *wqc_init()
 {
-    WQC *handler = malloc(sizeof (struct webqc_handler_t));
+    WQC *handler = malloc(sizeof(struct webqc_handler_t));
     handler->return_value = init_webqc_return_value();
     handler->access_token = NULL;
     return handler;
@@ -26,12 +26,12 @@ WQC *wqc_init()
 
 void wqc_cleanup(WQC *handler)
 {
-    if ( handler ) {
+    if (handler) {
         if (handler->access_token) {
             free(handler->access_token);
             handler->access_token = NULL;
         }
-        free (handler);
+        free(handler);
     }
 }
 
@@ -43,13 +43,23 @@ void wqc_set_error(WQC *handler, error_code_t code)
 }
 
 
-bool wqc_get_last_error(WQC *handler, webqc_return_value_t *error_structure)
-{
+bool wqc_get_last_error(WQC *handler, webqc_return_value_t *error_structure) {
     bool res = false;
-    if ( handler && error_structure )
-    {
+    if (handler && error_structure) {
         *error_structure = handler->return_value;
         res = true;
     }
     return res;
+}
+
+bool wqc_submit_job  (WQC *handler, wqc_job_type job_type, void *job_parameters)
+{
+    wqc_set_error(handler, WEBQC_NOT_IMPLEMENTED);
+    return false;
+}
+
+bool wqc_get_reply(WQC *handler)
+{
+    wqc_set_error(handler, WEBQC_NOT_IMPLEMENTED);
+    return false;
 }
