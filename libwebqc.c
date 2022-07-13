@@ -43,7 +43,8 @@ void wqc_set_error(WQC *handler, error_code_t code)
 }
 
 
-bool wqc_get_last_error(WQC *handler, webqc_return_value_t *error_structure) {
+bool wqc_get_last_error(WQC *handler, webqc_return_value_t *error_structure)
+{
     bool res = false;
     if (handler && error_structure) {
         *error_structure = handler->return_value;
@@ -52,7 +53,7 @@ bool wqc_get_last_error(WQC *handler, webqc_return_value_t *error_structure) {
     return res;
 }
 
-bool wqc_submit_job  (WQC *handler, wqc_job_type job_type, void *job_parameters)
+bool wqc_submit_job(WQC *handler, wqc_job_type job_type, void *job_parameters)
 {
     wqc_set_error(handler, WEBQC_NOT_IMPLEMENTED);
     return false;
