@@ -43,7 +43,7 @@ calculate_integrals(WQC *job_handler)
 
     if ( ! res )
     {
-        webqc_return_value_t error;
+        struct wqc_return_value error;
         wqc_get_last_error(job_handler, &error);
         fprintf(stderr, "Error %lu: %s\n", error.error_code, error.error_message);
         exit(1);
@@ -57,7 +57,7 @@ save_integrals( WQC *job_handler, const char *output_filename)
 
     if ( ! res )
     {
-        webqc_return_value_t error;
+        struct wqc_return_value error;
         wqc_get_last_error(job_handler, &error);
         fprintf(stderr, "Error %lu: %s\n", error.error_code, error.error_message);
         exit(1);

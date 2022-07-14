@@ -33,7 +33,7 @@ void wqc_cleanup(WQC *handler);
 //! \return true on success. If one of the parameters in null, a value of false will be returned.
 bool wqc_get_last_error(
         WQC *handler,
-        webqc_return_value_t *error_structure
+        struct wqc_return_value *error_structure
 );
 
 /// @brief Parameters for a jobs that calculates the two-electrons repulsion integrals in the given

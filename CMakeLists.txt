@@ -9,13 +9,17 @@ SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -pthread")
 
 set(CMAKE_C_STANDARD 23)
 
-add_library(libwebqc SHARED libwebqc.c webqc-options.c webqc-errors.c)
+find_package(CURL REQUIRED)
+include_directories(${CURL_INCLUDE_DIR})
+
+
+add_library(libwebqc SHARED libwebqc.c webqc-options.c webqc-errors.c web_access.c)
 
 
 add_executable(water-sto3g-integrals examples/water-sto3g-integrals.c)
 target_include_directories(water-sto3g-integrals PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 add_dependencies(water-sto3g-integrals libwebqc)
-target_link_libraries(water-sto3g-integrals libwebqc ${COVERAGE_LIB})
+target_link_libraries(water-sto3g-integrals libwebqc ${CURL_LIBRARIES})
 
 
 add_subdirectory (test)

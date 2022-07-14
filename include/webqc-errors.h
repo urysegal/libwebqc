@@ -18,18 +18,18 @@ typedef uint64_t error_code_t; ///< Numerical error code
  * structure.
  */
 
-typedef struct webqc_return_value_tag {
+struct wqc_return_value {
         error_code_t error_code; ///< Error code if error or WEBQC_SUCCESS on success
         char error_message[MAX_WEBQC_ERROR_MESSAGE_LEN]; ///< Human readable error description
 
         int line ; ///< Line number where error occurred
         const char *file; ///< File name where error occurred
         const char *func;///< Function name where error occurred
-} webqc_return_value_t;
+} ;
 
 //! @brief Initialize variables of type  webqc_return_value_t.
 //! \return empty webqc_return_value_t.
-webqc_return_value_t init_webqc_return_value();
+struct wqc_return_value init_webqc_return_value();
 
 //! @brief return the error message associated with the error code
 //! \param error_code error code

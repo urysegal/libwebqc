@@ -19,7 +19,7 @@ add_executable(test-options test-options.cpp)
 
 target_include_directories(test-options PUBLIC ${CMAKE_SOURCE_DIR})
 add_dependencies(test-options libwebqc)
-target_link_libraries(test-options libwebqc Catch2::Catch2WithMain)
+target_link_libraries(test-options libwebqc Catch2::Catch2WithMain ${CURL_LIBRARIES})
 
 add_test(NAME test-options
         COMMAND test-options)

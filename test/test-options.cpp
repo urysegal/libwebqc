@@ -12,7 +12,7 @@ TEST_CASE( "Retrieving an error", "[options]" ) {
     WQC *handler = wqc_init();
     REQUIRE(handler != NULL);
     REQUIRE(wqc_set_option(handler, (wqc_option_t)(5748349), "hello") == false );
-    webqc_return_value_t error_info;
+    struct wqc_return_value error_info;
     REQUIRE(wqc_get_last_error(handler, &error_info) == true);
     REQUIRE(error_info.error_code == WEBQC_ERROR_UNKNOWN_OPTION );
     REQUIRE(error_info.error_message[0] );

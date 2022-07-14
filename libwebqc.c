@@ -5,9 +5,9 @@
 #include "libwebqc.h"
 #include "include/webqc-handler.h"
 
-webqc_return_value_t init_webqc_return_value()
+struct wqc_return_value init_webqc_return_value()
 {
-    webqc_return_value_t rv;
+    struct wqc_return_value rv;
     rv.error_code = WEBQC_SUCCESS;
     rv.error_message[0] = '\0';
     rv.file = NULL;
@@ -21,6 +21,13 @@ WQC *wqc_init()
     WQC *handler = malloc(sizeof(struct webqc_handler_t));
     handler->return_value = init_webqc_return_value();
     handler->access_token = NULL;
+
+    handler->curl_info.curl_handler = NULL;
+    handler->curl_info.web_reply.size = 0;
+    handler->curl_info.web_reply.reply = NULL;
+    handler->curl_info.web_error_bufffer[0] = '\0';
+    handler->curl_info.http_headers = NULL;
+
     return handler;
 }
 
@@ -43,7 +50,7 @@ void wqc_set_error(WQC *handler, error_code_t code)
 }
 
 
-bool wqc_get_last_error(WQC *handler, webqc_return_value_t *error_structure)
+bool wqc_get_last_error(WQC *handler, struct wqc_return_value *error_structure)
 {
     bool res = false;
     if (handler && error_structure) {
