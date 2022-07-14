@@ -18,10 +18,9 @@ verify_arguments(int argc, const char *argv[])
     if ( argc != 2 )
     {
         fprintf(stderr, "Usage: %s output-filename\n", argv[0]);
-        exit(1);
+        exit(0);
     }
 }
-
 
 void
 calculate_integrals(WQC *job_handler)

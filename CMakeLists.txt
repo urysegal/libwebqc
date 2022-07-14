@@ -3,19 +3,9 @@ project(libwebqc)
 
 set(CMAKE_VERBOSE_MAKEFILE ON)
 
-option(COVERAGE "Test coverage")
-
-if(COVERAGE)
-    message("Doing Coverage Test Build")
-    set (COVERAGE_FLAGS "--coverage -fprofile-arcs -ftest-coverage")
-    set (COVERAGE_LIB "-lgcov")
-endif()
-
-
 SET(GCC_WERR_COMPILE_FLAGS "-Wall -Werror")
 SET(CMAKE_C_FLAGS  "${CMAKE_C_FLAGS} ${GCC_WERR_COMPILE_FLAGS} -fsanitize=address")
 SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -pthread")
-SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${COVERAGE_FLAGS}")
 
 set(CMAKE_C_STANDARD 23)
 
