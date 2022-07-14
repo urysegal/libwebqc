@@ -62,9 +62,9 @@ bool wqc_submit_job
 /// \param handler handler the job was submitted on
 /// \return true on successful retrival and if the job completed successfully, false otherwise
 bool wqc_get_reply
-        (
-                WQC *handler
-        );
+(
+    WQC *handler
+);
 
 
 //! Set up an option for a WQC call
@@ -73,11 +73,23 @@ bool wqc_get_reply
 //! \param ... value for the option
 //! \return true on success, false on failure
 bool wqc_set_option(
+    WQC *handler,
+    wqc_option_t option,
+        ...
+);
+
+//! @breif Get the value of an option.
+//! For string or struct values, a pointer is returned, which is const and you must not
+//! change. The pointer is valid until the next call to the library with the same handler.
+//! \param handler a job handler to get the option from
+//! \param option which option to get
+//! \param ... pointer to space that can contain the value. FOr string or struct values, a pointer to a const-pointer.
+//! \return true on success, false on failure
+bool wqc_get_option(
         WQC *handler,
         wqc_option_t option,
         ...
 );
-
 
 //! Set the error code on the handler. Error message is also set automatically.
 //! \param handler Handler to set the error on
