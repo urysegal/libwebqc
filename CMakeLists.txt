@@ -3,24 +3,37 @@ project(libwebqc)
 
 set(CMAKE_VERBOSE_MAKEFILE ON)
 
+option(COVERAGE "Test coverage")
+
+if(COVERAGE)
+    message("Doing Coverage Test Build")
+    set (COVERAGE_FLAGS "--coverage -fprofile-arcs -ftest-coverage")
+    set (COVERAGE_LIB "-lgcov")
+endif()
+
+
 SET(GCC_WERR_COMPILE_FLAGS "-Wall -Werror")
 SET(CMAKE_C_FLAGS  "${CMAKE_C_FLAGS} ${GCC_WERR_COMPILE_FLAGS} -fsanitize=address")
 SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -pthread")
+SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${COVERAGE_FLAGS}")
 
 set(CMAKE_C_STANDARD 23)
 
 add_library(libwebqc SHARED libwebqc.c webqc-options.c webqc-errors.c)
 
+
 add_executable(water-sto3g-integrals examples/water-sto3g-integrals.c)
 target_include_directories(water-sto3g-integrals PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 add_dependencies(water-sto3g-integrals libwebqc)
-target_link_libraries(water-sto3g-integrals libwebqc)
+target_link_libraries(water-sto3g-integrals libwebqc ${COVERAGE_LIB})
+
 
 add_subdirectory (test)
 
 # first we can indicate the documentation build as an option and set it to ON by default
-option(BUILD_DOC "Build documentation" ON)
+option(BUILD_DOC "Build documentation" )
 
+if (BUILD_DOC)
 # check if Doxygen is installed
 find_package(Doxygen REQUIRED dot)
 if (DOXYGEN_FOUND)
@@ -41,3 +54,4 @@ if (DOXYGEN_FOUND)
 else (DOXYGEN_FOUND)
     message("Doxygen need to be installed to generate the doxygen documentation")
 endif (DOXYGEN_FOUND)
+endif()
