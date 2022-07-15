@@ -7,8 +7,6 @@ SET(GCC_WERR_COMPILE_FLAGS "-Wall -Werror")
 SET(CMAKE_C_FLAGS  "${CMAKE_C_FLAGS} ${GCC_WERR_COMPILE_FLAGS} -fsanitize=address")
 SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -pthread")
 
-set(CMAKE_C_STANDARD 23)
-
 find_package(CURL REQUIRED)
 include_directories(${CURL_INCLUDE_DIR})
 

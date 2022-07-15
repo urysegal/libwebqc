@@ -32,7 +32,7 @@ calculate_integrals(WQC *job_handler)
             "H 0.83020871 0.00000000  0.53109206\n"
             "H 0.00000000 0.53109206  0.56568542\n";
 
-    two_electron_integrals_job_parameters parameters = { "sto-3g", water_xyz_geometry};
+    struct two_electron_integrals_job_parameters parameters = { "sto-3g", water_xyz_geometry};
 
     bool res = wqc_submit_job(
             job_handler,

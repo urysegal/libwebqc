@@ -25,4 +25,6 @@ struct webqc_handler_t {
     struct wqc_return_value return_value; /// Return value from last call to WQC API
     char *access_token; /// Token that authorizes access to the WEBQC web service
     struct handler_curl_info curl_info; /// Info for calling web services using libCURL
+    char * webqc_server_name; /// WebQC server name
+    unsigned short webqc_server_port; /// Port of the WebQC server
 };

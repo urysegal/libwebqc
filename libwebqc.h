@@ -9,6 +9,10 @@ extern "C" {
 #include "include/webqc-errors.h"
 #include "include/webqc-options.h"
 
+#define DEFAULT_WEBQC_SERVER_NAME "cloudcompchem.ca"
+#define DEFAULT_WEBQC_SERVER_PORT (443)
+
+
 typedef struct webqc_handler_t WQC; ///< A handler to a WQC operation. When starting an asynchronous job, a WQC is returned to the caller.
 
 /// List of all the possible calls to WecQC service
@@ -38,10 +42,10 @@ bool wqc_get_last_error(
 
 /// @brief Parameters for a jobs that calculates the two-electrons repulsion integrals in the given
 /// basis set on the given geormtry. The Geometry is in XYZ format.
-typedef struct two_electron_integrals_job_parameters_tag {
+struct two_electron_integrals_job_parameters {
     const char *basis_set_name; /// basis set name. It must be prsent on the Basis Set Exchange at https://www.basissetexchange.org/
     const char *geometry; /// XYZ-file formatted screen. FOr example, a content of an XYZ file. See for example https://openbabel.org/wiki/XYZ_(format)
-} two_electron_integrals_job_parameters;
+} ;
 
 
 /// Submit an asynchronous job to the WQC server. It is not alowed to submit two jobs on the same handler without
