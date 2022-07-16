@@ -15,13 +15,13 @@ include(CTest)
 SET(CMAKE_CXX_FLAGS  "${CMAKE_C_FLAGS} ${GCC_WERR_COMPILE_FLAGS} -fsanitize=address")
 SET(CMAKE_CXX_FLAGS "${CMAKE_C_FLAGS} -pthread")
 
-add_executable(test-options test-options.cpp)
+add_executable(test-all test-options.cpp test-eri.cpp)
 
-target_include_directories(test-options PUBLIC ${CMAKE_SOURCE_DIR})
-add_dependencies(test-options libwebqc)
-target_link_libraries(test-options libwebqc Catch2::Catch2WithMain ${CURL_LIBRARIES})
+target_include_directories(test-all PUBLIC ${CMAKE_SOURCE_DIR})
+add_dependencies(test-all libwebqc)
+target_link_libraries(test-all libwebqc Catch2::Catch2WithMain ${CURL_LIBRARIES})
 
-add_test(NAME test-options
-        COMMAND test-options)
+add_test(NAME test-all
+        COMMAND test-all)
 
-catch_discover_tests(test-options)
+catch_discover_tests(test-all)

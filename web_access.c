@@ -112,3 +112,16 @@ prepare_curl(WQC *handler, const char *web_endpoint)
 
     return rv;
 }
+
+bool cleanup_curl(WQC *handler)
+{
+    bool rv = false;
+    if ( handler ) {
+        if ( handler->curl_info.http_headers) {
+            curl_slist_free_all(handler->curl_info.http_headers);
+        }
+        curl_easy_cleanup(handler->curl_info.curl_handler);
+        rv = true;
+    }
+    return rv;
+}

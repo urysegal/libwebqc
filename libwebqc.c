@@ -80,6 +80,8 @@ static bool submit_2e_job(WQC *handler, const struct two_electron_integrals_job_
 
     rv = prepare_curl(handler, TWO_ELECTRONS_INTEGRAL_SERVICE_ENDPOINT);
 
+    cleanup_curl(handler);
+
     return rv;
 }
 

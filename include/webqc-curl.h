@@ -11,3 +11,11 @@ bool prepare_curl(
         WQC *handler,
         const char *web_endpoint
 );
+
+
+//! Cleanup CURL related information. Release all memory
+//! \param handler handler to clean up
+//! \return true on success, false on failure
+bool cleanup_curl(
+        WQC *handler
+);
