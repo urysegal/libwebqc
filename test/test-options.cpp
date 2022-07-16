@@ -1,10 +1,11 @@
 #include <libwebqc.h>
 #include <catch2/catch_test_macros.hpp>
 
-TEST_CASE( "Unknown options result in error", "[options]" ) {
+TEST_CASE( "Unknown options get and set result in error", "[options]" ) {
     WQC *handler = wqc_init();
     REQUIRE(handler != NULL);
     REQUIRE(wqc_set_option(handler, (wqc_option_t)(5748349), "hello") == false );
+    REQUIRE(wqc_get_option(handler, (wqc_option_t)(5748349), "hello") == false );
     wqc_cleanup(handler);
 }
 

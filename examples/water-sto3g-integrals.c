@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <inttypes.h>
 
 #include "libwebqc.h"
 
@@ -45,7 +46,7 @@ calculate_integrals(WQC *job_handler)
     {
         struct wqc_return_value error;
         wqc_get_last_error(job_handler, &error);
-        fprintf(stderr, "Error %lu: %s\n", error.error_code, error.error_message);
+        fprintf(stderr, "Error %" PRIu64 ": %s\n", error.error_code, error.error_message);
         exit(1);
     }
 }
@@ -59,7 +60,7 @@ save_integrals( WQC *job_handler, const char *output_filename)
     {
         struct wqc_return_value error;
         wqc_get_last_error(job_handler, &error);
-        fprintf(stderr, "Error %lu: %s\n", error.error_code, error.error_message);
+        fprintf(stderr, "Error %" PRIu64 ": %s\n", error.error_code, error.error_message);
         exit(1);
     }
 

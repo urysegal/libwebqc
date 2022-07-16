@@ -1,6 +1,12 @@
 #include <stdarg.h>
 #include <string.h>
-#include <malloc.h>
+
+#ifdef __APPLE__
+  #include <malloc/malloc.h>
+  #include <stdlib.h>
+#else
+  #include <malloc.h>
+#endif
 
 #include "include/webqc-handler.h"
 #include "libwebqc.h"

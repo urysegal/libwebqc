@@ -1,7 +1,13 @@
 #include <curl/curl.h>
-#include <malloc.h>
 #include <string.h>
 #include <assert.h>
+
+#ifdef __APPLE__
+  #include <malloc/malloc.h>
+  #include <stdlib.h>
+#else
+  #include <malloc.h>
+#endif
 
 #include "libwebqc.h"
 #include "include/webqc-handler.h"
