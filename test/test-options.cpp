@@ -36,3 +36,26 @@ TEST_CASE( "string values get and set", "[options]" ) {
     }
     wqc_cleanup(handler);
 }
+
+TEST_CASE( "bool values get and set", "[options]" ) {
+    unsigned int i = 0;
+    WQC *handler = wqc_init();
+    REQUIRE(handler != NULL);
+
+    wqc_option_t string_options[] = {WQC_OPTION_INSECURE_SSL};
+
+    for ( i = 0 ; i < sizeof(string_options)/sizeof(wqc_option_t) ; ++i) {
+
+        REQUIRE(wqc_set_option(handler, string_options[i], true) == true);
+        int value = false;
+        REQUIRE(wqc_get_option(handler, string_options[i], &value) == true);
+        REQUIRE(value == true );
+
+        REQUIRE(wqc_set_option(handler, string_options[i], false) == true);
+        value = true;
+        REQUIRE(wqc_get_option(handler, string_options[i], &value) == true);
+        REQUIRE(value == false );
+
+    }
+    wqc_cleanup(handler);
+}

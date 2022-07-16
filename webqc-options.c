@@ -20,8 +20,12 @@ const char **get_string_ptr_option_value(va_list *ap)
 
 #define STRING_OPTION_SET_FUNCTION_NAME(struct_member_name) handle_##struct_member_name##_option_set
 #define STRING_OPTION_GET_FUNCTION_NAME(struct_member_name) handle_##struct_member_name##_option_get
+#define BOOL_OPTION_SET_FUNCTION_NAME(struct_member_name) handle_##struct_member_name##_bool_option_set
+#define BOOL_OPTION_GET_FUNCTION_NAME(struct_member_name) handle_##struct_member_name##_bool_option_get
+
 
 #define STRING_OPTION_TABLE_ENTRY(option_name, struct_member_name ) { option_name,  STRING_OPTION_SET_FUNCTION_NAME(struct_member_name), STRING_OPTION_GET_FUNCTION_NAME(struct_member_name) }
+#define BOOL_OPTION_TABLE_ENTRY(option_name, struct_member_name ) { option_name,  BOOL_OPTION_SET_FUNCTION_NAME(struct_member_name), BOOL_OPTION_GET_FUNCTION_NAME(struct_member_name) }
 
 #define MAKE_STRING_OPTION_SET(struct_member_name)\
 bool STRING_OPTION_SET_FUNCTION_NAME(struct_member_name) (WQC *handler, wqc_option_t option, va_list *ap)\
@@ -48,11 +52,31 @@ bool STRING_OPTION_GET_FUNCTION_NAME(struct_member_name) (WQC *handler, wqc_opti
     return true;\
 }
 
+#define MAKE_BOOL_OPTION_SET(struct_member_name)\
+bool BOOL_OPTION_SET_FUNCTION_NAME(struct_member_name) (WQC *handler, wqc_option_t option, va_list *ap)\
+{\
+    int value = va_arg(*ap, int);\
+    handler->struct_member_name = (value!=0);\
+    return true;\
+}
+
+#define MAKE_BOOL_OPTION_GET(struct_member_name)\
+bool BOOL_OPTION_GET_FUNCTION_NAME(struct_member_name) (WQC *handler, wqc_option_t option, va_list *ap)\
+{\
+    int *valptr = va_arg(*ap, int *);\
+    *valptr = handler->struct_member_name;\
+    return true;\
+}
+
+
 MAKE_STRING_OPTION_SET(webqc_server_name)
 MAKE_STRING_OPTION_GET(webqc_server_name)
 
 MAKE_STRING_OPTION_SET(access_token)
 MAKE_STRING_OPTION_GET(access_token)
+
+MAKE_BOOL_OPTION_SET(insecure_ssl)
+MAKE_BOOL_OPTION_GET(insecure_ssl)
 
 
 static struct webqc_options_info {
@@ -63,6 +87,7 @@ static struct webqc_options_info {
         {
                 STRING_OPTION_TABLE_ENTRY(WQC_OPTION_ACCESS_TOKEN, access_token),
                 STRING_OPTION_TABLE_ENTRY(WQC_OPTION_SERVER_NAME, webqc_server_name),
+                BOOL_OPTION_TABLE_ENTRY(WQC_OPTION_INSECURE_SSL, insecure_ssl),
         } ;
 
 bool wqc_set_option(

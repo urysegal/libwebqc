@@ -39,8 +39,10 @@ prepare_curl_security(WQC *handler)
         handler->curl_info.http_headers = curl_slist_append(handler->curl_info.http_headers, auth_header);
         free(auth_header);
 
-        curl_easy_setopt(handler->curl_info.curl_handler, CURLOPT_SSL_VERIFYPEER, 0L);
-        curl_easy_setopt(handler->curl_info.curl_handler, CURLOPT_SSL_VERIFYHOST, 0L);
+        if ( handler->insecure_ssl ) {
+            curl_easy_setopt(handler->curl_info.curl_handler, CURLOPT_SSL_VERIFYPEER, 0L);
+            curl_easy_setopt(handler->curl_info.curl_handler, CURLOPT_SSL_VERIFYHOST, 0L);
+        }
         rv = true;
     } else {
         wqc_set_error(handler, WEBQC_OUT_OF_MEMORY);

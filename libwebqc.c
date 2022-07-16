@@ -27,6 +27,7 @@ WQC *wqc_init()
     handler->access_token = NULL;
     handler->webqc_server_name = strdup(DEFAULT_WEBQC_SERVER_NAME);
     handler->webqc_server_port = DEFAULT_WEBQC_SERVER_PORT;
+    handler->insecure_ssl = false;
 
     handler->curl_info.curl_handler = NULL;
     handler->curl_info.web_reply.size = 0;
