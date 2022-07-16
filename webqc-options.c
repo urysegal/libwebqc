@@ -1,5 +1,6 @@
 #include <stdarg.h>
 #include <string.h>
+#include <malloc.h>
 
 #include "include/webqc-handler.h"
 #include "libwebqc.h"
@@ -17,30 +18,41 @@ const char **get_string_ptr_option_value(va_list *ap)
 }
 
 
-bool
-handle_access_token_option_set(WQC *handler, wqc_option_t option, va_list *ap)
-{
-    bool result = false;
-    const char *access_token = get_string_option_value(ap);
-    if ( access_token )
-    {
-        handler->access_token = strdup(access_token);
-        result = true;
-    }
-    else
-    {
-        wqc_set_error(handler, WEBQC_BAD_OPTION_VALUE);
-    }
-    return result;
+#define STRING_OPTION_SET_FUNCTION_NAME(struct_member_name) handle_##struct_member_name##_option_set
+#define STRING_OPTION_GET_FUNCTION_NAME(struct_member_name) handle_##struct_member_name##_option_get
+
+#define STRING_OPTION_TABLE_ENTRY(option_name, struct_member_name ) { option_name,  STRING_OPTION_SET_FUNCTION_NAME(struct_member_name), STRING_OPTION_GET_FUNCTION_NAME(struct_member_name) }
+
+#define MAKE_STRING_OPTION_SET(struct_member_name)\
+bool STRING_OPTION_SET_FUNCTION_NAME(struct_member_name) (WQC *handler, wqc_option_t option, va_list *ap)\
+{\
+    bool result = false;\
+    const char *value = get_string_option_value(ap);\
+    if ( value ) {\
+        if ( handler->struct_member_name ) {\
+            free(handler->struct_member_name);\
+        }\
+        handler->struct_member_name = strdup(value);\
+        result = true;\
+    } else {\
+        wqc_set_error(handler, WEBQC_BAD_OPTION_VALUE);\
+    }\
+    return result;\
 }
 
-bool
-handle_access_token_option_get(WQC *handler, wqc_option_t option, va_list *ap)
-{
-    const char **access_token = get_string_ptr_option_value(ap);
-    *access_token = handler->access_token;
-    return true;
+#define MAKE_STRING_OPTION_GET(struct_member_name)\
+bool STRING_OPTION_GET_FUNCTION_NAME(struct_member_name) (WQC *handler, wqc_option_t option, va_list *ap)\
+{\
+    const char **valptr = get_string_ptr_option_value(ap);\
+    *valptr = handler->struct_member_name;\
+    return true;\
 }
+
+MAKE_STRING_OPTION_SET(webqc_server_name)
+MAKE_STRING_OPTION_GET(webqc_server_name)
+
+MAKE_STRING_OPTION_SET(access_token)
+MAKE_STRING_OPTION_GET(access_token)
 
 
 static struct webqc_options_info {
@@ -49,11 +61,8 @@ static struct webqc_options_info {
     option_handler_func option_handler_get;
 } webqc_options_hanlders[] =
         {
-                {
-                        WQC_OPTION_ACCESS_TOKEN,
-                        handle_access_token_option_set,
-                        handle_access_token_option_get
-                }
+                STRING_OPTION_TABLE_ENTRY(WQC_OPTION_ACCESS_TOKEN, access_token),
+                STRING_OPTION_TABLE_ENTRY(WQC_OPTION_SERVER_NAME, webqc_server_name),
         } ;
 
 bool wqc_set_option(

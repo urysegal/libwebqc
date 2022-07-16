@@ -20,13 +20,19 @@ TEST_CASE( "Retrieving an error", "[options]" ) {
 }
 
 
-TEST_CASE( "access token get and set", "[options]" ) {
-    const char *sample_token = "hello";
+TEST_CASE( "string values get and set", "[options]" ) {
+    const char *sample_string = "hello";
+    unsigned int i = 0;
     WQC *handler = wqc_init();
     REQUIRE(handler != NULL);
-    REQUIRE(wqc_set_option(handler, WQC_OPTION_ACCESS_TOKEN, sample_token) == true );
-    const char *token_value = nullptr;
-    REQUIRE(wqc_get_option(handler, WQC_OPTION_ACCESS_TOKEN, &token_value) == true );
-    REQUIRE(strcmp(token_value, sample_token) == 0 );
+
+    wqc_option_t string_options[] = {WQC_OPTION_ACCESS_TOKEN, WQC_OPTION_SERVER_NAME};
+
+    for ( i = 0 ; i < sizeof(string_options)/sizeof(wqc_option_t) ; ++i) {
+        REQUIRE(wqc_set_option(handler, string_options[i], sample_string) == true);
+        const char *value = nullptr;
+        REQUIRE(wqc_get_option(handler, string_options[i], &value) == true);
+        REQUIRE(strcmp(value, sample_string) == 0);
+    }
     wqc_cleanup(handler);
 }
