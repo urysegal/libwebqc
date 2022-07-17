@@ -1,6 +1,7 @@
 #include <curl/curl.h>
 #include <string.h>
 #include <assert.h>
+#include <cjson/cJSON.h>
 
 #ifdef __APPLE__
   #include <malloc/malloc.h>
@@ -51,7 +52,7 @@ prepare_curl_security(WQC *handler)
         }
         rv = true;
     } else {
-        wqc_set_error(handler, WEBQC_OUT_OF_MEMORY);
+        wqc_set_error(handler, WEBQC_OUT_OF_MEMORY); //// LCOV_EXCL_LINE
     }
 
     return rv;
@@ -81,7 +82,7 @@ prepare_curl_URL(WQC *handler, const char *web_endpoint)
         }
         free(URL);
     } else {
-        wqc_set_error(handler, WEBQC_OUT_OF_MEMORY);
+        wqc_set_error(handler, WEBQC_OUT_OF_MEMORY); //// LCOV_EXCL_LINE
     }
 
     return rv;
@@ -104,6 +105,7 @@ prepare_curl(WQC *handler, const char *web_endpoint)
         if ( (rv = prepare_curl_URL(handler, web_endpoint) ) ) {
 
             if ((rv = prepare_curl_security(handler))) {
+                handler->curl_info.curl_handler = curl_slist_append(handler->curl_info.curl_handler, "Content-Type: application/json");
                 curl_easy_setopt(handler->curl_info.curl_handler, CURLOPT_HTTPHEADER, handler->curl_info.http_headers);
                 rv = true;
             }
@@ -125,3 +127,33 @@ bool cleanup_curl(WQC *handler)
     }
     return rv;
 }
+
+
+
+bool make_eri_request(WQC *handler, const struct two_electron_integrals_job_parameters *job_parameters)
+{
+    bool rv = false;
+    cJSON *value = NULL;
+    // "basis_set_name":"cc-pvdz", "xyz_file_url" , ADD xyz_file_content
+    cJSON *ERI_request = cJSON_CreateObject();
+    if (ERI_request == NULL)
+    {
+        goto end;
+    }
+
+    value = cJSON_CreateString(job_parameters->basis_set_name);
+    if (value == NULL)
+    {
+        goto end;
+    }
+    cJSON_AddItemToObject(ERI_request, "basis_set_name", value);
+
+    char *json_as_string = cJSON_Print(ERI_request);
+
+    curl_easy_setopt(handler->curl_info.curl_handler, CURLOPT_POST, 1L);
+    curl_easy_setopt(handler->curl_info.curl_handler, CURLOPT_POSTFIELDS, json_as_string );
+    free(json_as_string);
+
+    return rv;
+}
+
