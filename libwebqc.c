@@ -52,6 +52,7 @@ void wqc_cleanup(WQC *handler)
             handler->access_token = NULL;
         }
         free(handler->webqc_server_name);
+        cleanup_curl(handler);
         free(handler);
     }
 }

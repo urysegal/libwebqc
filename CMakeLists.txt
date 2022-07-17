@@ -25,7 +25,7 @@ add_library(libwebqc SHARED libwebqc.c webqc-options.c webqc-errors.c web_access
 
 target_compile_options(libwebqc PUBLIC ${COMPILE_FLAGS})
 target_link_options(libwebqc PUBLIC ${LINK_FLAGS})
-target_link_libraries(libwebqc ${CURL_LIBRARIES})
+target_link_libraries(libwebqc ${CURL_LIBRARIES} -lcjson)
 
 add_executable(water-sto3g-integrals examples/water-sto3g-integrals.c)
 add_dependencies(water-sto3g-integrals libwebqc)
