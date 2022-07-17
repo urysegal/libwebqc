@@ -51,7 +51,7 @@ calculate_integrals(WQC *job_handler)
     }
 }
 
-void
+bool
 save_integrals( WQC *job_handler, const char *output_filename)
 {
     bool res = wqc_get_reply( job_handler ) ;
@@ -61,9 +61,10 @@ save_integrals( WQC *job_handler, const char *output_filename)
         struct wqc_return_value error;
         wqc_get_last_error(job_handler, &error);
         fprintf(stderr, "Error %" PRIu64 ": %s\n", error.error_code, error.error_message);
-        exit(1);
-    }
+    } else {
 
+    }
+    return res;
 }
 
 

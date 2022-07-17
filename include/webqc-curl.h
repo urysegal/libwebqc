@@ -1,7 +1,6 @@
 #pragma once
 #include <stdbool.h>
-
-typedef struct webqc_handler_t WQC; ///< A handler to a WQC operation. When starting an asynchronous job, a WQC is returned to the caller.
+#include "../libwebqc.h"
 
 //! Prepare a CURL object to make a call to the WebQC server
 //! \param handler handler to make a call with

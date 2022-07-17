@@ -55,7 +55,7 @@ prepare_curl_security(WQC *handler)
         }
         rv = true;
     } else {
-        wqc_set_error(handler, WEBQC_OUT_OF_MEMORY); //// LCOV_EXCL_LINE
+        wqc_set_error(handler, WEBQC_OUT_OF_MEMORY); // LCOV_EXCL_LINE
     }
 
     return rv;
@@ -87,7 +87,7 @@ prepare_curl_URL(WQC *handler, const char *web_endpoint)
         }
         free(URL);
     } else {
-        wqc_set_error(handler, WEBQC_OUT_OF_MEMORY); //// LCOV_EXCL_LINE
+        wqc_set_error(handler, WEBQC_OUT_OF_MEMORY); // LCOV_EXCL_LINE
     }
 
     return rv;
@@ -110,7 +110,7 @@ prepare_curl(WQC *handler, const char *web_endpoint)
         if ((rv = prepare_curl_URL(handler, web_endpoint))) {
 
             if ((rv = prepare_curl_security(handler))) {
-                handler->curl_info.curl_handler = curl_slist_append(handler->curl_info.curl_handler,
+                handler->curl_info.http_headers = curl_slist_append(handler->curl_info.http_headers,
                                                                     "Content-Type: application/json");
                 curl_easy_setopt(handler->curl_info.curl_handler, CURLOPT_HTTPHEADER, handler->curl_info.http_headers);
                 rv = true;
@@ -156,7 +156,7 @@ add_json_string_fields(cJSON *object, struct name_value_pair *pairs, int pairs_c
         assert(pairs[i].value);
         cJSON *value = cJSON_CreateString(pairs[i].value);
         if (value == NULL) {
-            rv = false;
+            rv = false; // LCOV_EXCL_LINE
         }
         cJSON_AddItemToObject(object, pairs[i].name, value);
     }
@@ -186,10 +186,10 @@ bool make_eri_request(WQC *handler, const struct two_electron_integrals_job_para
             cJSON_Delete(ERI_request);
             rv = true;
         } else {
-            wqc_set_error(handler, WEBQC_OUT_OF_MEMORY); //// LCOV_EXCL_LINE
+            wqc_set_error(handler, WEBQC_OUT_OF_MEMORY); // LCOV_EXCL_LINE
         }
     } else {
-        wqc_set_error(handler, WEBQC_OUT_OF_MEMORY); //// LCOV_EXCL_LINE
+        wqc_set_error(handler, WEBQC_OUT_OF_MEMORY); // LCOV_EXCL_LINE
     }
     return rv;
 }
