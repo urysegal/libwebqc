@@ -3,13 +3,14 @@
 #include <stdint.h>
 
 
-#define MAX_WEBQC_ERROR_MESSAGE_LEN (128) ///< Maximum size of error message in webqc_return_value_t;
+#define MAX_WEBQC_ERROR_MESSAGE_LEN (256) ///< Maximum size of error message in webqc_return_value_t;
 
 #define WEBQC_SUCCESS (0) ///< Call was successful
 #define WEBQC_ERROR_UNKNOWN_OPTION (1) ///< An unknown option was passed to the API
 #define WEBQC_BAD_OPTION_VALUE (2) ///< An illegal option value was passed
 #define WEBQC_NOT_IMPLEMENTED (3) ///< The operation is not yet implemented
 #define WEBQC_OUT_OF_MEMORY (4) ///< Run out of memory
+#define WEBQC_WEB_CALL_ERROR (5) ///< Error calling a web service
 
 typedef uint64_t error_code_t; ///< Numerical error code
 

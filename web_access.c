@@ -70,24 +70,17 @@ prepare_curl_reply_buffers(WQC *handler)
 }
 
 
-#define MAX_URL_SIZE 1024
 
 static bool
 prepare_curl_URL(WQC *handler, const char *web_endpoint)
 {
     bool rv = false;
-    char *URL = (char *) malloc(MAX_URL_SIZE);
     const char *scheme = "https";
 
-    if (URL) {
-        if (snprintf(URL, MAX_URL_SIZE, "%s://%s:%u/%s", scheme, handler->webqc_server_name, handler->webqc_server_port,
-                     web_endpoint) < MAX_URL_SIZE) {
-            curl_easy_setopt(handler->curl_info.curl_handler, CURLOPT_URL, URL);
-            rv = true;
-        }
-        free(URL);
-    } else {
-        wqc_set_error(handler, WEBQC_OUT_OF_MEMORY); // LCOV_EXCL_LINE
+    if (snprintf(handler->curl_info.full_URL, MAX_URL_SIZE, "%s://%s:%u/%s", scheme, handler->webqc_server_name, handler->webqc_server_port,
+                 web_endpoint) < MAX_URL_SIZE) {
+        curl_easy_setopt(handler->curl_info.curl_handler, CURLOPT_URL, handler->curl_info.full_URL);
+        rv = true;
     }
 
     return rv;
@@ -117,6 +110,28 @@ prepare_curl(WQC *handler, const char *web_endpoint)
             }
         }
     }
+
+    return rv;
+}
+
+bool make_curl_call(WQC *handler)
+{
+    assert (handler) ;
+    CURLcode res;
+    bool rv = false;
+
+    res = curl_easy_perform(handler->curl_info.curl_handler);
+
+    if (res) {
+        const char *additional_messages[] = {
+                handler->curl_info.full_URL,
+                handler->curl_info.web_error_bufffer,
+                curl_easy_strerror(res),
+                NULL
+        };
+        wqc_set_error_with_messages(handler, WEBQC_WEB_CALL_ERROR, additional_messages); //need some more error information
+    }
+    curl_easy_getinfo( handler->curl_info.curl_handler, CURLINFO_RESPONSE_CODE, &handler->curl_info.http_reply_code);
 
     return rv;
 }
@@ -181,7 +196,7 @@ bool make_eri_request(WQC *handler, const struct two_electron_integrals_job_para
             char *json_as_string = cJSON_Print(ERI_request);
 
             curl_easy_setopt(handler->curl_info.curl_handler, CURLOPT_POST, 1L);
-            curl_easy_setopt(handler->curl_info.curl_handler, CURLOPT_POSTFIELDS, json_as_string);
+            curl_easy_setopt(handler->curl_info.curl_handler, CURLOPT_COPYPOSTFIELDS, json_as_string);
             free(json_as_string);
             cJSON_Delete(ERI_request);
             rv = true;

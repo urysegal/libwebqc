@@ -103,6 +103,18 @@ void wqc_set_error(
         error_code_t code
 );
 
+//! Set the error code on the handler. Error message is also set automatically, plus a NULL-terminated array
+//! of additional messages
+//! \param handler  Handler to set the error on
+//! \param code the error code to set
+//! \param extra_messages NULL-terminated array of additional messages
+void wqc_set_error_with_messages(
+        WQC *handler,
+        error_code_t code,
+        const char *extra_messages[]
+);
+
+
 #ifdef __cplusplus
 } // "extern C"
 #endif

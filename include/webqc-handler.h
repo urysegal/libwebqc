@@ -4,6 +4,8 @@
 #include "webqc-errors.h"
 #include <curl/curl.h>
 
+#define MAX_URL_SIZE 1024
+
 struct web_reply_buffer {
     char *reply;
     size_t size;
@@ -12,9 +14,11 @@ struct web_reply_buffer {
 struct handler_curl_info
 {
     CURL *curl_handler; /// current CURL call handler
+    char full_URL[MAX_URL_SIZE]; /// The full URL of the REST call to make
     struct web_reply_buffer web_reply; /// Buffer to collect replies from a web service
     char web_error_bufffer[CURL_ERROR_SIZE]; /// Buffer for errors from the web
     struct curl_slist *http_headers; /// HTTP headers to use in a web call
+    int http_reply_code; /// HTTP Replu code from last call
 };
 
 

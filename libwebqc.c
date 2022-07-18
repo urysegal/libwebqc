@@ -36,10 +36,12 @@ WQC *wqc_init()
     handler->insecure_ssl = false;
 
     handler->curl_info.curl_handler = NULL;
+    handler->curl_info.full_URL[0] = '\0';
     handler->curl_info.web_reply.size = 0;
     handler->curl_info.web_reply.reply = NULL;
     handler->curl_info.web_error_bufffer[0] = '\0';
     handler->curl_info.http_headers = NULL;
+    handler->curl_info.http_reply_code = 0;
 
     return handler;
 }
@@ -57,23 +59,6 @@ void wqc_cleanup(WQC *handler)
     }
 }
 
-void wqc_set_error(WQC *handler, error_code_t code)
-{
-    handler->return_value.error_code = code;
-    const char *error_message = wqc_get_error_by_code(code);
-    strncpy(handler->return_value.error_message, error_message, MAX_WEBQC_ERROR_MESSAGE_LEN);
-}
-
-
-bool wqc_get_last_error(WQC *handler, struct wqc_return_value *error_structure)
-{
-    bool res = false;
-    if (handler && error_structure) {
-        *error_structure = handler->return_value;
-        res = true;
-    }
-    return res;
-}
 
 static bool submit_2e_job(WQC *handler, const struct two_electron_integrals_job_parameters *job_parameters)
 {
@@ -83,6 +68,10 @@ static bool submit_2e_job(WQC *handler, const struct two_electron_integrals_job_
 
     if ( rv ) {
         rv = make_eri_request(handler, job_parameters);
+    }
+
+    if ( rv ) {
+        rv = make_curl_call(handler);
     }
 
     cleanup_curl(handler);
