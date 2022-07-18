@@ -12,11 +12,15 @@ static const char *water_xyz_geometry =
 TEST_CASE( "submit integrals job", "[eri]" ) {
     WQC *handler = wqc_init();
     REQUIRE(handler != NULL);
-    REQUIRE(wqc_set_option(handler, WQC_OPTION_ACCESS_TOKEN, WQC_FREE_ACCESS_TOKEN) == true );
 
-    struct two_electron_integrals_job_parameters parameters = { "sto-3g", water_xyz_geometry};
+    SECTION("Do REST Call") {
 
-    REQUIRE( wqc_submit_job(handler, TWO_ELECTRONS_INTEGRAL, &parameters ) == true ) ;
+        REQUIRE(wqc_set_option(handler, WQC_OPTION_ACCESS_TOKEN, WQC_FREE_ACCESS_TOKEN) == true);
+
+        struct two_electron_integrals_job_parameters parameters = {"sto-3g", water_xyz_geometry};
+
+        CHECK(wqc_submit_job(handler, TWO_ELECTRONS_INTEGRAL, &parameters) == true);
+    }
     wqc_cleanup(handler);
 }
 
@@ -24,12 +28,15 @@ TEST_CASE( "submit integrals job no SSL", "[eri]" ) {
     WQC *handler = wqc_init();
     REQUIRE(handler != NULL);
 
-    REQUIRE(wqc_set_option(handler, WQC_OPTION_ACCESS_TOKEN, WQC_FREE_ACCESS_TOKEN) == true );
-    REQUIRE(wqc_set_option(handler, WQC_OPTION_INSECURE_SSL, 1) == true );
+    SECTION("Do REST Call") {
 
-    struct two_electron_integrals_job_parameters parameters = { "sto-3g", water_xyz_geometry};
+        REQUIRE(wqc_set_option(handler, WQC_OPTION_ACCESS_TOKEN, WQC_FREE_ACCESS_TOKEN) == true);
+        REQUIRE(wqc_set_option(handler, WQC_OPTION_INSECURE_SSL, 1) == true);
 
-    REQUIRE( wqc_submit_job(handler, TWO_ELECTRONS_INTEGRAL, &parameters ) == true ) ;
+        struct two_electron_integrals_job_parameters parameters = {"sto-3g", water_xyz_geometry};
+
+        CHECK(wqc_submit_job(handler, TWO_ELECTRONS_INTEGRAL, &parameters) == true);
+    }
     wqc_cleanup(handler);
 }
 
