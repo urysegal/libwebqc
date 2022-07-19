@@ -197,7 +197,45 @@ add_json_fields(cJSON *object, const struct name_value_pair *pairs, int pairs_co
     return rv;
 }
 
-bool make_eri_request(WQC *handler, const struct two_electron_integrals_job_parameters *job_parameters)
+bool get_string_from_reply(cJSON *json, const char *field_name, char *dest, unsigned int max_size)
+{
+    bool rv = false;
+    cJSON *job_id = cJSON_GetObjectItemCaseSensitive(json, field_name);
+    if (cJSON_IsString(job_id) && (job_id->valuestring != NULL)) {
+        strncpy(dest, job_id->valuestring, max_size);
+        rv = true;
+    }
+    return rv;
+}
+
+bool get_job_id_from_reply(WQC *handler)
+{
+    bool rv = false;
+
+    cJSON *reply_json = cJSON_Parse(handler->curl_info.web_reply.reply);
+    if (reply_json == NULL) {
+        const char *extra_messages[] =
+                {
+                    "Error parsing JSON reply: Error before",
+                    "(no location)",
+                    NULL
+                };
+        const char *error_ptr = cJSON_GetErrorPtr();
+
+        if (error_ptr != NULL)
+        {
+            extra_messages[1] = error_ptr;
+        }
+        wqc_set_error_with_messages(handler, WEBQC_WEB_CALL_ERROR, extra_messages);
+    } else {
+        rv = get_string_from_reply(reply_json, "job_id", handler->job_id, WQC_JOB_ID_LENGTH);
+        free (reply_json);
+    }
+    return rv;
+}
+
+
+bool set_eri_job_parameters(WQC *handler, const struct two_electron_integrals_job_parameters *job_parameters)
 {
     bool rv = false;
 

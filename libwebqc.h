@@ -12,8 +12,8 @@ extern "C" {
 
 typedef double wqc_real;
 
-#define DEFAULT_WEBQC_SERVER_NAME "cloudcompchem.ca"
-#define DEFAULT_WEBQC_SERVER_PORT (443)
+#define DEFAULT_WEBQC_SERVER_NAME "webqc.urysegal.com"
+#define DEFAULT_WEBQC_SERVER_PORT (5000)
 
 
 #define WQC_PRECISION_UNKNOWN ((wqc_real)0.0)  /// A number is of unknown precision
@@ -25,16 +25,17 @@ typedef double wqc_real;
 enum wqc_data_type
 {
     WQC_STRING_TYPE = 1, /// WebQC cloud call Parameter is a string
-    WQC_REAL_TYPE = 2, /// WebQC cloud call Parameter is a real number
-    WQC_INTEGER_TYPE = 3 /// WebQC cloud call Parameter is an integer
+    WQC_REAL_TYPE = 2 /// WebQC cloud call Parameter is a real number
 };
 
 typedef struct webqc_handler_t WQC; ///< A handler to a WQC operation. When starting an asynchronous job, a WQC is returned to the caller.
 
 /// List of all the possible calls to WecQC service
-typedef enum wqc_job_types_tag {
-    TWO_ELECTRONS_INTEGRAL = 1 /// Calculate all two-electrons repulsion integrals
-} wqc_job_type;
+enum wqc_job_type {
+    WQC_JOB_NEW_JOB = 1, /// Create a new generic job
+    WQC_JOB_SET_PARAMETERS = 2, /// Set parameters for a job
+    WQC_JOB_TWO_ELECTRONS_INTEGRALS = 3 /// Calculate all two-electrons repulsion integrals
+};
 
 
 //! Initialize a new job handler. You must call wqc_cleanup when the job is done and you do not need any more information
@@ -67,18 +68,19 @@ struct two_electron_integrals_job_parameters {
 } ;
 
 
-/// Submit an asynchronous job to the WQC server. It is not alowed to submit two jobs on the same handler without
-/// calling wqc_reset on the handler first.
+/// Submit an asynchronous job to the WQC server. It is not allowed to submit two jobs on the same handler without
+/// calling wqc_reset on the handler first. This call will create a new job, set the parameters on it, and launch the
+/// job.
 /// \param handler Handler to submit the job on, created by wqc_init()
 /// \param job_type Which type of job to perform
 /// \param job_parameters Parameters for the job
 /// \return true on successful submission of the job, false otherwise
 bool wqc_submit_job
-        (
-                WQC *handler,
-                wqc_job_type job_type,
-                void *job_parameters
-        );
+(
+    WQC *handler,
+    enum wqc_job_type job_type,
+    void *job_parameters
+);
 
 
 /// Get a reply for the given job. If result is not yet ready, wait for it.

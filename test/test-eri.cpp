@@ -19,7 +19,7 @@ TEST_CASE( "submit integrals job", "[eri]" ) {
         REQUIRE(wqc_set_option(handler, WQC_OPTION_ACCESS_TOKEN, WQC_FREE_ACCESS_TOKEN) == true);
 
 
-        CHECK(wqc_submit_job(handler, TWO_ELECTRONS_INTEGRAL, &parameters) == true);
+        CHECK(wqc_submit_job(handler, WQC_JOB_TWO_ELECTRONS_INTEGRALS, &parameters) == true);
     }
     wqc_cleanup(handler);
 }
@@ -33,15 +33,15 @@ TEST_CASE( "submit integrals job no SSL", "[eri]" ) {
         REQUIRE(wqc_set_option(handler, WQC_OPTION_ACCESS_TOKEN, WQC_FREE_ACCESS_TOKEN) == true);
         REQUIRE(wqc_set_option(handler, WQC_OPTION_INSECURE_SSL, 1) == true);
 
-        CHECK(wqc_submit_job(handler, TWO_ELECTRONS_INTEGRAL, &parameters) == true);
+        CHECK(wqc_submit_job(handler, WQC_JOB_TWO_ELECTRONS_INTEGRALS, &parameters) == true);
     }
     wqc_cleanup(handler);
 }
 
-TEST_CASE( "submit nonexistant job ", "[eri]" ) {
+TEST_CASE( "submit nonexistent job type", "[eri]" ) {
     WQC *handler = wqc_init();
     REQUIRE(handler != NULL);
 
-    REQUIRE( wqc_submit_job(handler, (wqc_job_types_tag)432432, NULL ) == false ) ;
+    REQUIRE( wqc_submit_job(handler, (enum wqc_job_type)432432, NULL ) == false ) ;
     wqc_cleanup(handler);
 }

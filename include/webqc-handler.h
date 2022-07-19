@@ -4,13 +4,18 @@
 #include "webqc-errors.h"
 #include <curl/curl.h>
 
-#define MAX_URL_SIZE 1024
+#define MAX_URL_SIZE (1024) /// Maximum URL size
+#define WQC_JOB_ID_LENGTH (37) /// Job IDs are UUID - 32 bytes for hex + 4 dash + terminating null
 
+//! Structure to hold a reply from a cURL call
 struct web_reply_buffer {
-    char *reply;
-    size_t size;
+    char *reply; /// Reply data
+    size_t size; /// Maximum length that can be stored in the "reply" buffer above
 };
 
+/**
+ * The cURL-library related part of the data saved per handler.
+ */
 struct handler_curl_info
 {
     CURL *curl_handler; /// current CURL call handler
@@ -33,4 +38,5 @@ struct webqc_handler_t {
     char *webqc_server_name; /// WebQC server name
     unsigned short webqc_server_port; /// Port of the WebQC server
     bool insecure_ssl; /// Do not verify SSL certificates
+    char job_id[WQC_JOB_ID_LENGTH]; /// Job ID the handler is currently doing
 };

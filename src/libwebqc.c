@@ -13,6 +13,8 @@
 #include "../include/webqc-curl.h"
 
 #define TWO_ELECTRONS_INTEGRAL_SERVICE_ENDPOINT "eri"
+#define NEW_JOB_SERVICE_ENDPOINT "job"
+#define PARAMETERS_SERVICE_ENDPOINT "parameters"
 
 
 struct wqc_return_value init_webqc_return_value()
@@ -34,6 +36,7 @@ WQC *wqc_init()
     handler->webqc_server_name = strdup(DEFAULT_WEBQC_SERVER_NAME);
     handler->webqc_server_port = DEFAULT_WEBQC_SERVER_PORT;
     handler->insecure_ssl = false;
+    handler->job_id[0] = '\0';
 
     handler->curl_info.curl_handler = NULL;
     handler->curl_info.full_URL[0] = '\0';
@@ -60,15 +63,11 @@ void wqc_cleanup(WQC *handler)
 }
 
 
-static bool submit_2e_job(WQC *handler, const struct two_electron_integrals_job_parameters *job_parameters)
+static bool perform_REST_API_call(WQC *handler, const char *endpoint)
 {
     bool rv = false;
 
-    rv = prepare_curl(handler, TWO_ELECTRONS_INTEGRAL_SERVICE_ENDPOINT);
-
-    if ( rv ) {
-        rv = make_eri_request(handler, job_parameters);
-    }
+    rv = prepare_curl(handler, endpoint);
 
     if ( rv ) {
         rv = make_curl_call(handler);
@@ -80,15 +79,48 @@ static bool submit_2e_job(WQC *handler, const struct two_electron_integrals_job_
 }
 
 
-bool wqc_submit_job(WQC *handler, wqc_job_type job_type, void *job_parameters)
+static bool create_new_job(WQC *handler)
 {
-    if (job_type == TWO_ELECTRONS_INTEGRAL) {
-        return submit_2e_job(handler,
-                             (const struct two_electron_integrals_job_parameters *)job_parameters);
+    bool rv = false;
+
+    rv = prepare_curl(handler, NEW_JOB_SERVICE_ENDPOINT);
+
+    if ( rv ) {
+        curl_easy_setopt(handler->curl_info.curl_handler, CURLOPT_PUT, 1L);
+        rv = make_curl_call(handler);
+
+        if ( rv ) {
+            get_job_id_from_reply(handler);
+        }
     }
 
-    wqc_set_error(handler, WEBQC_NOT_IMPLEMENTED);
-    return false;
+    cleanup_curl(handler);
+
+    return rv;
+}
+
+
+bool wqc_submit_job(WQC *handler, enum wqc_job_type job_type, void *job_parameters)
+{
+    bool rv = false;
+    const char *endpoint = NULL;
+
+    rv = create_new_job(handler);
+
+    if ( rv ) {
+        if (job_type == WQC_JOB_TWO_ELECTRONS_INTEGRALS) {
+            rv = set_eri_job_parameters(handler, (const struct two_electron_integrals_job_parameters *) job_parameters);
+            endpoint = TWO_ELECTRONS_INTEGRAL_SERVICE_ENDPOINT;
+        } else {
+            wqc_set_error(handler, WEBQC_NOT_IMPLEMENTED);
+        }
+    }
+
+    if ( rv ) {
+        rv = perform_REST_API_call(handler, endpoint);
+    }
+
+    return rv ;
 }
 
 bool wqc_get_reply(WQC *handler)

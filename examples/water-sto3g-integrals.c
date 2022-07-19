@@ -38,7 +38,7 @@ calculate_integrals(WQC *job_handler)
 
     bool res = wqc_submit_job(
             job_handler,
-            TWO_ELECTRONS_INTEGRAL,
+            WQC_JOB_TWO_ELECTRONS_INTEGRALS,
             &parameters
     ) ;
 
