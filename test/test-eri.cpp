@@ -8,7 +8,7 @@ static const char *water_xyz_geometry =
         "H 0.83020871 0.00000000  0.53109206\n"
         "H 0.00000000 0.53109206  0.56568542\n";
 
-struct two_electron_integrals_job_parameters parameters = {"sto-3g", water_xyz_geometry, WQC_PRECISION_UNKNOWN};
+struct two_electron_integrals_job_parameters parameters = {"sto-3g", water_xyz_geometry, WQC_PRECISION_UNKNOWN, "angstrom"};
 
 TEST_CASE( "submit integrals job", "[eri]" ) {
     WQC *handler = wqc_init();

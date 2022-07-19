@@ -57,11 +57,13 @@ bool wqc_get_last_error(
 );
 
 /// @brief Parameters for a jobs that calculates the two-electrons repulsion integrals in the given
-/// basis set on the given geormtry. The Geometry is in XYZ format.
+/// basis set on the given geormtry. The Geometry is in XYZ format. Units can be "angstrom" , "SI" for
+/// picometers or "au" (atomic units).
 struct two_electron_integrals_job_parameters {
     const char *basis_set_name; /// basis set name. It must be prsent on the Basis Set Exchange at https://www.basissetexchange.org/
     const char *geometry; /// XYZ-file formatted screen. FOr example, a content of an XYZ file. See for example https://openbabel.org/wiki/XYZ_(format)
     wqc_real geometry_precision;  /// A number between 0 to 1 specifying how accurate the geometry is
+    const char *geometry_units; /// What units are the geomtry X/Y/Z postions in.
 } ;
 
 
