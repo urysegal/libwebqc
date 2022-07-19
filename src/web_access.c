@@ -12,8 +12,8 @@
 
 #endif
 
-#include "libwebqc.h"
-#include "include/webqc-handler.h"
+#include "../libwebqc.h"
+#include "../include/webqc-handler.h"
 
 
 static size_t collect_downloaded_data_in_string(void *data, size_t size, size_t nmemb, void *userp)

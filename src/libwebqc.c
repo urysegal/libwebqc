@@ -8,9 +8,9 @@
   #include <malloc.h>
 #endif
 
-#include "libwebqc.h"
-#include "include/webqc-handler.h"
-#include "include/webqc-curl.h"
+#include "../libwebqc.h"
+#include "../include/webqc-handler.h"
+#include "../include/webqc-curl.h"
 
 #define TWO_ELECTRONS_INTEGRAL_SERVICE_ENDPOINT "eri"
 

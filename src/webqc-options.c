@@ -8,8 +8,8 @@
   #include <malloc.h>
 #endif
 
-#include "include/webqc-handler.h"
-#include "libwebqc.h"
+#include "../include/webqc-handler.h"
+#include "../libwebqc.h"
 
 typedef bool (*option_handler_func)(WQC *handler, wqc_option_t option, va_list *);
 

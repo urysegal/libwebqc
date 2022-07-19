@@ -1,8 +1,8 @@
 #include <string.h>
 
-#include "include/webqc-errors.h"
-#include "include/webqc-handler.h"
-#include "libwebqc.h"
+#include "../include/webqc-errors.h"
+#include "../include/webqc-handler.h"
+#include "../libwebqc.h"
 
 static struct webqc_error_strings {
     error_code_t error_code;

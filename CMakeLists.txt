@@ -21,7 +21,7 @@ set(LINK_FLAGS -fsanitize=address)
 find_package(CURL REQUIRED)
 include_directories(${CURL_INCLUDE_DIR})
 
-add_library(libwebqc SHARED libwebqc.c webqc-options.c webqc-errors.c web_access.c)
+add_library(libwebqc SHARED src/libwebqc.c src/webqc-options.c src/webqc-errors.c src/web_access.c)
 
 target_compile_options(libwebqc PUBLIC ${COMPILE_FLAGS})
 target_link_options(libwebqc PUBLIC ${LINK_FLAGS})
@@ -46,8 +46,8 @@ if(COVERAGE)
     set(CODECOV_OUTPUTFILE cmake_coverage.output)
     set(CODECOV_HTMLOUTPUTDIR coverage_results)
 
-    add_custom_target(coverage_init ALL ${CODECOV_LCOV} --base-directory .  --directory ${CMAKE_BINARY_DIR} --output-file ${CODECOV_OUTPUTFILE} --capture --initial )
-    add_custom_target(coverage ${CODECOV_LCOV} --base-directory .  --directory ${CMAKE_BINARY_DIR} --output-file ${CODECOV_OUTPUTFILE} --capture COMMAND genhtml -o ${CODECOV_HTMLOUTPUTDIR} ${CODECOV_OUTPUTFILE} )
+    add_custom_target(coverage_init ALL ${CODECOV_LCOV}  --base-directory .  --directory ${CMAKE_BINARY_DIR}/CMakeFiles/libwebqc.dir/src  --exclude '/usr/include/*' --output-file ${CODECOV_OUTPUTFILE} --capture --initial )
+    add_custom_target(coverage ${CODECOV_LCOV}  --base-directory .  --directory ${CMAKE_BINARY_DIR}/CMakeFiles/libwebqc.dir/src --exclude '/usr/include/*' --output-file ${CODECOV_OUTPUTFILE} --capture COMMAND genhtml -o ${CODECOV_HTMLOUTPUTDIR} ${CODECOV_OUTPUTFILE} )
 endif()
 
 add_subdirectory(test)
