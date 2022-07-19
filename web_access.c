@@ -152,9 +152,33 @@ bool cleanup_curl(WQC *handler)
 
 /// A name-value pair for adding multiple JSON fields at once
 struct name_value_pair {
-    const char *name;
-    const char *value;
+    const char *name; /// field name
+    enum wqc_data_type type;
+    union
+    {
+        const char *str_value;
+        wqc_real real_value;
+        int64_t int_value;
+    } value;
 };
+
+static bool
+add_json_field(cJSON *object, const struct name_value_pair *pair)
+{
+    cJSON *value = NULL;
+
+    if ( pair->type == WQC_REAL_TYPE ) {
+        value = cJSON_CreateNumber(pair->value.real_value);
+    } else if ( pair->type == WQC_STRING_TYPE ) {
+        value = cJSON_CreateString(pair->value.str_value);
+    }
+
+    if (value) {
+        cJSON_AddItemToObject(object, pair->name, value);
+    }
+
+    return value != NULL;
+}
 
 //! Add name-value pairs as string to a JSON object
 //! \param object object to add values to
@@ -162,18 +186,13 @@ struct name_value_pair {
 //! \param pairs_count how many pairs passed.
 //! \return true on success, false on failure
 static bool
-add_json_string_fields(cJSON *object, struct name_value_pair *pairs, int pairs_count)
+add_json_fields(cJSON *object, const struct name_value_pair *pairs, int pairs_count)
 {
     bool rv = true;
     int i;
     for (i = 0; rv && (i < pairs_count); ++i) {
         assert(pairs[i].name);
-        assert(pairs[i].value);
-        cJSON *value = cJSON_CreateString(pairs[i].value);
-        if (value == NULL) {
-            rv = false; // LCOV_EXCL_LINE
-        }
-        cJSON_AddItemToObject(object, pairs[i].name, value);
+        rv = add_json_field(object, &pairs[i]);
     }
     return rv;
 }
@@ -183,15 +202,15 @@ bool make_eri_request(WQC *handler, const struct two_electron_integrals_job_para
     bool rv = false;
 
     struct name_value_pair two_e_parameters_pairs[] = {
-            {"basis_set_name",   job_parameters->basis_set_name},
-            {"xyz_file_content", job_parameters->geometry} // ADD IT TO PYTHON!!
+            {"basis_set_name",   WQC_STRING_TYPE, { .str_value=job_parameters->basis_set_name} },
+            {"xyz_file_content", WQC_STRING_TYPE, { .str_value=job_parameters->geometry} }, // ADD IT TO PYTHON!!
+            {"geometry_precision", WQC_REAL_TYPE, { .real_value=job_parameters->geometry_precision} } // ADD IT TO PYTHON!!
     };
 
     cJSON *ERI_request = cJSON_CreateObject();
 
     if (ERI_request) {
-        if (add_json_string_fields(ERI_request, two_e_parameters_pairs,
-                                   sizeof(two_e_parameters_pairs) / sizeof(struct name_value_pair))) {
+        if (add_json_fields(ERI_request, two_e_parameters_pairs, ARRAY_SIZE(two_e_parameters_pairs) ) ){
 
             char *json_as_string = cJSON_Print(ERI_request);
 

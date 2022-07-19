@@ -109,7 +109,7 @@ bool wqc_set_option(
 
     va_start(valist, option);
 
-    for ( option_index = 0 ; option_index < sizeof(webqc_options_hanlders)/sizeof(struct webqc_options_info) ; ++option_index)
+    for ( option_index = 0 ; option_index < ARRAY_SIZE(webqc_options_hanlders) ; ++option_index)
     {
         if (webqc_options_hanlders[option_index].options_value == option) {
             result = webqc_options_hanlders[option_index].option_handler_set(handler, option, &valist);

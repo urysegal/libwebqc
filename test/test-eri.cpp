@@ -8,6 +8,7 @@ static const char *water_xyz_geometry =
         "H 0.83020871 0.00000000  0.53109206\n"
         "H 0.00000000 0.53109206  0.56568542\n";
 
+struct two_electron_integrals_job_parameters parameters = {"sto-3g", water_xyz_geometry, WQC_PRECISION_UNKNOWN};
 
 TEST_CASE( "submit integrals job", "[eri]" ) {
     WQC *handler = wqc_init();
@@ -17,7 +18,6 @@ TEST_CASE( "submit integrals job", "[eri]" ) {
 
         REQUIRE(wqc_set_option(handler, WQC_OPTION_ACCESS_TOKEN, WQC_FREE_ACCESS_TOKEN) == true);
 
-        struct two_electron_integrals_job_parameters parameters = {"sto-3g", water_xyz_geometry};
 
         CHECK(wqc_submit_job(handler, TWO_ELECTRONS_INTEGRAL, &parameters) == true);
     }
@@ -32,8 +32,6 @@ TEST_CASE( "submit integrals job no SSL", "[eri]" ) {
 
         REQUIRE(wqc_set_option(handler, WQC_OPTION_ACCESS_TOKEN, WQC_FREE_ACCESS_TOKEN) == true);
         REQUIRE(wqc_set_option(handler, WQC_OPTION_INSECURE_SSL, 1) == true);
-
-        struct two_electron_integrals_job_parameters parameters = {"sto-3g", water_xyz_geometry};
 
         CHECK(wqc_submit_job(handler, TWO_ELECTRONS_INTEGRAL, &parameters) == true);
     }

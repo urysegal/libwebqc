@@ -9,9 +9,25 @@ extern "C" {
 #include "include/webqc-errors.h"
 #include "include/webqc-options.h"
 
+
+typedef double wqc_real;
+
 #define DEFAULT_WEBQC_SERVER_NAME "cloudcompchem.ca"
 #define DEFAULT_WEBQC_SERVER_PORT (443)
 
+
+#define WQC_PRECISION_UNKNOWN ((wqc_real)0.0)  /// A number is of unknown precision
+#define WQC_PRECISION_EXACT ((wqc_real)1.0)  /// A number is "exact" -- with as good a precision a wqc_real can hold
+
+#define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
+
+/// When sending data to the cloud service, use these constants to specify what type is each parameter
+enum wqc_data_type
+{
+    WQC_STRING_TYPE = 1, /// WebQC cloud call Parameter is a string
+    WQC_REAL_TYPE = 2, /// WebQC cloud call Parameter is a real number
+    WQC_INTEGER_TYPE = 3 /// WebQC cloud call Parameter is an integer
+};
 
 typedef struct webqc_handler_t WQC; ///< A handler to a WQC operation. When starting an asynchronous job, a WQC is returned to the caller.
 
@@ -45,6 +61,7 @@ bool wqc_get_last_error(
 struct two_electron_integrals_job_parameters {
     const char *basis_set_name; /// basis set name. It must be prsent on the Basis Set Exchange at https://www.basissetexchange.org/
     const char *geometry; /// XYZ-file formatted screen. FOr example, a content of an XYZ file. See for example https://openbabel.org/wiki/XYZ_(format)
+    wqc_real geometry_precision;  /// A number between 0 to 1 specifying how accurate the geometry is
 } ;
 
 
