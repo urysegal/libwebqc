@@ -10,7 +10,8 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_VERBOSE_MAKEFILE ON)
 
-set(COVERAGE "Coverage" ON)
+option(COVERAGE "Coverage" ON)
+
 set(COMPILE_FLAGS -Wall -Werror -fsanitize=address -fsanitize=leak -pthread)
 set(LINK_FLAGS -fsanitize=address)
 
