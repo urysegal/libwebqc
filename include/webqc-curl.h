@@ -1,6 +1,6 @@
 #pragma once
 #include <stdbool.h>
-#include "../libwebqc.h"
+#include "libwebqc.h"
 
 //! Prepare a CURL object to make a call to the WebQC server
 //! \param handler handler to make a call with

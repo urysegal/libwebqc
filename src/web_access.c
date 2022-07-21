@@ -1,19 +1,18 @@
-#include <curl/curl.h>
 #include <string.h>
 #include <assert.h>
-#include <cjson/cJSON.h>
 
 #ifdef __APPLE__
-#include <malloc/malloc.h>
-#include <stdlib.h>
+  #include <malloc/malloc.h>
+  #include <stdlib.h>
 #else
-
-#include <malloc.h>
-
+  #include <malloc.h>
 #endif
 
-#include "../libwebqc.h"
-#include "../include/webqc-handler.h"
+#include <curl/curl.h>
+#include <cjson/cJSON.h>
+
+#include "libwebqc.h"
+#include "webqc-handler.h"
 
 
 static size_t collect_downloaded_data_in_string(void *data, size_t size, size_t nmemb, void *userp)

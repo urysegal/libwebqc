@@ -19,6 +19,8 @@ set(LINK_FLAGS -fsanitize=address)
 #SET(CMAKE_C_FLAGS  "${CMAKE_C_FLAGS} ${GCC_WERR_COMPILE_FLAGS} -fsanitize=address")
 #SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -pthread")
 
+include_directories(${libwebqc_SOURCE_DIR} ${libwebqc_SOURCE_DIR}/include)
+
 find_package(PkgConfig)
 
 find_package(CURL REQUIRED)

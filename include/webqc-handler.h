@@ -1,8 +1,8 @@
 #pragma once
 #include <stdint.h>
 #include <stdbool.h>
-#include "webqc-errors.h"
 #include <curl/curl.h>
+#include "webqc-errors.h"
 
 #define MAX_URL_SIZE 1024
 
