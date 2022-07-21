@@ -18,14 +18,19 @@ set(LINK_FLAGS -fsanitize=address)
 #SET(CMAKE_C_FLAGS  "${CMAKE_C_FLAGS} ${GCC_WERR_COMPILE_FLAGS} -fsanitize=address")
 #SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -pthread")
 
+find_package(PkgConfig)
+
 find_package(CURL REQUIRED)
 include_directories(${CURL_INCLUDE_DIR})
+
+pkg_check_modules(CJSON REQUIRED libcjson)
 
 add_library(libwebqc SHARED src/libwebqc.c src/webqc-options.c src/webqc-errors.c src/web_access.c)
 
 target_compile_options(libwebqc PUBLIC ${COMPILE_FLAGS})
 target_link_options(libwebqc PUBLIC ${LINK_FLAGS})
-target_link_libraries(libwebqc ${CURL_LIBRARIES} -lcjson)
+target_link_libraries(libwebqc ${CURL_LIBRARIES} ${CJSON_LINK_LIBRARIES})
+target_include_directories(libwebqc PUBLIC ${CJSON_INCLUDE_DIRS})
 
 add_executable(water-sto3g-integrals examples/water-sto3g-integrals.c)
 add_dependencies(water-sto3g-integrals libwebqc)
