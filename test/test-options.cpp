@@ -1,5 +1,24 @@
 #include <libwebqc.h>
 #include <catch2/catch_test_macros.hpp>
+#include <catch2/reporters/catch_reporter_event_listener.hpp>
+#include <catch2/reporters/catch_reporter_registrars.hpp>
+#include <catch2/interfaces/catch_interfaces_reporter.hpp>
+
+class testRunListener : public Catch::EventListenerBase {
+public:
+    using Catch::EventListenerBase::EventListenerBase;
+
+    virtual void testRunStarting(Catch::TestRunInfo const&) override {
+        wqc_global_init();
+    }
+
+    void testRunEnded( Catch::TestRunStats const& testRunStats ) override {
+        wqc_global_cleanup();
+    }
+
+};
+
+CATCH_REGISTER_LISTENER(testRunListener)
 
 TEST_CASE( "Unknown options get and set result in error", "[options]" ) {
     WQC *handler = wqc_init();

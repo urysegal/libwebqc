@@ -82,7 +82,8 @@ main(int argc, const char *argv[])
     verify_arguments(argc, argv);
     const char *output_filename = argv[1];
 
-    curl_global_init(0);
+    wqc_global_init();
+
     WQC *handler = wqc_init();
 
     wqc_set_option(handler, WQC_OPTION_ACCESS_TOKEN, WQC_FREE_ACCESS_TOKEN);
@@ -94,7 +95,7 @@ main(int argc, const char *argv[])
     }
     wqc_cleanup(handler);
 
-    curl_global_cleanup();
+    wqc_global_cleanup();
 
     return 0;
 }

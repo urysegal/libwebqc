@@ -49,22 +49,33 @@ WQC *wqc_init()
     return handler;
 }
 
-void wqc_cleanup(WQC *handler)
+void wqc_reset(WQC *handler)
 {
     if (handler) {
-        if (handler->access_token) {
-            free(handler->access_token);
-            handler->access_token = NULL;
-        }
-
         if (handler->curl_info.web_reply.reply) {
             free(handler->curl_info.web_reply.reply);
             handler->curl_info.web_reply.reply = NULL;
             handler->curl_info.web_reply.size=0;
         }
+        handler->return_value = init_webqc_return_value();
+        handler->curl_info.http_reply_code = 0;
+        cleanup_curl(handler);
+    }
+}
+
+
+void wqc_cleanup(WQC *handler)
+{
+    if (handler) {
+
+        wqc_reset(handler);
+
+        if (handler->access_token) {
+            free(handler->access_token);
+            handler->access_token = NULL;
+        }
 
         free(handler->webqc_server_name);
-        cleanup_curl(handler);
         free(handler);
     }
 }
@@ -99,6 +110,7 @@ static bool create_new_job(WQC *handler)
 
         if ( rv ) {
             get_job_id_from_reply(handler);
+            wqc_reset(handler);
         }
     }
 
@@ -135,4 +147,14 @@ bool wqc_get_reply(WQC *handler)
 {
     wqc_set_error(handler, WEBQC_NOT_IMPLEMENTED);
     return false;
+}
+
+void wqc_global_init()
+{
+    curl_global_init(CURL_GLOBAL_DEFAULT);
+}
+
+void wqc_global_cleanup()
+{
+    curl_global_cleanup();
 }

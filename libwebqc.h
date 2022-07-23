@@ -37,6 +37,13 @@ enum wqc_job_type {
     WQC_JOB_TWO_ELECTRONS_INTEGRALS = 3 /// Calculate all two-electrons repulsion integrals
 };
 
+//! Initialize the WQC library. Call once before calling any thing WQC functions.
+void wqc_global_init();
+
+//! Cleanip WQC library. Call one after finishing all calls to WQC functions.
+void wqc_global_cleanup();
+
+
 
 //! Initialize a new job handler. You must call wqc_cleanup when the job is done and you do not need any more information
 //! about it.
@@ -46,6 +53,10 @@ WQC *wqc_init();
 /// Cleanup a handler when you are done with it.
 /// \param handler the handler to cleanup and dispoose
 void wqc_cleanup(WQC *handler);
+
+/// Reset a handler so we can make another call with same access parameters
+/// \param handler the handler to reset
+void wqc_reset(WQC *handler);
 
 
 //! Return the error occured on the most recent API call using the givern handler
