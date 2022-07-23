@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <inttypes.h>
+#include <curl/curl.h>
 
 #include "libwebqc.h"
 
@@ -23,9 +24,11 @@ verify_arguments(int argc, const char *argv[])
     }
 }
 
-void
+bool
 calculate_integrals(WQC *job_handler)
 {
+    bool rv = false;
+
     const char *water_xyz_geometry =
             "3\n"
             "H2O\n"
@@ -48,8 +51,11 @@ calculate_integrals(WQC *job_handler)
         struct wqc_return_value error;
         wqc_get_last_error(job_handler, &error);
         fprintf(stderr, "Error %" PRIu64 ": %s\n", error.error_code, error.error_message);
-        exit(1);
+    } else {
+        rv = true;
     }
+
+    return rv;
 }
 
 bool
@@ -76,15 +82,19 @@ main(int argc, const char *argv[])
     verify_arguments(argc, argv);
     const char *output_filename = argv[1];
 
+    curl_global_init(0);
     WQC *handler = wqc_init();
 
     wqc_set_option(handler, WQC_OPTION_ACCESS_TOKEN, WQC_FREE_ACCESS_TOKEN);
 
-    calculate_integrals(handler);
+    bool rv = calculate_integrals(handler);
 
-    save_integrals(handler, output_filename);
-
+    if ( rv ) {
+        save_integrals(handler, output_filename);
+    }
     wqc_cleanup(handler);
+
+    curl_global_cleanup();
 
     return 0;
 }

@@ -32,7 +32,7 @@ WQC *wqc_init()
 {
     WQC *handler = malloc(sizeof(struct webqc_handler_t));
     handler->return_value = init_webqc_return_value();
-    handler->access_token = NULL;
+    handler->access_token = strdup(WQC_FREE_ACCESS_TOKEN);
     handler->webqc_server_name = strdup(DEFAULT_WEBQC_SERVER_NAME);
     handler->webqc_server_port = DEFAULT_WEBQC_SERVER_PORT;
     handler->insecure_ssl = false;
@@ -56,6 +56,13 @@ void wqc_cleanup(WQC *handler)
             free(handler->access_token);
             handler->access_token = NULL;
         }
+
+        if (handler->curl_info.web_reply.reply) {
+            free(handler->curl_info.web_reply.reply);
+            handler->curl_info.web_reply.reply = NULL;
+            handler->curl_info.web_reply.size=0;
+        }
+
         free(handler->webqc_server_name);
         cleanup_curl(handler);
         free(handler);
@@ -86,7 +93,8 @@ static bool create_new_job(WQC *handler)
     rv = prepare_curl(handler, NEW_JOB_SERVICE_ENDPOINT);
 
     if ( rv ) {
-        curl_easy_setopt(handler->curl_info.curl_handler, CURLOPT_PUT, 1L);
+        curl_easy_setopt(handler->curl_info.curl_handler, CURLOPT_POST, 1L);
+        curl_easy_setopt(handler->curl_info.curl_handler, CURLOPT_POSTFIELDS, "{}");
         rv = make_curl_call(handler);
 
         if ( rv ) {

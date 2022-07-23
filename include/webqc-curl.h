@@ -14,7 +14,7 @@ bool prepare_curl(
 
 //! Perform the call to the WebQC server.
 //! \param handler handler to make the call on
-//! \return true on success, false on failure. Success means the call was successful in getting some reply
+//! \return true on success, false on failure. Success means the call was successful in getting a 2XX HTTP reply
 bool make_curl_call(
     WQC *handler
 );

@@ -130,8 +130,24 @@ bool make_curl_call(WQC *handler)
                 NULL
         };
         wqc_set_error_with_messages(handler, WEBQC_WEB_CALL_ERROR, additional_messages); //need some more error information
+    } else {
+        curl_easy_getinfo( handler->curl_info.curl_handler, CURLINFO_RESPONSE_CODE, &handler->curl_info.http_reply_code);
+        if (handler->curl_info.http_reply_code  < 200 || handler->curl_info.http_reply_code >= 300 ) {
+
+            char http_error_code[4] = {0,0,0,0};
+            snprintf(http_error_code, sizeof(http_error_code), "%u", handler->curl_info.http_reply_code);
+
+            const char *additional_messages[] = {
+                    handler->curl_info.full_URL,
+                    "HTTP Error Code: ",
+                    http_error_code,
+                    NULL
+            };
+            wqc_set_error_with_messages(handler, WEBQC_WEB_CALL_ERROR, additional_messages);
+        } else {
+            rv = true;
+        }
     }
-    curl_easy_getinfo( handler->curl_info.curl_handler, CURLINFO_RESPONSE_CODE, &handler->curl_info.http_reply_code);
 
     return rv;
 }
@@ -213,6 +229,7 @@ bool get_job_id_from_reply(WQC *handler)
     bool rv = false;
 
     cJSON *reply_json = cJSON_Parse(handler->curl_info.web_reply.reply);
+    printf("%s\n",handler->curl_info.web_reply.reply);
     if (reply_json == NULL) {
         const char *extra_messages[] =
                 {
@@ -229,7 +246,7 @@ bool get_job_id_from_reply(WQC *handler)
         wqc_set_error_with_messages(handler, WEBQC_WEB_CALL_ERROR, extra_messages);
     } else {
         rv = get_string_from_reply(reply_json, "job_id", handler->job_id, WQC_JOB_ID_LENGTH);
-        free (reply_json);
+        cJSON_Delete(reply_json);
     }
     return rv;
 }
