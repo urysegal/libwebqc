@@ -15,16 +15,20 @@
 #include "../libwebqc.h"
 #include "../include/webqc-handler.h"
 
-
-static size_t collect_downloaded_data_in_string(void *data, size_t size, size_t nmemb, void *userp)
+static size_t collect_curl_downloaded_data(void *data, size_t size, size_t nmemb, void *userp)
 {
     size_t total_size = size * nmemb;
-    struct web_reply_buffer *buf = (struct web_reply_buffer *) userp;
+    struct web_reply_buffer *buf = &(((struct webqc_handler_t *) userp)->curl_info.web_reply);
 
+    return wqc_collect_downloaded_data(data, total_size, buf);
+}
+
+size_t wqc_collect_downloaded_data(void *data, size_t total_size, struct web_reply_buffer *buf)
+{
     char *ptr = realloc(buf->reply, buf->size + total_size + 1);
 
     if (ptr == NULL) {
-        return 0;
+        return 0; // LCOV_EXCL_LINE
     }
 
     buf->reply = ptr;
@@ -64,8 +68,8 @@ prepare_curl_security(WQC *handler)
 static void
 prepare_curl_reply_buffers(WQC *handler)
 {
-    curl_easy_setopt(handler->curl_info.curl_handler, CURLOPT_WRITEFUNCTION, collect_downloaded_data_in_string);
-    curl_easy_setopt(handler->curl_info.curl_handler, CURLOPT_WRITEDATA, &handler->curl_info.web_reply);
+    curl_easy_setopt(handler->curl_info.curl_handler, CURLOPT_WRITEFUNCTION, collect_curl_downloaded_data);
+    curl_easy_setopt(handler->curl_info.curl_handler, CURLOPT_WRITEDATA, handler);
     curl_easy_setopt(handler->curl_info.curl_handler, CURLOPT_ERRORBUFFER, handler->curl_info.web_error_bufffer);
 }
 
@@ -76,6 +80,8 @@ prepare_curl_URL(WQC *handler, const char *web_endpoint)
 {
     bool rv = false;
     const char *scheme = "https";
+
+    assert(web_endpoint);
 
     if (snprintf(handler->curl_info.full_URL, MAX_URL_SIZE, "%s://%s:%u/%s", scheme, handler->webqc_server_name, handler->webqc_server_port,
                  web_endpoint) < MAX_URL_SIZE) {
@@ -213,79 +219,13 @@ add_json_fields(cJSON *object, const struct name_value_pair *pairs, int pairs_co
     return rv;
 }
 
-bool get_string_from_reply(cJSON *json, const char *field_name, char *dest, unsigned int max_size)
-{
-    bool rv = false;
-    cJSON *job_id = cJSON_GetObjectItemCaseSensitive(json, field_name);
-    if (cJSON_IsString(job_id) && (job_id->valuestring != NULL)) {
-        strncpy(dest, job_id->valuestring, max_size);
-        rv = true;
-    }
-    return rv;
-}
-
-static bool parse_JSON_reply(WQC *handler, cJSON **reply_json)
-{
-    bool rv = true;
-
-    *reply_json = cJSON_Parse(handler->curl_info.web_reply.reply);
-
-    if (*reply_json == NULL) {
-
-        rv = false;
-        char position_str[12] = "no position";
-        const char *extra_messages[] =
-                {
-                        "Error parsing JSON reply: Error before",
-                        "(no location)",
-                        " at offset " ,
-                        position_str,
-                        NULL
-                };
-        const char *error_ptr = cJSON_GetErrorPtr();
-
-        if (error_ptr != NULL)
-        {
-            extra_messages[1] = error_ptr;
-            snprintf(position_str, sizeof position_str, "%lu", error_ptr - handler->curl_info.web_reply.reply);
-        }
-        wqc_set_error_with_messages(handler, WEBQC_WEB_CALL_ERROR, extra_messages);
-    }
-    return rv;
-}
-
-static bool get_string_field_from_reply(WQC *handler, const char *label, char *target, int target_len)
-{
-    bool rv = false;
-
-    cJSON *reply_json = NULL;
-
-    rv = parse_JSON_reply(handler, &reply_json);
-
-    if ( rv ) {
-        rv = get_string_from_reply(reply_json, label, target, target_len);
-        cJSON_Delete(reply_json);
-    }
-
-    return rv;
-}
-
-bool get_job_id_from_reply(WQC *handler)
-{
-    return get_string_field_from_reply(handler, "job_id", handler->job_id, WQC_JOB_ID_LENGTH);
-}
-
-bool get_parameter_set_id_from_reply(WQC *handler)
-{
-    return get_string_field_from_reply(handler, "set_id", handler->parameter_set_id, WQC_PARAM_SET_ID_LENGTH);
-}
-
 
 
 bool set_eri_job_parameters(WQC *handler, const struct two_electron_integrals_job_parameters *job_parameters)
 {
     bool rv = false;
 
+    handler->wqc_endpoint = TWO_ELECTRONS_INTEGRAL_SERVICE_ENDPOINT;
 
     struct name_value_pair two_e_parameters_pairs[] = {
             {"basis_set_name",   WQC_STRING_TYPE, { .str_value=job_parameters->basis_set_name} },

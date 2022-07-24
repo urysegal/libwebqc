@@ -10,7 +10,7 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_VERBOSE_MAKEFILE ON)
 
-#set(COVERAGE "Coverage" ON)
+set(COVERAGE "Coverage" ON)
 set(COMPILE_FLAGS -Wall -Werror -fsanitize=address -fsanitize=leak -pthread)
 set(LINK_FLAGS -fsanitize=address)
 
@@ -21,7 +21,7 @@ set(LINK_FLAGS -fsanitize=address)
 find_package(CURL REQUIRED)
 include_directories(${CURL_INCLUDE_DIR})
 
-add_library(libwebqc SHARED src/libwebqc.c src/webqc-options.c src/webqc-errors.c src/web_access.c)
+add_library(libwebqc SHARED src/libwebqc.c src/webqc-options.c src/webqc-errors.c src/web_access.c src/reply_parsers.c include/webqc-json.h)
 
 target_compile_options(libwebqc PUBLIC ${COMPILE_FLAGS})
 target_link_options(libwebqc PUBLIC ${LINK_FLAGS})

@@ -10,6 +10,10 @@ extern "C" {
 #include "include/webqc-options.h"
 
 
+#define TWO_ELECTRONS_INTEGRAL_SERVICE_ENDPOINT "eri"
+#define NEW_JOB_SERVICE_ENDPOINT "job"
+#define PARAMETERS_SERVICE_ENDPOINT "params"
+
 typedef double wqc_real;
 
 #define DEFAULT_WEBQC_SERVER_NAME "webqc.urysegal.com"
@@ -144,6 +148,18 @@ void wqc_set_error_with_messages(
         WQC *handler,
         error_code_t code,
         const char *extra_messages[]
+);
+
+//! @brief Initialize variables of type  webqc_return_value_t.
+//! \return empty webqc_return_value_t.
+struct wqc_return_value init_webqc_return_value();
+
+//! @brief return the error message associated with the error code
+//! \param error_code error code
+//! \return read-only string that contains the corresponding error message
+const char *
+wqc_get_error_by_code(
+        error_code_t error_code
 );
 
 

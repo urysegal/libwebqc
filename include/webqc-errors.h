@@ -28,14 +28,3 @@ struct wqc_return_value {
         const char *func;///< Function name where error occurred
 } ;
 
-//! @brief Initialize variables of type  webqc_return_value_t.
-//! \return empty webqc_return_value_t.
-struct wqc_return_value init_webqc_return_value();
-
-//! @brief return the error message associated with the error code
-//! \param error_code error code
-//! \return read-only string that contains the corresponding error message
-const char *
-wqc_get_error_by_code(
-        error_code_t error_code
-);

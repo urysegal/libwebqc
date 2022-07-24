@@ -4,6 +4,10 @@
 #include "webqc-errors.h"
 #include <curl/curl.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define MAX_URL_SIZE (1024) /// Maximum URL size
 #define UUID_LENGTH (37) /// UUID - 32 bytes for hex + 4 dash + terminating null
 #define WQC_JOB_ID_LENGTH (UUID_LENGTH) /// Job IDs are UUIDs
@@ -42,5 +46,21 @@ struct webqc_handler_t {
     bool insecure_ssl; /// Do not verify SSL certificates
     char job_id[WQC_JOB_ID_LENGTH]; /// Job ID the handler is currently doing
     char parameter_set_id[WQC_PARAM_SET_ID_LENGTH]; /// Job ID the handler is currently doing
-
+    const char *wqc_endpoint; /// Which WebQC endpoint to call
 };
+
+//! Add reply data received from the web service to a reply buffer
+//! \param data data recieved
+//! \param total_size total size of data recieved (in bytes)
+//! \param buf reply buffer to add to
+//! \return number of bytes added
+size_t wqc_collect_downloaded_data
+(
+    void *data,
+    size_t total_size,
+    struct web_reply_buffer *buf
+);
+
+#ifdef __cplusplus
+} // "extern C"
+#endif
