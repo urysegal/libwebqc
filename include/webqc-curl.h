@@ -42,3 +42,10 @@ bool set_eri_job_parameters(
 bool get_job_id_from_reply(
         WQC *handler
 );
+
+//! Get a parameter set ID from the most recent call to the WebQC API
+//! \param handler handler the call was made on
+//! \return true if the job id was found. The set ID is saved in the handler.
+bool get_parameter_set_id_from_reply(
+        WQC *handler
+);

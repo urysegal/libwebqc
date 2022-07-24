@@ -42,6 +42,6 @@ TEST_CASE( "submit nonexistent job type", "[eri]" ) {
     WQC *handler = wqc_init();
     REQUIRE(handler != NULL);
 
-    REQUIRE( wqc_submit_job(handler, (enum wqc_job_type)432432, NULL ) == false ) ;
+    REQUIRE( wqc_submit_job(handler, (enum wqc_job_type)432432, nullptr ) == false ) ;
     wqc_cleanup(handler);
 }

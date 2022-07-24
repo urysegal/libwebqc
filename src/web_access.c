@@ -224,32 +224,62 @@ bool get_string_from_reply(cJSON *json, const char *field_name, char *dest, unsi
     return rv;
 }
 
-bool get_job_id_from_reply(WQC *handler)
+static bool parse_JSON_reply(WQC *handler, cJSON **reply_json)
 {
-    bool rv = false;
+    bool rv = true;
 
-    cJSON *reply_json = cJSON_Parse(handler->curl_info.web_reply.reply);
-    printf("%s\n",handler->curl_info.web_reply.reply);
-    if (reply_json == NULL) {
+    *reply_json = cJSON_Parse(handler->curl_info.web_reply.reply);
+
+    if (*reply_json == NULL) {
+
+        rv = false;
+        char position_str[12] = "no position";
         const char *extra_messages[] =
                 {
-                    "Error parsing JSON reply: Error before",
-                    "(no location)",
-                    NULL
+                        "Error parsing JSON reply: Error before",
+                        "(no location)",
+                        " at offset " ,
+                        position_str,
+                        NULL
                 };
         const char *error_ptr = cJSON_GetErrorPtr();
 
         if (error_ptr != NULL)
         {
             extra_messages[1] = error_ptr;
+            snprintf(position_str, sizeof position_str, "%lu", error_ptr - handler->curl_info.web_reply.reply);
         }
         wqc_set_error_with_messages(handler, WEBQC_WEB_CALL_ERROR, extra_messages);
-    } else {
-        rv = get_string_from_reply(reply_json, "job_id", handler->job_id, WQC_JOB_ID_LENGTH);
-        cJSON_Delete(reply_json);
     }
     return rv;
 }
+
+static bool get_string_field_from_reply(WQC *handler, const char *label, char *target, int target_len)
+{
+    bool rv = false;
+
+    cJSON *reply_json = NULL;
+
+    rv = parse_JSON_reply(handler, &reply_json);
+
+    if ( rv ) {
+        rv = get_string_from_reply(reply_json, label, target, target_len);
+        cJSON_Delete(reply_json);
+    }
+
+    return rv;
+}
+
+bool get_job_id_from_reply(WQC *handler)
+{
+    return get_string_field_from_reply(handler, "job_id", handler->job_id, WQC_JOB_ID_LENGTH);
+}
+
+bool get_parameter_set_id_from_reply(WQC *handler)
+{
+    return get_string_field_from_reply(handler, "set_id", handler->parameter_set_id, WQC_PARAM_SET_ID_LENGTH);
+}
+
 
 
 bool set_eri_job_parameters(WQC *handler, const struct two_electron_integrals_job_parameters *job_parameters)

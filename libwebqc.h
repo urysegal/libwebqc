@@ -24,8 +24,8 @@ typedef double wqc_real;
 /// When sending data to the cloud service, use these constants to specify what type is each parameter
 enum wqc_data_type
 {
-    WQC_STRING_TYPE = 1, /// WebQC cloud call Parameter is a string
-    WQC_REAL_TYPE = 2 /// WebQC cloud call Parameter is a real number
+    WQC_STRING_TYPE = 1, /// WebQC cloud call parameter is a string
+    WQC_REAL_TYPE = 2 /// WebQC cloud call parameter is a real number
 };
 
 typedef struct webqc_handler_t WQC; ///< A handler to a WQC operation. When starting an asynchronous job, a WQC is returned to the caller.

@@ -5,7 +5,9 @@
 #include <curl/curl.h>
 
 #define MAX_URL_SIZE (1024) /// Maximum URL size
-#define WQC_JOB_ID_LENGTH (37) /// Job IDs are UUID - 32 bytes for hex + 4 dash + terminating null
+#define UUID_LENGTH (37) /// UUID - 32 bytes for hex + 4 dash + terminating null
+#define WQC_JOB_ID_LENGTH (UUID_LENGTH) /// Job IDs are UUIDs
+#define WQC_PARAM_SET_ID_LENGTH (UUID_LENGTH) /// Parameter set IDs are UUIDs
 
 //! Structure to hold a reply from a cURL call
 struct web_reply_buffer {
@@ -39,4 +41,6 @@ struct webqc_handler_t {
     unsigned short webqc_server_port; /// Port of the WebQC server
     bool insecure_ssl; /// Do not verify SSL certificates
     char job_id[WQC_JOB_ID_LENGTH]; /// Job ID the handler is currently doing
+    char parameter_set_id[WQC_PARAM_SET_ID_LENGTH]; /// Job ID the handler is currently doing
+
 };

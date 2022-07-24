@@ -86,8 +86,6 @@ main(int argc, const char *argv[])
 
     WQC *handler = wqc_init();
 
-    wqc_set_option(handler, WQC_OPTION_ACCESS_TOKEN, WQC_FREE_ACCESS_TOKEN);
-
     bool rv = calculate_integrals(handler);
 
     if ( rv ) {
