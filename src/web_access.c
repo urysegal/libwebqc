@@ -14,6 +14,7 @@
 
 #include "../libwebqc.h"
 #include "../include/webqc-handler.h"
+#include "../include/webqc-curl.h"
 
 static size_t collect_curl_downloaded_data(void *data, size_t size, size_t nmemb, void *userp)
 {
@@ -172,17 +173,6 @@ bool cleanup_curl(WQC *handler)
     return true;
 }
 
-/// A name-value pair for adding multiple JSON fields at once
-struct name_value_pair {
-    const char *name; /// field name
-    enum wqc_data_type type;
-    union
-    {
-        const char *str_value;
-        wqc_real real_value;
-        int64_t int_value;
-    } value;
-};
 
 static bool
 add_json_field(cJSON *object, const struct name_value_pair *pair)
@@ -219,25 +209,15 @@ add_json_fields(cJSON *object, const struct name_value_pair *pairs, int pairs_co
     return rv;
 }
 
-
-
-bool set_eri_job_parameters(WQC *handler, const struct two_electron_integrals_job_parameters *job_parameters)
+bool set_POST_fields(WQC *handler, struct name_value_pair values[], size_t num_values)
 {
     bool rv = false;
-
-    handler->wqc_endpoint = TWO_ELECTRONS_INTEGRAL_SERVICE_ENDPOINT;
-
-    struct name_value_pair two_e_parameters_pairs[] = {
-            {"basis_set_name",   WQC_STRING_TYPE, { .str_value=job_parameters->basis_set_name} },
-            {"xyz_file_content", WQC_STRING_TYPE, { .str_value=job_parameters->geometry} }, // ADD IT TO PYTHON!!
-            {"geometry_precision", WQC_REAL_TYPE, { .real_value=job_parameters->geometry_precision} }, // ADD IT TO PYTHON!!
-            {"geometry_units", WQC_STRING_TYPE, { .str_value=job_parameters->geometry_units} } // ADD IT TO PYTHON!!
-    };
 
     cJSON *ERI_request = cJSON_CreateObject();
 
     if (ERI_request) {
-        if (add_json_fields(ERI_request, two_e_parameters_pairs, ARRAY_SIZE(two_e_parameters_pairs) ) ){
+
+        if (add_json_fields(ERI_request, values, num_values ) ){
 
             char *json_as_string = cJSON_Print(ERI_request);
 
@@ -252,6 +232,23 @@ bool set_eri_job_parameters(WQC *handler, const struct two_electron_integrals_jo
     } else {
         wqc_set_error(handler, WEBQC_OUT_OF_MEMORY); // LCOV_EXCL_LINE
     }
+    return rv;
+}
+
+bool set_eri_job_parameters(WQC *handler, const struct two_electron_integrals_job_parameters *job_parameters)
+{
+    bool rv = false;
+
+    handler->wqc_endpoint = TWO_ELECTRONS_INTEGRAL_SERVICE_ENDPOINT;
+
+    struct name_value_pair two_e_parameters_pairs[] = {
+            {"basis_set_name",   WQC_STRING_TYPE, { .str_value=job_parameters->basis_set_name} },
+            {"xyz_file_content", WQC_STRING_TYPE, { .str_value=job_parameters->geometry} }, // ADD IT TO PYTHON!!
+            {"geometry_precision", WQC_REAL_TYPE, { .real_value=job_parameters->geometry_precision} }, // ADD IT TO PYTHON!!
+            {"geometry_units", WQC_STRING_TYPE, { .str_value=job_parameters->geometry_units} } // ADD IT TO PYTHON!!
+    };
+    rv = set_POST_fields(handler, two_e_parameters_pairs, ARRAY_SIZE(two_e_parameters_pairs));
+
     return rv;
 }
 

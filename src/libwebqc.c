@@ -81,11 +81,19 @@ void wqc_cleanup(WQC *handler)
 }
 
 
-static bool perform_REST_API_call(WQC *handler, const char *endpoint)
+static bool start_wqc_job(WQC *handler)
 {
     bool rv = false;
 
-    rv = prepare_curl(handler, endpoint);
+    rv = prepare_curl(handler, handler->wqc_endpoint);
+
+    if ( rv ) {
+        struct name_value_pair start_job_parameters[] = {
+                {"job_id",     WQC_STRING_TYPE, {.str_value=handler->job_id}},
+                {"parameter_set_id",   WQC_STRING_TYPE, {.str_value=handler->parameter_set_id}}
+        };
+        rv = set_POST_fields(handler, start_job_parameters, ARRAY_SIZE(start_job_parameters));
+    }
 
     if ( rv ) {
         rv = make_curl_call(handler);
@@ -164,7 +172,7 @@ bool wqc_submit_job(WQC *handler, enum wqc_job_type job_type, void *job_paramete
     }
 
     if ( rv ) {
-        rv = perform_REST_API_call(handler, handler->wqc_endpoint);
+        rv = start_wqc_job(handler);
     }
 
     return rv ;
