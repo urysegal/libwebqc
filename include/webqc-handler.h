@@ -2,6 +2,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "webqc-errors.h"
+#include "../libwebqc.h"
 #include <curl/curl.h>
 
 #ifdef __cplusplus
@@ -47,6 +48,7 @@ struct webqc_handler_t {
     char job_id[WQC_JOB_ID_LENGTH]; /// Job ID the handler is currently doing
     char parameter_set_id[WQC_PARAM_SET_ID_LENGTH]; /// Job ID the handler is currently doing
     const char *wqc_endpoint; /// Which WebQC endpoint to call
+    enum wqc_job_type job_type; /// What is the job type this handler is calling for
 };
 
 //! Add reply data received from the web service to a reply buffer

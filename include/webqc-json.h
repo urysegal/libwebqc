@@ -30,6 +30,15 @@ bool parse_JSON_reply(
     cJSON **reply_json
 );
 
+
+//! Update the handler's detail after a job submission
+//! \param handler handelr on which an HTTP reply was just recieved
+//! \return true on success, false on failure (and error set on the handler).
+bool update_job_details(
+    WQC *handler
+);
+
+
 #ifdef __cplusplus
 } // "extern C"
 #endif

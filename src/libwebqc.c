@@ -36,6 +36,7 @@ WQC *wqc_init()
     handler->insecure_ssl = false;
     handler->job_id[0] = '\0';
     handler->wqc_endpoint = NULL;
+    handler->job_type = WQC_NULL_JOB;
 
     handler->curl_info.curl_handler = NULL;
     handler->curl_info.full_URL[0] = '\0';
@@ -59,6 +60,7 @@ void wqc_reset(WQC *handler)
         handler->return_value = init_webqc_return_value();
         handler->curl_info.http_reply_code = 0;
         handler->wqc_endpoint = NULL;
+        handler->job_type = WQC_NULL_JOB;
         cleanup_curl(handler);
     }
 }
@@ -99,6 +101,10 @@ static bool start_wqc_job(WQC *handler)
         rv = make_curl_call(handler);
     }
 
+    if (rv) {
+        update_job_details(handler);
+        wqc_reset(handler);
+    }
     cleanup_curl(handler);
 
     return rv;
@@ -131,6 +137,8 @@ static bool wqc_create_parameter_set(WQC *handler, enum wqc_job_type job_type, v
 {
     bool rv = false;
     const char *endpoint = NULL;
+
+    handler->job_type = job_type;
 
     rv = prepare_curl(handler, PARAMETERS_SERVICE_ENDPOINT);
 
