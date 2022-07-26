@@ -118,6 +118,9 @@ bool update_eri_job_details(WQC *handler)
         memcpy(handler->job_id, eri_job_id, WQC_JOB_ID_LENGTH);
     }
 
+    if ( reply_json ) {
+        cJSON_Delete(reply_json);
+    }
     return rv;
 
 }
