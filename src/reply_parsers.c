@@ -115,6 +115,9 @@ bool update_eri_job_details(WQC *handler)
 
     if ( rv )
     {
+        if (strncmp(handler->job_id, eri_job_id, WQC_JOB_ID_LENGTH)) {
+            handler->is_duplicate = true;
+        }
         memcpy(handler->job_id, eri_job_id, WQC_JOB_ID_LENGTH);
     }
 

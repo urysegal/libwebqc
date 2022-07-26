@@ -73,6 +73,16 @@ bool wqc_get_last_error(
         struct wqc_return_value *error_structure
 );
 
+
+//! Find if the handler was called to do a job is actually a duplicate of another job which computes the same
+//! calculation and is already done or running.
+//! \param handler Han
+//! \return
+bool wqc_job_is_duplicate(
+    WQC *handler /// Hanlder to check for submitting a duplicate job
+);
+
+
 /// @brief Parameters for a jobs that calculates the two-electrons repulsion integrals in the given
 /// basis set on the given geormtry. The Geometry is in XYZ format. Units can be "angstrom" , "SI" for
 /// picometers or "au" (atomic units).

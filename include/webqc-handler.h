@@ -38,7 +38,6 @@ struct handler_curl_info
  * @brief Internal structure that maintains the status of an asynchrounous WQC operation.
  */
 struct webqc_handler_t {
-    uint64_t handler_id; /// A unique ID for this operation
     struct wqc_return_value return_value; /// Return value from last call to WQC API
     char *access_token; /// Token that authorizes access to the WEBQC web service
     struct handler_curl_info curl_info; /// Info for calling web services using libCURL
@@ -49,6 +48,7 @@ struct webqc_handler_t {
     char parameter_set_id[WQC_PARAM_SET_ID_LENGTH]; /// Job ID the handler is currently doing
     const char *wqc_endpoint; /// Which WebQC endpoint to call
     enum wqc_job_type job_type; /// What is the job type this handler is calling for
+    bool is_duplicate; /// Job was found to be a duplicate of another one
 };
 
 //! Add reply data received from the web service to a reply buffer

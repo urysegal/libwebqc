@@ -37,6 +37,7 @@ WQC *wqc_init()
     handler->job_id[0] = '\0';
     handler->wqc_endpoint = NULL;
     handler->job_type = WQC_NULL_JOB;
+    handler->is_duplicate = false;
 
     handler->curl_info.curl_handler = NULL;
     handler->curl_info.full_URL[0] = '\0';
@@ -81,10 +82,16 @@ void wqc_cleanup(WQC *handler)
     }
 }
 
+bool wqc_job_is_duplicate(WQC *handler)
+{
+    return handler->is_duplicate;
+}
 
 static bool start_wqc_job(WQC *handler)
 {
     bool rv = false;
+
+    handler->is_duplicate = false;
 
     rv = prepare_curl(handler, handler->wqc_endpoint);
 

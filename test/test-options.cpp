@@ -1,3 +1,4 @@
+#include <time.h>
 #include <libwebqc.h>
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/reporters/catch_reporter_event_listener.hpp>
@@ -10,6 +11,7 @@ public:
 
     void testRunStarting(Catch::TestRunInfo const&) override {
         wqc_global_init();
+        srand(time(NULL));
     }
 
     void testRunEnded( Catch::TestRunStats const& testRunStats ) override {
