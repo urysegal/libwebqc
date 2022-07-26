@@ -13,7 +13,7 @@
 #include "../libwebqc.h"
 #include "../include/webqc-handler.h"
 
-bool get_string_from_reply(cJSON *json, const char *field_name, char *dest, unsigned int max_size)
+bool get_string_from_JSON(cJSON *json, const char *field_name, char *dest, unsigned int max_size)
 {
     bool rv = false;
     cJSON *job_id = cJSON_GetObjectItemCaseSensitive(json, field_name);
@@ -75,7 +75,7 @@ static bool get_string_field_from_reply(WQC *handler, const char *label, char *t
     rv = parse_JSON_reply(handler, &reply_json);
 
     if ( rv ) {
-        rv = get_string_from_reply(reply_json, label, target, target_len);
+        rv = get_string_from_JSON(reply_json, label, target, target_len);
         cJSON_Delete(reply_json);
     }
 
@@ -108,7 +108,7 @@ bool update_eri_job_details(WQC *handler)
 
     if ( rv )
     {
-        if ( ! (rv=get_string_field_from_reply(handler, "job_id", eri_job_id, WQC_JOB_ID_LENGTH) )) {
+        if ( ! (rv= get_string_from_JSON(job_status, "job_id", eri_job_id, WQC_JOB_ID_LENGTH) )) {
             wqc_set_error_with_message(handler, WEBQC_WEB_CALL_ERROR, "Cannot find ERI job ID in reply");
         }
     }

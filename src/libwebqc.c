@@ -57,7 +57,6 @@ void wqc_reset(WQC *handler)
             handler->curl_info.web_reply.reply = NULL;
             handler->curl_info.web_reply.size=0;
         }
-        handler->return_value = init_webqc_return_value();
         handler->curl_info.http_reply_code = 0;
         handler->wqc_endpoint = NULL;
         handler->job_type = WQC_NULL_JOB;
@@ -102,7 +101,7 @@ static bool start_wqc_job(WQC *handler)
     }
 
     if (rv) {
-        update_job_details(handler);
+        rv = update_job_details(handler);
         wqc_reset(handler);
     }
     cleanup_curl(handler);
@@ -138,7 +137,6 @@ static bool wqc_create_parameter_set(WQC *handler, enum wqc_job_type job_type, v
     bool rv = false;
     const char *endpoint = NULL;
 
-    handler->job_type = job_type;
 
     rv = prepare_curl(handler, PARAMETERS_SERVICE_ENDPOINT);
 
@@ -160,6 +158,7 @@ static bool wqc_create_parameter_set(WQC *handler, enum wqc_job_type job_type, v
             get_parameter_set_id_from_reply(handler);
             wqc_reset(handler);
             handler->wqc_endpoint = endpoint;
+            handler->job_type = job_type;
         }
     }
 
