@@ -11,8 +11,8 @@
 #include "../libwebqc.h"
 #include "../include/webqc-handler.h"
 #include "../include/webqc-curl.h"
+#include "../include/webqc-json.h"
 
-#define TWO_ELECTRONS_INTEGRAL_SERVICE_ENDPOINT "eri"
 
 
 struct wqc_return_value init_webqc_return_value()
@@ -30,10 +30,14 @@ WQC *wqc_init()
 {
     WQC *handler = malloc(sizeof(struct webqc_handler_t));
     handler->return_value = init_webqc_return_value();
-    handler->access_token = NULL;
+    handler->access_token = strdup(WQC_FREE_ACCESS_TOKEN);
     handler->webqc_server_name = strdup(DEFAULT_WEBQC_SERVER_NAME);
     handler->webqc_server_port = DEFAULT_WEBQC_SERVER_PORT;
     handler->insecure_ssl = false;
+    handler->job_id[0] = '\0';
+    handler->wqc_endpoint = NULL;
+    handler->job_type = WQC_NULL_JOB;
+    handler->is_duplicate = false;
 
     handler->curl_info.curl_handler = NULL;
     handler->curl_info.full_URL[0] = '\0';
@@ -46,32 +50,123 @@ WQC *wqc_init()
     return handler;
 }
 
-void wqc_cleanup(WQC *handler)
+void wqc_reset(WQC *handler)
 {
     if (handler) {
-        if (handler->access_token) {
-            free(handler->access_token);
-            handler->access_token = NULL;
+        if (handler->curl_info.web_reply.reply) {
+            free(handler->curl_info.web_reply.reply);
+            handler->curl_info.web_reply.reply = NULL;
+            handler->curl_info.web_reply.size=0;
         }
-        free(handler->webqc_server_name);
+        handler->curl_info.http_reply_code = 0;
+        handler->wqc_endpoint = NULL;
+        handler->job_type = WQC_NULL_JOB;
         cleanup_curl(handler);
-        free(handler);
     }
 }
 
 
-static bool submit_2e_job(WQC *handler, const struct two_electron_integrals_job_parameters *job_parameters)
+void wqc_cleanup(WQC *handler)
+{
+    if (handler) {
+
+        wqc_reset(handler);
+
+        if (handler->access_token) {
+            free(handler->access_token);
+            handler->access_token = NULL;
+        }
+
+        free(handler->webqc_server_name);
+        free(handler);
+    }
+}
+
+bool wqc_job_is_duplicate(WQC *handler)
+{
+    return handler->is_duplicate;
+}
+
+static bool start_wqc_job(WQC *handler)
 {
     bool rv = false;
 
-    rv = prepare_curl(handler, TWO_ELECTRONS_INTEGRAL_SERVICE_ENDPOINT);
+    handler->is_duplicate = false;
+
+    rv = prepare_curl(handler, handler->wqc_endpoint);
 
     if ( rv ) {
-        rv = make_eri_request(handler, job_parameters);
+        struct name_value_pair start_job_parameters[] = {
+                {"job_id",     WQC_STRING_TYPE, {.str_value=handler->job_id}},
+                {"parameter_set_id",   WQC_STRING_TYPE, {.str_value=handler->parameter_set_id}}
+        };
+        rv = set_POST_fields(handler, start_job_parameters, ARRAY_SIZE(start_job_parameters));
     }
 
     if ( rv ) {
         rv = make_curl_call(handler);
+    }
+
+    if (rv) {
+        rv = update_job_details(handler);
+        wqc_reset(handler);
+    }
+    cleanup_curl(handler);
+
+    return rv;
+}
+
+
+static bool create_new_job(WQC *handler)
+{
+    bool rv = false;
+
+    rv = prepare_curl(handler, NEW_JOB_SERVICE_ENDPOINT);
+
+    if ( rv ) {
+        curl_easy_setopt(handler->curl_info.curl_handler, CURLOPT_POST, 1L);
+        curl_easy_setopt(handler->curl_info.curl_handler, CURLOPT_POSTFIELDS, "{}");
+        rv = make_curl_call(handler);
+
+        if ( rv ) {
+            get_job_id_from_reply(handler);
+            wqc_reset(handler);
+        }
+    }
+
+    cleanup_curl(handler);
+
+    return rv;
+}
+
+static bool wqc_create_parameter_set(WQC *handler, enum wqc_job_type job_type, void *job_parameters)
+{
+    bool rv = false;
+    const char *endpoint = NULL;
+
+
+    rv = prepare_curl(handler, PARAMETERS_SERVICE_ENDPOINT);
+
+    if ( rv ) {
+        if (job_type == WQC_JOB_TWO_ELECTRONS_INTEGRALS) {
+            rv = set_eri_job_parameters(handler, (const struct two_electron_integrals_job_parameters *) job_parameters);
+            endpoint = TWO_ELECTRONS_INTEGRAL_SERVICE_ENDPOINT;
+        } else {
+            wqc_set_error(handler, WEBQC_NOT_IMPLEMENTED);
+            rv = false;
+        }
+    }
+
+    if ( rv ) {
+
+        rv = make_curl_call(handler);
+
+        if ( rv ) {
+            get_parameter_set_id_from_reply(handler);
+            wqc_reset(handler);
+            handler->wqc_endpoint = endpoint;
+            handler->job_type = job_type;
+        }
     }
 
     cleanup_curl(handler);
@@ -80,19 +175,35 @@ static bool submit_2e_job(WQC *handler, const struct two_electron_integrals_job_
 }
 
 
-bool wqc_submit_job(WQC *handler, wqc_job_type job_type, void *job_parameters)
+bool wqc_submit_job(WQC *handler, enum wqc_job_type job_type, void *job_parameters)
 {
-    if (job_type == TWO_ELECTRONS_INTEGRAL) {
-        return submit_2e_job(handler,
-                             (const struct two_electron_integrals_job_parameters *)job_parameters);
+    bool rv = false;
+
+    rv = create_new_job(handler);
+
+    if ( rv ) {
+        rv = wqc_create_parameter_set(handler, job_type, job_parameters);
     }
 
-    wqc_set_error(handler, WEBQC_NOT_IMPLEMENTED);
-    return false;
+    if ( rv ) {
+        rv = start_wqc_job(handler);
+    }
+
+    return rv ;
 }
 
 bool wqc_get_reply(WQC *handler)
 {
     wqc_set_error(handler, WEBQC_NOT_IMPLEMENTED);
     return false;
+}
+
+void wqc_global_init()
+{
+    curl_global_init(CURL_GLOBAL_DEFAULT);
+}
+
+void wqc_global_cleanup()
+{
+    curl_global_cleanup();
 }

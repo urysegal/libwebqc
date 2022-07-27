@@ -64,6 +64,16 @@ bool wqc_get_last_error(WQC *handler, struct wqc_return_value *error_structure)
     return res;
 }
 
+void wqc_set_error_with_message(WQC *handler, error_code_t code, const char *extra_message)
+{
+    wqc_set_error(handler, code);
+
+    int bytes_left = MAX_WEBQC_ERROR_MESSAGE_LEN - strlen(handler->return_value.error_message);
+
+    strncat(handler->return_value.error_message, ": ", 3);
+    strncat(handler->return_value.error_message, extra_message, bytes_left - 2);
+}
+
 void wqc_set_error_with_messages(WQC *handler, error_code_t code, const char *extra_messages[])
 {
     int i = 0;

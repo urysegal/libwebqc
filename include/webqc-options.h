@@ -1,6 +1,6 @@
 #pragma once
 
-#define WQC_FREE_ACCESS_TOKEN "webqc-free-access" /// This token can be used to access free services
+#define WQC_FREE_ACCESS_TOKEN "test-token" /// This token can be used to access free services
 
 /// List of all WQC handler options
 typedef enum wqc_option_type

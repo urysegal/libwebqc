@@ -10,10 +10,14 @@ extern "C" {
 #include "include/webqc-options.h"
 
 
+#define TWO_ELECTRONS_INTEGRAL_SERVICE_ENDPOINT "eri"
+#define NEW_JOB_SERVICE_ENDPOINT "job"
+#define PARAMETERS_SERVICE_ENDPOINT "params"
+
 typedef double wqc_real;
 
-#define DEFAULT_WEBQC_SERVER_NAME "cloudcompchem.ca"
-#define DEFAULT_WEBQC_SERVER_PORT (443)
+#define DEFAULT_WEBQC_SERVER_NAME "webqc.urysegal.com"
+#define DEFAULT_WEBQC_SERVER_PORT (5000)
 
 
 #define WQC_PRECISION_UNKNOWN ((wqc_real)0.0)  /// A number is of unknown precision
@@ -24,17 +28,26 @@ typedef double wqc_real;
 /// When sending data to the cloud service, use these constants to specify what type is each parameter
 enum wqc_data_type
 {
-    WQC_STRING_TYPE = 1, /// WebQC cloud call Parameter is a string
-    WQC_REAL_TYPE = 2, /// WebQC cloud call Parameter is a real number
-    WQC_INTEGER_TYPE = 3 /// WebQC cloud call Parameter is an integer
+    WQC_STRING_TYPE = 1, /// WebQC cloud call parameter is a string
+    WQC_REAL_TYPE = 2 /// WebQC cloud call parameter is a real number
 };
 
 typedef struct webqc_handler_t WQC; ///< A handler to a WQC operation. When starting an asynchronous job, a WQC is returned to the caller.
 
 /// List of all the possible calls to WecQC service
-typedef enum wqc_job_types_tag {
-    TWO_ELECTRONS_INTEGRAL = 1 /// Calculate all two-electrons repulsion integrals
-} wqc_job_type;
+enum wqc_job_type {
+    WQC_NULL_JOB = 0, /// Bad job type to specify unset value
+    WQC_JOB_NEW_JOB = 1, /// Create a new generic job
+    WQC_JOB_SET_PARAMETERS = 2, /// Set parameters for a job
+    WQC_JOB_TWO_ELECTRONS_INTEGRALS = 3 /// Calculate all two-electrons repulsion integrals
+};
+
+//! Initialize the WQC library. Call once before calling any thing WQC functions.
+void wqc_global_init();
+
+//! Cleanip WQC library. Call one after finishing all calls to WQC functions.
+void wqc_global_cleanup();
+
 
 
 //! Initialize a new job handler. You must call wqc_cleanup when the job is done and you do not need any more information
@@ -46,6 +59,10 @@ WQC *wqc_init();
 /// \param handler the handler to cleanup and dispoose
 void wqc_cleanup(WQC *handler);
 
+/// Reset a handler so we can make another call with same access parameters
+/// \param handler the handler to reset
+void wqc_reset(WQC *handler);
+
 
 //! Return the error occured on the most recent API call using the givern handler
 //! \param handler the handler to get error from
@@ -55,6 +72,16 @@ bool wqc_get_last_error(
         WQC *handler,
         struct wqc_return_value *error_structure
 );
+
+
+//! Find if the handler was called to do a job is actually a duplicate of another job which computes the same
+//! calculation and is already done or running.
+//! \param handler Han
+//! \return
+bool wqc_job_is_duplicate(
+    WQC *handler /// Hanlder to check for submitting a duplicate job
+);
+
 
 /// @brief Parameters for a jobs that calculates the two-electrons repulsion integrals in the given
 /// basis set on the given geormtry. The Geometry is in XYZ format. Units can be "angstrom" , "SI" for
@@ -67,18 +94,19 @@ struct two_electron_integrals_job_parameters {
 } ;
 
 
-/// Submit an asynchronous job to the WQC server. It is not alowed to submit two jobs on the same handler without
-/// calling wqc_reset on the handler first.
+/// Submit an asynchronous job to the WQC server. It is not allowed to submit two jobs on the same handler without
+/// calling wqc_reset on the handler first. This call will create a new job, set the parameters on it, and launch the
+/// job.
 /// \param handler Handler to submit the job on, created by wqc_init()
 /// \param job_type Which type of job to perform
 /// \param job_parameters Parameters for the job
 /// \return true on successful submission of the job, false otherwise
 bool wqc_submit_job
-        (
-                WQC *handler,
-                wqc_job_type job_type,
-                void *job_parameters
-        );
+(
+    WQC *handler,
+    enum wqc_job_type job_type,
+    void *job_parameters
+);
 
 
 /// Get a reply for the given job. If result is not yet ready, wait for it.
@@ -122,6 +150,17 @@ void wqc_set_error(
         error_code_t code
 );
 
+//! Set the error code on the handler. Error message is also set automatically, plus an
+//! additional message
+//! \param handler  Handler to set the error on
+//! \param code the error code to set
+//! \param extra_message NULL-terminated message
+void wqc_set_error_with_message(
+        WQC *handler,
+        error_code_t code,
+        const char *extra_messages
+);
+
 //! Set the error code on the handler. Error message is also set automatically, plus a NULL-terminated array
 //! of additional messages
 //! \param handler  Handler to set the error on
@@ -131,6 +170,18 @@ void wqc_set_error_with_messages(
         WQC *handler,
         error_code_t code,
         const char *extra_messages[]
+);
+
+//! @brief Initialize variables of type  webqc_return_value_t.
+//! \return empty webqc_return_value_t.
+struct wqc_return_value init_webqc_return_value();
+
+//! @brief return the error message associated with the error code
+//! \param error_code error code
+//! \return read-only string that contains the corresponding error message
+const char *
+wqc_get_error_by_code(
+        error_code_t error_code
 );
 
 

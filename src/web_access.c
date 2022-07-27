@@ -14,17 +14,22 @@
 
 #include "../libwebqc.h"
 #include "../include/webqc-handler.h"
+#include "../include/webqc-curl.h"
 
-
-static size_t collect_downloaded_data_in_string(void *data, size_t size, size_t nmemb, void *userp)
+static size_t collect_curl_downloaded_data(void *data, size_t size, size_t nmemb, void *userp)
 {
     size_t total_size = size * nmemb;
-    struct web_reply_buffer *buf = (struct web_reply_buffer *) userp;
+    struct web_reply_buffer *buf = &(((struct webqc_handler_t *) userp)->curl_info.web_reply);
 
+    return wqc_collect_downloaded_data(data, total_size, buf);
+}
+
+size_t wqc_collect_downloaded_data(void *data, size_t total_size, struct web_reply_buffer *buf)
+{
     char *ptr = realloc(buf->reply, buf->size + total_size + 1);
 
     if (ptr == NULL) {
-        return 0;
+        return 0; // LCOV_EXCL_LINE
     }
 
     buf->reply = ptr;
@@ -64,8 +69,8 @@ prepare_curl_security(WQC *handler)
 static void
 prepare_curl_reply_buffers(WQC *handler)
 {
-    curl_easy_setopt(handler->curl_info.curl_handler, CURLOPT_WRITEFUNCTION, collect_downloaded_data_in_string);
-    curl_easy_setopt(handler->curl_info.curl_handler, CURLOPT_WRITEDATA, &handler->curl_info.web_reply);
+    curl_easy_setopt(handler->curl_info.curl_handler, CURLOPT_WRITEFUNCTION, collect_curl_downloaded_data);
+    curl_easy_setopt(handler->curl_info.curl_handler, CURLOPT_WRITEDATA, handler);
     curl_easy_setopt(handler->curl_info.curl_handler, CURLOPT_ERRORBUFFER, handler->curl_info.web_error_bufffer);
 }
 
@@ -76,6 +81,8 @@ prepare_curl_URL(WQC *handler, const char *web_endpoint)
 {
     bool rv = false;
     const char *scheme = "https";
+
+    assert(web_endpoint);
 
     if (snprintf(handler->curl_info.full_URL, MAX_URL_SIZE, "%s://%s:%u/%s", scheme, handler->webqc_server_name, handler->webqc_server_port,
                  web_endpoint) < MAX_URL_SIZE) {
@@ -130,8 +137,24 @@ bool make_curl_call(WQC *handler)
                 NULL
         };
         wqc_set_error_with_messages(handler, WEBQC_WEB_CALL_ERROR, additional_messages); //need some more error information
+    } else {
+        curl_easy_getinfo( handler->curl_info.curl_handler, CURLINFO_RESPONSE_CODE, &handler->curl_info.http_reply_code);
+        if (handler->curl_info.http_reply_code  < 200 || handler->curl_info.http_reply_code >= 300 ) {
+
+            char http_error_code[4] = {0,0,0,0};
+            snprintf(http_error_code, sizeof(http_error_code), "%u", handler->curl_info.http_reply_code);
+
+            const char *additional_messages[] = {
+                    handler->curl_info.full_URL,
+                    "HTTP Error Code: ",
+                    http_error_code,
+                    NULL
+            };
+            wqc_set_error_with_messages(handler, WEBQC_WEB_CALL_ERROR, additional_messages);
+        } else {
+            rv = true;
+        }
     }
-    curl_easy_getinfo( handler->curl_info.curl_handler, CURLINFO_RESPONSE_CODE, &handler->curl_info.http_reply_code);
 
     return rv;
 }
@@ -150,17 +173,6 @@ bool cleanup_curl(WQC *handler)
     return true;
 }
 
-/// A name-value pair for adding multiple JSON fields at once
-struct name_value_pair {
-    const char *name; /// field name
-    enum wqc_data_type type;
-    union
-    {
-        const char *str_value;
-        wqc_real real_value;
-        int64_t int_value;
-    } value;
-};
 
 static bool
 add_json_field(cJSON *object, const struct name_value_pair *pair)
@@ -197,21 +209,15 @@ add_json_fields(cJSON *object, const struct name_value_pair *pairs, int pairs_co
     return rv;
 }
 
-bool make_eri_request(WQC *handler, const struct two_electron_integrals_job_parameters *job_parameters)
+bool set_POST_fields(WQC *handler, struct name_value_pair values[], size_t num_values)
 {
     bool rv = false;
-
-    struct name_value_pair two_e_parameters_pairs[] = {
-            {"basis_set_name",   WQC_STRING_TYPE, { .str_value=job_parameters->basis_set_name} },
-            {"xyz_file_content", WQC_STRING_TYPE, { .str_value=job_parameters->geometry} }, // ADD IT TO PYTHON!!
-            {"geometry_precision", WQC_REAL_TYPE, { .real_value=job_parameters->geometry_precision} }, // ADD IT TO PYTHON!!
-            {"geometry_units", WQC_STRING_TYPE, { .str_value=job_parameters->geometry_units} } // ADD IT TO PYTHON!!
-    };
 
     cJSON *ERI_request = cJSON_CreateObject();
 
     if (ERI_request) {
-        if (add_json_fields(ERI_request, two_e_parameters_pairs, ARRAY_SIZE(two_e_parameters_pairs) ) ){
+
+        if (add_json_fields(ERI_request, values, num_values ) ){
 
             char *json_as_string = cJSON_Print(ERI_request);
 
@@ -226,6 +232,23 @@ bool make_eri_request(WQC *handler, const struct two_electron_integrals_job_para
     } else {
         wqc_set_error(handler, WEBQC_OUT_OF_MEMORY); // LCOV_EXCL_LINE
     }
+    return rv;
+}
+
+bool set_eri_job_parameters(WQC *handler, const struct two_electron_integrals_job_parameters *job_parameters)
+{
+    bool rv = false;
+
+    handler->wqc_endpoint = TWO_ELECTRONS_INTEGRAL_SERVICE_ENDPOINT;
+
+    struct name_value_pair two_e_parameters_pairs[] = {
+            {"basis_set_name",   WQC_STRING_TYPE, { .str_value=job_parameters->basis_set_name} },
+            {"xyz_file_content", WQC_STRING_TYPE, { .str_value=job_parameters->geometry} }, // ADD IT TO PYTHON!!
+            {"geometry_precision", WQC_REAL_TYPE, { .real_value=job_parameters->geometry_precision} }, // ADD IT TO PYTHON!!
+            {"geometry_units", WQC_STRING_TYPE, { .str_value=job_parameters->geometry_units} } // ADD IT TO PYTHON!!
+    };
+    rv = set_POST_fields(handler, two_e_parameters_pairs, ARRAY_SIZE(two_e_parameters_pairs));
+
     return rv;
 }
 
