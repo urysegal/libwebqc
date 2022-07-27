@@ -1,7 +1,7 @@
 #pragma once
 #include <stdbool.h>
 #include <cjson/cJSON.h>
-#include "../libwebqc.h"
+#include "libwebqc.h"
 
 #ifdef __cplusplus
 extern "C" {

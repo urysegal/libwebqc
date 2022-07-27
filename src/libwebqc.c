@@ -8,10 +8,10 @@
   #include <malloc.h>
 #endif
 
-#include "../libwebqc.h"
-#include "../include/webqc-handler.h"
-#include "../include/webqc-curl.h"
-#include "../include/webqc-json.h"
+#include "libwebqc.h"
+#include "webqc-handler.h"
+#include "webqc-curl.h"
+#include "webqc-json.h"
 
 
 

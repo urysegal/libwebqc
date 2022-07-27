@@ -10,8 +10,7 @@
 
 #endif
 
-#include "../libwebqc.h"
-#include "../include/webqc-handler.h"
+#include "webqc-handler.h"
 
 bool get_string_from_JSON(cJSON *json, const char *field_name, char *dest, unsigned int max_size)
 {

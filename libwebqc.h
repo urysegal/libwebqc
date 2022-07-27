@@ -6,8 +6,8 @@
 extern "C" {
 #endif
 
-#include "include/webqc-errors.h"
-#include "include/webqc-options.h"
+#include "webqc-errors.h"
+#include "webqc-options.h"
 
 
 #define TWO_ELECTRONS_INTEGRAL_SERVICE_ENDPOINT "eri"

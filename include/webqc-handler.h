@@ -2,7 +2,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "webqc-errors.h"
-#include "../libwebqc.h"
+#include "libwebqc.h"
 #include <curl/curl.h>
 
 #ifdef __cplusplus

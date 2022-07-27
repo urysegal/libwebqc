@@ -12,9 +12,9 @@
 
 #endif
 
-#include "../libwebqc.h"
-#include "../include/webqc-handler.h"
-#include "../include/webqc-curl.h"
+#include "libwebqc.h"
+#include "webqc-handler.h"
+#include "webqc-curl.h"
 
 static size_t collect_curl_downloaded_data(void *data, size_t size, size_t nmemb, void *userp)
 {
