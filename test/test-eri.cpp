@@ -15,6 +15,63 @@ static const char *water_xyz_geometry =
 
 struct two_electron_integrals_job_parameters parameters = {"sto-3g", water_xyz_geometry, WQC_PRECISION_UNKNOWN, "angstrom"};
 
+TEST_CASE( "try to parse a bad reply", "[eri]" ) {
+    WQC *handler = wqc_init();
+    REQUIRE(handler != NULL);
+
+    SECTION("Parse badly formed JSON") {
+        char illegal_JSON[] = "{ \"a\" : 7, g: 6.6}";
+        size_t total_size = sizeof(illegal_JSON);
+
+        CHECK(wqc_collect_downloaded_data(illegal_JSON, total_size, &handler->curl_info.web_reply) == total_size);
+
+        struct wqc_return_value error_structure = init_webqc_return_value();
+        cJSON *reply_json = NULL;
+
+        CHECK(parse_JSON_reply(handler, &reply_json) == false);
+        CHECK(wqc_get_last_error(handler, &error_structure) == true );
+        CHECK(error_structure.error_code != 0 );
+        CHECK(error_structure.error_message[0] != '\0');
+    }
+
+    SECTION("Parse illegal ERI reply") {
+        char weird_ERI_reply[] = "{\"job_id\":\"job-b\" , \"job_status\" : {   }  } ";
+        size_t total_size = sizeof(weird_ERI_reply);
+
+        CHECK(wqc_collect_downloaded_data(weird_ERI_reply, total_size, &handler->curl_info.web_reply) == total_size);
+
+        struct wqc_return_value error_structure = init_webqc_return_value();
+
+        handler->job_type = WQC_JOB_TWO_ELECTRONS_INTEGRALS;
+
+        strncpy(handler->job_id, "job-a", sizeof(handler->job_id));
+
+        CHECK(update_job_details(handler) == false);
+
+        CHECK(wqc_get_last_error(handler, &error_structure) == true );
+        CHECK(error_structure.error_code != 0 );
+        CHECK(error_structure.error_message[0] != '\0');
+
+        error_structure = init_webqc_return_value();
+        strncpy(handler->job_id, "job-b", sizeof(handler->job_id));
+        CHECK(update_job_details(handler) == false);
+
+        CHECK(wqc_get_last_error(handler, &error_structure) == true );
+        CHECK(error_structure.error_code != 0 );
+        CHECK(error_structure.error_message[0] != '\0');
+
+        handler->job_type = WQC_NULL_JOB;
+        error_structure = init_webqc_return_value();
+        CHECK(update_job_details(handler) == false);
+
+        CHECK(wqc_get_last_error(handler, &error_structure) == true );
+        CHECK(error_structure.error_code != 0 );
+        CHECK(error_structure.error_message[0] != '\0');
+
+    }
+    wqc_cleanup(handler);
+}
+
 TEST_CASE( "submit integrals job", "[eri]" ) {
     WQC *handler = wqc_init();
     REQUIRE(handler != NULL);
@@ -76,6 +133,21 @@ TEST_CASE( "submit integrals job no SSL", "[eri]" ) {
     wqc_cleanup(handler);
 }
 
+TEST_CASE( "submit integrals job bad token", "[eri]" ) {
+    WQC *handler = wqc_init();
+    REQUIRE(handler != NULL);
+
+    SECTION("Do REST Call") {
+
+        REQUIRE(wqc_set_option(handler, WQC_OPTION_ACCESS_TOKEN, "this is not a token") == true);
+        REQUIRE(wqc_set_option(handler, WQC_OPTION_INSECURE_SSL, 1) == true);
+
+        CHECK(wqc_submit_job(handler, WQC_JOB_TWO_ELECTRONS_INTEGRALS, &parameters) == false);
+    }
+    wqc_cleanup(handler);
+}
+
+
 TEST_CASE( "submit nonexistent job type", "[eri]" ) {
     WQC *handler = wqc_init();
     REQUIRE(handler != NULL);
@@ -97,24 +169,3 @@ TEST_CASE( "submit integrals job to bad server", "[eri]" ) {
     wqc_cleanup(handler);
 }
 
-TEST_CASE( "try to parse a bad reply", "[eri]" ) {
-    WQC *handler = wqc_init();
-    REQUIRE(handler != NULL);
-
-    SECTION("Parse reply") {
-        char illegal_JSON[] = "{ \"a\" : 7, g: 6.6}";
-        size_t total_size = sizeof(illegal_JSON);
-
-        CHECK(wqc_collect_downloaded_data(illegal_JSON, total_size, &handler->curl_info.web_reply) == total_size);
-
-        struct wqc_return_value error_structure = init_webqc_return_value();
-        cJSON *reply_json = NULL;
-
-        CHECK(parse_JSON_reply(handler, &reply_json) == false);
-        CHECK(wqc_get_last_error(handler, &error_structure) == true );
-        CHECK(error_structure.error_code != 0 );
-        CHECK(error_structure.error_message[0] != '\0');
-
-    }
-    wqc_cleanup(handler);
-}
