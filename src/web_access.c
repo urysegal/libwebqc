@@ -243,9 +243,9 @@ bool set_eri_job_parameters(WQC *handler, const struct two_electron_integrals_jo
 
     struct name_value_pair two_e_parameters_pairs[] = {
             {"basis_set_name",   WQC_STRING_TYPE, { .str_value=job_parameters->basis_set_name} },
-            {"xyz_file_content", WQC_STRING_TYPE, { .str_value=job_parameters->geometry} }, // ADD IT TO PYTHON!!
-            {"geometry_precision", WQC_REAL_TYPE, { .real_value=job_parameters->geometry_precision} }, // ADD IT TO PYTHON!!
-            {"geometry_units", WQC_STRING_TYPE, { .str_value=job_parameters->geometry_units} } // ADD IT TO PYTHON!!
+            {"xyz_file_content", WQC_STRING_TYPE, { .str_value=job_parameters->geometry} },
+            {"geometry_precision", WQC_REAL_TYPE, { .real_value=job_parameters->geometry_precision} },
+            {"geometry_units", WQC_STRING_TYPE, { .str_value=job_parameters->geometry_units} }
     };
     rv = set_POST_fields(handler, two_e_parameters_pairs, ARRAY_SIZE(two_e_parameters_pairs));
 
