@@ -1,0 +1,6 @@
+<map id="webqc_handler_t" name="webqc_handler_t">
+<area shape="rect" id="node1" title="Internal structure that maintains the status of an asynchrounous WQC operation." alt="" coords="77,184,209,211"/>
+<area shape="rect" id="node2" href="$structwqc__return__value.html" title="webqc_return_value_t contains all information about an error. All calls to the client library return ..." alt="" coords="5,95,143,121"/>
+<area shape="rect" id="node3" href="$structhandler__curl__info.html" title=" " alt="" coords="167,95,301,121"/>
+<area shape="rect" id="node4" href="$structweb__reply__buffer.html" title="Structure to hold a reply from a cURL call." alt="" coords="167,5,301,32"/>
+</map>
