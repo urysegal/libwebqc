@@ -15,6 +15,19 @@ static const char *water_xyz_geometry =
 
 struct two_electron_integrals_job_parameters parameters = {"sto-3g", water_xyz_geometry, WQC_PRECISION_UNKNOWN, "angstrom"};
 
+TEST_CASE( "submit integrals job and get reply", "[eri]" ) {
+    WQC *handler = wqc_init();
+    REQUIRE(handler != NULL);
+
+    SECTION("Do REST Call") {
+
+        CHECK(wqc_submit_job(handler, WQC_JOB_TWO_ELECTRONS_INTEGRALS, &parameters) == true);
+        CHECK(wqc_get_status(handler) == true );
+    }
+    wqc_cleanup(handler);
+}
+
+
 TEST_CASE( "try to parse a bad reply", "[eri]" ) {
     WQC *handler = wqc_init();
     REQUIRE(handler != NULL);
@@ -168,4 +181,3 @@ TEST_CASE( "submit integrals job to bad server", "[eri]" ) {
     }
     wqc_cleanup(handler);
 }
-

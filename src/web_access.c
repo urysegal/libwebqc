@@ -88,6 +88,8 @@ prepare_curl_URL(WQC *handler, const char *web_endpoint)
                  web_endpoint) < MAX_URL_SIZE) {
         curl_easy_setopt(handler->web_call_info.curl_handler, CURLOPT_URL, handler->web_call_info.full_URL);
         rv = true;
+    } else {
+        wqc_set_error(handler, WEBQC_OUT_OF_MEMORY); // LCOV_EXCL_LINE
     }
 
     return rv;
@@ -273,8 +275,26 @@ set_no_parameters(WQC *handler)
     return true;
 }
 
+bool prepare_get_parameter( WQC *handler, const char *param_name, const char *param_value)
+{
+    bool rv = false;
 
-void web_access_init()
+    char URL_with_options[MAX_URL_SIZE];
+
+    if (snprintf(URL_with_options, MAX_URL_SIZE, "%s?%s=%s", handler->web_call_info.full_URL, param_name,
+                 param_value) < MAX_URL_SIZE) {
+        strncpy(handler->web_call_info.full_URL, URL_with_options, MAX_URL_SIZE);
+        curl_easy_setopt(handler->web_call_info.curl_handler, CURLOPT_URL, handler->web_call_info.full_URL);
+        rv = true;
+    } else {
+        wqc_set_error(handler, WEBQC_OUT_OF_MEMORY); // LCOV_EXCL_LINE
+    }
+
+    return rv;
+}
+
+
+    void web_access_init()
 {
     curl_global_init(CURL_GLOBAL_DEFAULT);
 }
@@ -283,4 +303,3 @@ void web_access_cleanup()
 {
     curl_global_cleanup();
 }
-

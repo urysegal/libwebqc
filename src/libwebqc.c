@@ -38,6 +38,7 @@ WQC *wqc_init()
     handler->wqc_endpoint = NULL;
     handler->job_type = WQC_NULL_JOB;
     handler->is_duplicate = false;
+    handler->job_status = WQC_JOB_STATUS_UNKNOWN;
 
     wqc_init_web_calls(handler);
 
@@ -53,8 +54,7 @@ void wqc_reset(WQC *handler)
             handler->web_call_info.web_reply.size=0;
         }
         handler->web_call_info.http_reply_code = 0;
-        handler->wqc_endpoint = NULL;
-        handler->job_type = WQC_NULL_JOB;
+        handler->job_status = WQC_JOB_STATUS_UNKNOWN;
         cleanup_web_call(handler);
     }
 }
@@ -185,11 +185,49 @@ bool wqc_submit_job(WQC *handler, enum wqc_job_type job_type, void *job_paramete
     return rv ;
 }
 
-bool wqc_get_reply(WQC *handler)
+
+static bool
+get_eri_job_status(WQC *handler)
 {
-    wqc_set_error(handler, WEBQC_NOT_IMPLEMENTED);
-    return false;
+    bool rv = false;
+
+    rv = prepare_web_call(handler, handler->wqc_endpoint);
+
+    if ( rv ) {
+        rv = prepare_get_parameter(handler, "job_id", handler->job_id);
+    }
+    if ( rv ) {
+        rv = make_web_call(handler);
+    }
+
+    if (rv) {
+        rv = update_eri_job_status(handler);
+        wqc_reset(handler);
+    }
+
+    return rv;
 }
+
+
+bool wqc_get_status(WQC *handler)
+{
+    bool rv = false;
+    if (handler->job_type == WQC_JOB_TWO_ELECTRONS_INTEGRALS) {
+        rv = get_eri_job_status(handler);
+    } else {
+        wqc_set_error(handler, WEBQC_NOT_IMPLEMENTED);
+        rv = false;
+    }
+    return rv;
+}
+
+
+bool wqc_job_done( WQC *handler)
+{
+    return handler->job_status == WQC_JOB_STATUS_DONE ||
+        handler->job_status == WQC_JOB_STATUS_ERROR ;
+}
+
 
 void wqc_global_init()
 {

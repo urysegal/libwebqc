@@ -33,6 +33,16 @@ bool get_object_from_reply(cJSON *json, const char *field_name, cJSON **obj)
     return rv;
 }
 
+bool get_array_from_reply(cJSON *json, const char *field_name, cJSON **array)
+{
+    bool rv = false;
+    *array = cJSON_GetObjectItemCaseSensitive(json, field_name);
+    if (*array && cJSON_IsArray(*array) ) {
+        rv = true;
+    }
+    return rv;
+}
+
 
 
 bool parse_JSON_reply(WQC *handler, cJSON **reply_json)
@@ -153,6 +163,59 @@ bool update_job_details(WQC *handler)
                 rv = false;
                 break;
         }
+    }
+    return rv;
+}
+
+static bool
+parse_eri_status_array(WQC *handler, cJSON *eri_items)
+{
+    bool rv = false;
+    cJSON *iterator = NULL;
+//(gdb) p handler->web_call_info.web_reply.reply
+//$6 = 0x610000011540 "{\"job_id\": \"06e5a058-c8ef-44d4-aad3-7bbfe5c519f6\", \"items\": [{\"requestor\": \"ury\", \"id\": 9, \"status\": \"pending\", \"result_blob\": null, \"begin\": [0, 0, 0, 0], \"end\": [5, 0, 0, 0]}]}"
+
+    cJSON_ArrayForEach(iterator, eri_items) {
+        if (cJSON_IsObject(iterator)) {
+            char status_str[16];
+            rv = get_string_from_JSON(iterator, "status", status_str, sizeof status_str);
+        } else {
+            rv = false;
+        }
+        if ( ! rv ) {
+            break;
+        }
+
+    }
+
+
+    return rv;
+}
+
+bool
+update_eri_job_status(WQC *handler)
+{
+    bool rv = false;
+    cJSON *reply_json = NULL;
+    cJSON *eri_items = NULL;
+
+    rv = parse_JSON_reply(handler, &reply_json);
+
+    if ( rv ) {
+        rv = get_array_from_reply(reply_json, "items", &eri_items);
+    }
+
+    if ( rv && eri_items ) {
+        rv = parse_eri_status_array(handler, eri_items);
+    }
+
+    if ( reply_json ) {
+        cJSON_Delete(reply_json);
+    }
+
+    if ( ! rv )  {
+        wqc_set_error_with_message(handler, WEBQC_WEB_CALL_ERROR, "Cannot find array 'items' in reply");
+        rv = false;
     }
     return rv;
 }

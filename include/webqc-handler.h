@@ -14,6 +14,15 @@ extern "C" {
 #define WQC_JOB_ID_LENGTH (UUID_LENGTH) /// Job IDs are UUIDs
 #define WQC_PARAM_SET_ID_LENGTH (UUID_LENGTH) /// Parameter set IDs are UUIDs
 
+enum job_status_t {
+    WQC_JOB_STATUS_UNKNOWN = 0,
+    WQC_JOB_STATUS_PENDING = 1,
+    WQC_JOB_STATUS_DONE = 2,
+    WQC_JOB_STATUS_PROCESSING = 3,
+    WQC_JOB_STATUS_ERROR = 4
+};
+
+
 //! Structure to hold a reply from a cURL call
 struct web_reply_buffer {
     char *reply; /// Reply data
@@ -49,6 +58,7 @@ struct webqc_handler_t {
     const char *wqc_endpoint; /// Which WebQC endpoint to call
     enum wqc_job_type job_type; /// What is the job type this handler is calling for
     bool is_duplicate; /// Job was found to be a duplicate of another one
+    enum job_status_t job_status; /// Last known status of job as require by the WebQC server
 };
 
 //! Add reply data received from the web service to a reply buffer
@@ -62,6 +72,7 @@ size_t wqc_collect_downloaded_data
     size_t total_size,
     struct web_reply_buffer *buf
 );
+
 
 #ifdef __cplusplus
 } // "extern C"
