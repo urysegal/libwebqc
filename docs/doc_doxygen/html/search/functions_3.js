@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['make_5fcurl_5fcall_130',['make_curl_call',['../webqc-curl_8h.html#aaff3665c488f1d343daa448e3cf12744',1,'webqc-curl.h']]]
+  ['make_5fweb_5fcall_134',['make_web_call',['../webqc-web-access_8h.html#a977720de2cacadded52cf76b44d5e389',1,'webqc-web-access.h']]]
 ];

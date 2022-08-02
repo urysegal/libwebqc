@@ -23,7 +23,7 @@ TEST_CASE( "try to parse a bad reply", "[eri]" ) {
         char illegal_JSON[] = "{ \"a\" : 7, g: 6.6}";
         size_t total_size = sizeof(illegal_JSON);
 
-        CHECK(wqc_collect_downloaded_data(illegal_JSON, total_size, &handler->curl_info.web_reply) == total_size);
+        CHECK(wqc_collect_downloaded_data(illegal_JSON, total_size, &handler->web_call_info.web_reply) == total_size);
 
         struct wqc_return_value error_structure = init_webqc_return_value();
         cJSON *reply_json = NULL;
@@ -38,7 +38,7 @@ TEST_CASE( "try to parse a bad reply", "[eri]" ) {
         char weird_ERI_reply[] = "{\"job_id\":\"job-b\" , \"job_status\" : {   }  } ";
         size_t total_size = sizeof(weird_ERI_reply);
 
-        CHECK(wqc_collect_downloaded_data(weird_ERI_reply, total_size, &handler->curl_info.web_reply) == total_size);
+        CHECK(wqc_collect_downloaded_data(weird_ERI_reply, total_size, &handler->web_call_info.web_reply) == total_size);
 
         struct wqc_return_value error_structure = init_webqc_return_value();
 

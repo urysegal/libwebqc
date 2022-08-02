@@ -10,7 +10,7 @@
 
 #include "libwebqc.h"
 #include "webqc-handler.h"
-#include "webqc-curl.h"
+#include "webqc-web-access.h"
 #include "webqc-json.h"
 
 
@@ -39,13 +39,7 @@ WQC *wqc_init()
     handler->job_type = WQC_NULL_JOB;
     handler->is_duplicate = false;
 
-    handler->curl_info.curl_handler = NULL;
-    handler->curl_info.full_URL[0] = '\0';
-    handler->curl_info.web_reply.size = 0;
-    handler->curl_info.web_reply.reply = NULL;
-    handler->curl_info.web_error_bufffer[0] = '\0';
-    handler->curl_info.http_headers = NULL;
-    handler->curl_info.http_reply_code = 0;
+    wqc_init_web_calls(handler);
 
     return handler;
 }
@@ -53,15 +47,15 @@ WQC *wqc_init()
 void wqc_reset(WQC *handler)
 {
     if (handler) {
-        if (handler->curl_info.web_reply.reply) {
-            free(handler->curl_info.web_reply.reply);
-            handler->curl_info.web_reply.reply = NULL;
-            handler->curl_info.web_reply.size=0;
+        if (handler->web_call_info.web_reply.reply) {
+            free(handler->web_call_info.web_reply.reply);
+            handler->web_call_info.web_reply.reply = NULL;
+            handler->web_call_info.web_reply.size=0;
         }
-        handler->curl_info.http_reply_code = 0;
+        handler->web_call_info.http_reply_code = 0;
         handler->wqc_endpoint = NULL;
         handler->job_type = WQC_NULL_JOB;
-        cleanup_curl(handler);
+        cleanup_web_call(handler);
     }
 }
 
@@ -93,7 +87,7 @@ static bool start_wqc_job(WQC *handler)
 
     handler->is_duplicate = false;
 
-    rv = prepare_curl(handler, handler->wqc_endpoint);
+    rv = prepare_web_call(handler, handler->wqc_endpoint);
 
     if ( rv ) {
         struct name_value_pair start_job_parameters[] = {
@@ -104,14 +98,14 @@ static bool start_wqc_job(WQC *handler)
     }
 
     if ( rv ) {
-        rv = make_curl_call(handler);
+        rv = make_web_call(handler);
     }
 
     if (rv) {
         rv = update_job_details(handler);
         wqc_reset(handler);
     }
-    cleanup_curl(handler);
+    cleanup_web_call(handler);
 
     return rv;
 }
@@ -121,12 +115,11 @@ static bool create_new_job(WQC *handler)
 {
     bool rv = false;
 
-    rv = prepare_curl(handler, NEW_JOB_SERVICE_ENDPOINT);
+    rv = prepare_web_call(handler, NEW_JOB_SERVICE_ENDPOINT);
 
     if ( rv ) {
-        curl_easy_setopt(handler->curl_info.curl_handler, CURLOPT_POST, 1L);
-        curl_easy_setopt(handler->curl_info.curl_handler, CURLOPT_POSTFIELDS, "{}");
-        rv = make_curl_call(handler);
+        set_no_parameters(handler);
+        rv = make_web_call(handler);
 
         if ( rv ) {
             get_job_id_from_reply(handler);
@@ -134,7 +127,7 @@ static bool create_new_job(WQC *handler)
         }
     }
 
-    cleanup_curl(handler);
+    cleanup_web_call(handler);
 
     return rv;
 }
@@ -145,7 +138,7 @@ static bool wqc_create_parameter_set(WQC *handler, enum wqc_job_type job_type, v
     const char *endpoint = NULL;
 
 
-    rv = prepare_curl(handler, PARAMETERS_SERVICE_ENDPOINT);
+    rv = prepare_web_call(handler, PARAMETERS_SERVICE_ENDPOINT);
 
     if ( rv ) {
         if (job_type == WQC_JOB_TWO_ELECTRONS_INTEGRALS) {
@@ -159,7 +152,7 @@ static bool wqc_create_parameter_set(WQC *handler, enum wqc_job_type job_type, v
 
     if ( rv ) {
 
-        rv = make_curl_call(handler);
+        rv = make_web_call(handler);
 
         if ( rv ) {
             get_parameter_set_id_from_reply(handler);
@@ -169,7 +162,7 @@ static bool wqc_create_parameter_set(WQC *handler, enum wqc_job_type job_type, v
         }
     }
 
-    cleanup_curl(handler);
+    cleanup_web_call(handler);
 
     return rv;
 }
@@ -200,10 +193,10 @@ bool wqc_get_reply(WQC *handler)
 
 void wqc_global_init()
 {
-    curl_global_init(CURL_GLOBAL_DEFAULT);
+    web_access_init(CURL_GLOBAL_DEFAULT);
 }
 
 void wqc_global_cleanup()
 {
-    curl_global_cleanup();
+    web_access_cleanup();
 }

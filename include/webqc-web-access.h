@@ -6,7 +6,7 @@
 //! \param handler handler to make a call with
 //! \param web_endpoint specific service on the WebQC server
 //! \return true on success, false on failure
-bool prepare_curl(
+bool prepare_web_call(
         WQC *handler,
         const char *web_endpoint
 );
@@ -15,14 +15,14 @@ bool prepare_curl(
 //! Perform the call to the WebQC server.
 //! \param handler handler to make the call on
 //! \return true on success, false on failure. Success means the call was successful in getting a 2XX HTTP reply
-bool make_curl_call(
+bool make_web_call(
     WQC *handler
 );
 
 //! Cleanup CURL related information. Release all memory
 //! \param handler handler to clean up
 //! \return true on success, false on failure
-bool cleanup_curl(
+bool cleanup_web_call(
     WQC *handler
 );
 
@@ -35,6 +35,14 @@ bool set_eri_job_parameters(
     WQC *handler,
     const struct two_electron_integrals_job_parameters *job_parameters
 );
+
+//! Set the next web call to have no parameters.
+//! \param handler handler that call will be make on
+//! \return true on success, false on failure
+bool set_no_parameters(
+        WQC *handler
+);
+
 
 /// A name-value pair for adding multiple JSON fields at once
 struct name_value_pair {
@@ -58,4 +66,15 @@ bool set_POST_fields(
     struct name_value_pair values[],
     size_t num_values
 );
+
+
+//! Set up the web access library
+void web_access_init();
+
+//! Clean up the web access library
+void web_access_cleanup();
+
+//! Initialize the web access part of the hanlder
+//! \param handler  handler to initialize
+void wqc_init_web_calls(WQC *handler);
 

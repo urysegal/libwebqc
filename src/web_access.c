@@ -14,12 +14,12 @@
 
 #include "libwebqc.h"
 #include "webqc-handler.h"
-#include "webqc-curl.h"
+#include "webqc-web-access.h"
 
 static size_t collect_curl_downloaded_data(void *data, size_t size, size_t nmemb, void *userp)
 {
     size_t total_size = size * nmemb;
-    struct web_reply_buffer *buf = &(((struct webqc_handler_t *) userp)->curl_info.web_reply);
+    struct web_reply_buffer *buf = &(((struct webqc_handler_t *) userp)->web_call_info.web_reply);
 
     return wqc_collect_downloaded_data(data, total_size, buf);
 }
@@ -51,12 +51,12 @@ prepare_curl_security(WQC *handler)
     if (auth_header) {
         strncpy(auth_header, AUTH_HEADER, strlen(AUTH_HEADER) + 1);
         strncat(auth_header, handler->access_token, strlen(handler->access_token));
-        handler->curl_info.http_headers = curl_slist_append(handler->curl_info.http_headers, auth_header);
+        handler->web_call_info.http_headers = curl_slist_append(handler->web_call_info.http_headers, auth_header);
         free(auth_header);
 
         if (handler->insecure_ssl) {
-            curl_easy_setopt(handler->curl_info.curl_handler, CURLOPT_SSL_VERIFYPEER, 0L);
-            curl_easy_setopt(handler->curl_info.curl_handler, CURLOPT_SSL_VERIFYHOST, 0L);
+            curl_easy_setopt(handler->web_call_info.curl_handler, CURLOPT_SSL_VERIFYPEER, 0L);
+            curl_easy_setopt(handler->web_call_info.curl_handler, CURLOPT_SSL_VERIFYHOST, 0L);
         }
         rv = true;
     } else {
@@ -69,9 +69,9 @@ prepare_curl_security(WQC *handler)
 static void
 prepare_curl_reply_buffers(WQC *handler)
 {
-    curl_easy_setopt(handler->curl_info.curl_handler, CURLOPT_WRITEFUNCTION, collect_curl_downloaded_data);
-    curl_easy_setopt(handler->curl_info.curl_handler, CURLOPT_WRITEDATA, handler);
-    curl_easy_setopt(handler->curl_info.curl_handler, CURLOPT_ERRORBUFFER, handler->curl_info.web_error_bufffer);
+    curl_easy_setopt(handler->web_call_info.curl_handler, CURLOPT_WRITEFUNCTION, collect_curl_downloaded_data);
+    curl_easy_setopt(handler->web_call_info.curl_handler, CURLOPT_WRITEDATA, handler);
+    curl_easy_setopt(handler->web_call_info.curl_handler, CURLOPT_ERRORBUFFER, handler->web_call_info.web_error_bufffer);
 }
 
 
@@ -84,9 +84,9 @@ prepare_curl_URL(WQC *handler, const char *web_endpoint)
 
     assert(web_endpoint);
 
-    if (snprintf(handler->curl_info.full_URL, MAX_URL_SIZE, "%s://%s:%u/%s", scheme, handler->webqc_server_name, handler->webqc_server_port,
+    if (snprintf(handler->web_call_info.full_URL, MAX_URL_SIZE, "%s://%s:%u/%s", scheme, handler->webqc_server_name, handler->webqc_server_port,
                  web_endpoint) < MAX_URL_SIZE) {
-        curl_easy_setopt(handler->curl_info.curl_handler, CURLOPT_URL, handler->curl_info.full_URL);
+        curl_easy_setopt(handler->web_call_info.curl_handler, CURLOPT_URL, handler->web_call_info.full_URL);
         rv = true;
     }
 
@@ -95,24 +95,24 @@ prepare_curl_URL(WQC *handler, const char *web_endpoint)
 
 
 bool
-prepare_curl(WQC *handler, const char *web_endpoint)
+prepare_web_call(WQC *handler, const char *web_endpoint)
 {
     bool rv = false;
-    assert(handler->curl_info.curl_handler == NULL);
+    assert(handler->web_call_info.curl_handler == NULL);
 
-    handler->curl_info.curl_handler = curl_easy_init();
-    if (handler->curl_info.curl_handler) {
+    handler->web_call_info.curl_handler = curl_easy_init();
+    if (handler->web_call_info.curl_handler) {
 
-        curl_easy_setopt(handler->curl_info.curl_handler, CURLOPT_USERAGENT, "curl/7.68.0");
+        curl_easy_setopt(handler->web_call_info.curl_handler, CURLOPT_USERAGENT, "curl/7.68.0");
 
         prepare_curl_reply_buffers(handler);
 
         if ((rv = prepare_curl_URL(handler, web_endpoint))) {
 
             if ((rv = prepare_curl_security(handler))) {
-                handler->curl_info.http_headers = curl_slist_append(handler->curl_info.http_headers,
-                                                                    "Content-Type: application/json");
-                curl_easy_setopt(handler->curl_info.curl_handler, CURLOPT_HTTPHEADER, handler->curl_info.http_headers);
+                handler->web_call_info.http_headers = curl_slist_append(handler->web_call_info.http_headers,
+                                                                        "Content-Type: application/json");
+                curl_easy_setopt(handler->web_call_info.curl_handler, CURLOPT_HTTPHEADER, handler->web_call_info.http_headers);
                 rv = true;
             }
         }
@@ -121,31 +121,31 @@ prepare_curl(WQC *handler, const char *web_endpoint)
     return rv;
 }
 
-bool make_curl_call(WQC *handler)
+bool make_web_call(WQC *handler)
 {
     assert (handler) ;
     CURLcode res;
     bool rv = false;
 
-    res = curl_easy_perform(handler->curl_info.curl_handler);
+    res = curl_easy_perform(handler->web_call_info.curl_handler);
 
     if (res) {
         const char *additional_messages[] = {
-                handler->curl_info.full_URL,
-                handler->curl_info.web_error_bufffer,
+                handler->web_call_info.full_URL,
+                handler->web_call_info.web_error_bufffer,
                 curl_easy_strerror(res),
                 NULL
         };
         wqc_set_error_with_messages(handler, WEBQC_WEB_CALL_ERROR, additional_messages); //need some more error information
     } else {
-        curl_easy_getinfo( handler->curl_info.curl_handler, CURLINFO_RESPONSE_CODE, &handler->curl_info.http_reply_code);
-        if (handler->curl_info.http_reply_code  < 200 || handler->curl_info.http_reply_code >= 300 ) {
+        curl_easy_getinfo(handler->web_call_info.curl_handler, CURLINFO_RESPONSE_CODE, &handler->web_call_info.http_reply_code);
+        if (handler->web_call_info.http_reply_code < 200 || handler->web_call_info.http_reply_code >= 300 ) {
 
             char http_error_code[4] = {0,0,0,0};
-            snprintf(http_error_code, sizeof(http_error_code), "%u", handler->curl_info.http_reply_code);
+            snprintf(http_error_code, sizeof(http_error_code), "%u", handler->web_call_info.http_reply_code);
 
             const char *additional_messages[] = {
-                    handler->curl_info.full_URL,
+                    handler->web_call_info.full_URL,
                     "HTTP Error Code: ",
                     http_error_code,
                     NULL
@@ -159,16 +159,16 @@ bool make_curl_call(WQC *handler)
     return rv;
 }
 
-bool cleanup_curl(WQC *handler)
+bool cleanup_web_call(WQC *handler)
 {
     assert (handler) ;
-    if (handler->curl_info.http_headers) {
-        curl_slist_free_all(handler->curl_info.http_headers);
-        handler->curl_info.http_headers = NULL;
+    if (handler->web_call_info.http_headers) {
+        curl_slist_free_all(handler->web_call_info.http_headers);
+        handler->web_call_info.http_headers = NULL;
     }
-    if (handler->curl_info.curl_handler) {
-        curl_easy_cleanup(handler->curl_info.curl_handler);
-        handler->curl_info.curl_handler = NULL;
+    if (handler->web_call_info.curl_handler) {
+        curl_easy_cleanup(handler->web_call_info.curl_handler);
+        handler->web_call_info.curl_handler = NULL;
     }
     return true;
 }
@@ -221,8 +221,8 @@ bool set_POST_fields(WQC *handler, struct name_value_pair values[], size_t num_v
 
             char *json_as_string = cJSON_Print(ERI_request);
 
-            curl_easy_setopt(handler->curl_info.curl_handler, CURLOPT_POST, 1L);
-            curl_easy_setopt(handler->curl_info.curl_handler, CURLOPT_COPYPOSTFIELDS, json_as_string);
+            curl_easy_setopt(handler->web_call_info.curl_handler, CURLOPT_POST, 1L);
+            curl_easy_setopt(handler->web_call_info.curl_handler, CURLOPT_COPYPOSTFIELDS, json_as_string);
             free(json_as_string);
             cJSON_Delete(ERI_request);
             rv = true;
@@ -250,5 +250,37 @@ bool set_eri_job_parameters(WQC *handler, const struct two_electron_integrals_jo
     rv = set_POST_fields(handler, two_e_parameters_pairs, ARRAY_SIZE(two_e_parameters_pairs));
 
     return rv;
+}
+
+
+void wqc_init_web_calls(WQC *handler)
+{
+    handler->web_call_info.curl_handler = NULL;
+    handler->web_call_info.full_URL[0] = '\0';
+    handler->web_call_info.web_reply.size = 0;
+    handler->web_call_info.web_reply.reply = NULL;
+    handler->web_call_info.web_error_bufffer[0] = '\0';
+    handler->web_call_info.http_headers = NULL;
+    handler->web_call_info.http_reply_code = 0;
+}
+
+
+bool
+set_no_parameters(WQC *handler)
+{
+    curl_easy_setopt(handler->web_call_info.curl_handler, CURLOPT_POST, 1L);
+    curl_easy_setopt(handler->web_call_info.curl_handler, CURLOPT_POSTFIELDS, "{}");
+    return true;
+}
+
+
+void web_access_init()
+{
+    curl_global_init(CURL_GLOBAL_DEFAULT);
+}
+
+void web_access_cleanup()
+{
+    curl_global_cleanup();
 }
 

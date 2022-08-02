@@ -39,7 +39,7 @@ bool parse_JSON_reply(WQC *handler, cJSON **reply_json)
 {
     bool rv = true;
 
-    *reply_json = cJSON_Parse(handler->curl_info.web_reply.reply);
+    *reply_json = cJSON_Parse(handler->web_call_info.web_reply.reply);
 
     if (*reply_json == NULL) {
 
@@ -58,7 +58,7 @@ bool parse_JSON_reply(WQC *handler, cJSON **reply_json)
         if (error_ptr != NULL)
         {
             extra_messages[1] = error_ptr;
-            snprintf(position_str, sizeof position_str, "%lu", error_ptr - handler->curl_info.web_reply.reply);
+            snprintf(position_str, sizeof position_str, "%lu", error_ptr - handler->web_call_info.web_reply.reply);
         }
         wqc_set_error_with_messages(handler, WEBQC_WEB_CALL_ERROR, extra_messages);
     }
