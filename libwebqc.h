@@ -129,7 +129,7 @@ bool wqc_set_option(
         ...
 );
 
-//! @breif Get the value of an option.
+//! @brief Get the value of an option.
 //! For string or struct values, a pointer is returned, which is const and you must not
 //! change. The pointer is valid until the next call to the library with the same handler.
 //! \param handler a job handler to get the option from
@@ -158,7 +158,7 @@ void wqc_set_error(
 void wqc_set_error_with_message(
         WQC *handler,
         error_code_t code,
-        const char *extra_messages
+        const char *extra_message
 );
 
 //! Set the error code on the handler. Error message is also set automatically, plus a NULL-terminated array

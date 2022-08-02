@@ -56,7 +56,7 @@ endif()
 add_subdirectory(test)
 
 # first we can indicate the documentation build as an option and set it to ON by default
-option(BUILD_DOC "Build documentation" )
+option(BUILD_DOC "Build documentation" ON)
 
 if (BUILD_DOC)
 # check if Doxygen is installed
