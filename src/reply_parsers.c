@@ -206,27 +206,39 @@ parse_eri_integral_range(WQC *handler, cJSON *item, const char *field_name, int 
     return rv;
 }
 
+
+enum job_status_t get_status_from_string(const char *status_str, int str_max_len)
+{
+    if (strncmp(status_str, "done", str_max_len) == 0 ) {
+        return WQC_JOB_STATUS_DONE;
+    }
+    if (strncmp(status_str, "pending", str_max_len) == 0 ) {
+        return WQC_JOB_STATUS_PENDING;
+    }
+    if (strncmp(status_str, "processing", str_max_len) == 0 ) {
+        return WQC_JOB_STATUS_PROCESSING;
+    }
+    if (strncmp(status_str, "error", str_max_len) == 0 ) {
+        return WQC_JOB_STATUS_ERROR;
+    }
+
+    return WQC_JOB_STATUS_UNKNOWN;
+}
+
 static bool
-parse_eri_status_item(WQC *handler, cJSON *iterator)
+parse_eri_status_item(WQC *handler, cJSON *iterator, struct ERI_item_status *status)
 {
     bool rv = false;
-
-    //$6 = 0x610000011540 "{\"job_id\": \"06e5a058-c8ef-44d4-aad3-7bbfe5c519f6\", \"items\": [{\"requestor\": \"ury\", \"id\": 9, \"status\": \"pending\",
-// \"result_blob\": null, \"begin\": [0, 0, 0, 0], \"end\": [5, 0, 0, 0]}]}"
     char status_str[16];
-    int item_id = -1;
-    char blob_name[2048] = {0};
-    int range_begin[4] = {0};
-    int range_end[4] = {0};
-
 
     rv = get_string_from_JSON(iterator, "status", status_str, sizeof status_str);
     if ( rv ) {
-        rv = get_int_from_JSON(iterator, "id", &item_id);
+        status->status = get_status_from_string(status_str, sizeof status_str);
+        rv = get_int_from_JSON(iterator, "id", &status->id);
     }
 
-    if ( rv && (strncmp(status_str,"done", sizeof status_str) == 0)) {
-        rv = get_string_from_JSON(iterator, "result_blob", blob_name, sizeof blob_name);
+    if ( rv && (status->status == WQC_JOB_STATUS_DONE) ) {
+        rv = get_string_from_JSON(iterator, "result_blob", status->output_blob_name, sizeof status->output_blob_name);
     }
 
     if (!rv) {
@@ -234,15 +246,24 @@ parse_eri_status_item(WQC *handler, cJSON *iterator)
     }
 
     if ( rv ) {
-        rv = parse_eri_integral_range(handler, iterator, "begin", range_begin);
+        rv = parse_eri_integral_range(handler, iterator, "begin", status->range_begin);
     }
 
     if ( rv ) {
-        rv = parse_eri_integral_range(handler, iterator, "end", range_end);
+        rv = parse_eri_integral_range(handler, iterator, "end", status->range_end);
     }
 
 
     return rv;
+}
+
+static void
+add_eri_status_item(WQC *handler, struct ERI_item_status *status)
+{
+    handler->eri_status = realloc(handler->eri_status, (handler->ERI_items_count+1) * sizeof (struct ERI_item_status));
+    memcpy(&handler->eri_status[handler->ERI_items_count], status, sizeof (struct ERI_item_status));
+    handler->ERI_items_count++;
+    status->output_blob_name=NULL;
 }
 
 static bool
@@ -253,7 +274,12 @@ parse_eri_status_array(WQC *handler, cJSON *eri_items)
 
     cJSON_ArrayForEach(iterator, eri_items) {
         if (cJSON_IsObject(iterator)) {
-            rv = parse_eri_status_item(handler, iterator);
+            struct ERI_item_status status;
+            bzero(&status, sizeof status);
+            rv = parse_eri_status_item(handler, iterator, &status);
+            if ( rv ) {
+                add_eri_status_item(handler, &status);
+            }
         } else {
             rv = false;
         }

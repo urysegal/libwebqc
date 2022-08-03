@@ -42,6 +42,23 @@ enum wqc_job_type {
     WQC_JOB_TWO_ELECTRONS_INTEGRALS = 3 /// Calculate all two-electrons repulsion integrals
 };
 
+/// Status of a job
+enum job_status_t {
+    WQC_JOB_STATUS_UNKNOWN = 0, /// Job staus unknown (was not fetched form WebQC server yet)
+    WQC_JOB_STATUS_PENDING = 1, /// Job did not start executing
+    WQC_JOB_STATUS_DONE = 2, /// Job finished successfully
+    WQC_JOB_STATUS_PROCESSING = 3, /// Job executing now
+    WQC_JOB_STATUS_ERROR = 4 /// Job finished with error
+};
+
+struct ERI_item_status {
+    enum job_status_t status;
+    int id ;
+    char *output_blob_name;
+    int range_begin[4];
+    int range_end[4];
+};
+
 //! Initialize the WQC library. Call once before calling any thing WQC functions.
 void wqc_global_init();
 

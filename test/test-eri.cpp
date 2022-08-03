@@ -21,8 +21,10 @@ TEST_CASE( "submit integrals job and get reply", "[eri]" ) {
 
     SECTION("Do REST Call") {
 
+        CHECK(wqc_get_status(handler) == false );
         CHECK(wqc_submit_job(handler, WQC_JOB_TWO_ELECTRONS_INTEGRALS, &parameters) == true);
         CHECK(wqc_get_status(handler) == true );
+
     }
     wqc_cleanup(handler);
 }

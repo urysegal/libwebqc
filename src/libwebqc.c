@@ -39,6 +39,8 @@ WQC *wqc_init()
     handler->job_type = WQC_NULL_JOB;
     handler->is_duplicate = false;
     handler->job_status = WQC_JOB_STATUS_UNKNOWN;
+    handler->eri_status = NULL;
+    handler->ERI_items_count = 0;
 
     wqc_init_web_calls(handler);
 
@@ -70,7 +72,12 @@ void wqc_cleanup(WQC *handler)
             free(handler->access_token);
             handler->access_token = NULL;
         }
-
+        if ( handler->eri_status ) {
+            for ( int i = 0 ; i < handler->ERI_items_count; ++i) {
+                free(handler->eri_status[i].output_blob_name);
+            }
+            free(handler->eri_status);
+        }
         free(handler->webqc_server_name);
         free(handler);
     }

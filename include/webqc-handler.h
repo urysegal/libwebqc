@@ -14,13 +14,6 @@ extern "C" {
 #define WQC_JOB_ID_LENGTH (UUID_LENGTH) /// Job IDs are UUIDs
 #define WQC_PARAM_SET_ID_LENGTH (UUID_LENGTH) /// Parameter set IDs are UUIDs
 
-enum job_status_t {
-    WQC_JOB_STATUS_UNKNOWN = 0,
-    WQC_JOB_STATUS_PENDING = 1,
-    WQC_JOB_STATUS_DONE = 2,
-    WQC_JOB_STATUS_PROCESSING = 3,
-    WQC_JOB_STATUS_ERROR = 4
-};
 
 
 //! Structure to hold a reply from a cURL call
@@ -59,6 +52,8 @@ struct webqc_handler_t {
     enum wqc_job_type job_type; /// What is the job type this handler is calling for
     bool is_duplicate; /// Job was found to be a duplicate of another one
     enum job_status_t job_status; /// Last known status of job as require by the WebQC server
+    struct ERI_item_status *eri_status; /// List of all ERI sub-jobs status...
+    int ERI_items_count;    /// How many ERI sub-jobs there are
 };
 
 //! Add reply data received from the web service to a reply buffer

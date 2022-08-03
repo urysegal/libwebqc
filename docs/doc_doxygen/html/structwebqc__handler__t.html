@@ -78,10 +78,11 @@ Collaboration diagram for webqc_handler_t:</div>
 <div class="dyncontent">
 <div class="center"><img src="structwebqc__handler__t__coll__graph.png" border="0" usemap="#webqc__handler__t_coll__map" alt="Collaboration graph"/></div>
 <map name="webqc__handler__t_coll__map" id="webqc__handler__t_coll__map">
-<area shape="rect" title="Internal structure that maintains the status of an asynchrounous WQC operation." alt="" coords="77,184,209,211"/>
+<area shape="rect" title="Internal structure that maintains the status of an asynchrounous WQC operation." alt="" coords="164,184,296,211"/>
 <area shape="rect" href="structwqc__return__value.html" title="webqc_return_value_t contains all information about an error. All calls to the client library return ..." alt="" coords="5,95,143,121"/>
-<area shape="rect" href="structhandler__curl__info.html" title=" " alt="" coords="167,95,301,121"/>
-<area shape="rect" href="structweb__reply__buffer.html" title="Structure to hold a reply from a cURL call." alt="" coords="167,5,301,32"/>
+<area shape="rect" href="structERI__item__status.html" title=" " alt="" coords="167,95,293,121"/>
+<area shape="rect" href="structhandler__curl__info.html" title=" " alt="" coords="317,95,452,121"/>
+<area shape="rect" href="structweb__reply__buffer.html" title="Structure to hold a reply from a cURL call." alt="" coords="317,5,452,32"/>
 </map>
 <center><span class="legend">[<a href="graph_legend.html">legend</a>]</span></center></div>
 <table class="memberdecls">
@@ -119,9 +120,15 @@ Public Attributes</h2></td></tr>
 <tr class="memitem:a6a78ba49ffa98b93738a3fdacc907aca"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structwebqc__handler__t.html#a6a78ba49ffa98b93738a3fdacc907aca">is_duplicate</a></td></tr>
 <tr class="memdesc:a6a78ba49ffa98b93738a3fdacc907aca"><td class="mdescLeft">&#160;</td><td class="mdescRight">What is the job type this handler is calling for.  <a href="structwebqc__handler__t.html#a6a78ba49ffa98b93738a3fdacc907aca">More...</a><br /></td></tr>
 <tr class="separator:a6a78ba49ffa98b93738a3fdacc907aca"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a2143777a0e4786ede2f935a2e81a8531"><td class="memItemLeft" align="right" valign="top">enum <a class="el" href="webqc-handler_8h.html#ae1082a3ceb302cee481387f33d277956">job_status_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structwebqc__handler__t.html#a2143777a0e4786ede2f935a2e81a8531">job_status</a></td></tr>
+<tr class="memitem:a2143777a0e4786ede2f935a2e81a8531"><td class="memItemLeft" align="right" valign="top">enum <a class="el" href="libwebqc_8h.html#ae1082a3ceb302cee481387f33d277956">job_status_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structwebqc__handler__t.html#a2143777a0e4786ede2f935a2e81a8531">job_status</a></td></tr>
 <tr class="memdesc:a2143777a0e4786ede2f935a2e81a8531"><td class="mdescLeft">&#160;</td><td class="mdescRight">Job was found to be a duplicate of another one.  <a href="structwebqc__handler__t.html#a2143777a0e4786ede2f935a2e81a8531">More...</a><br /></td></tr>
 <tr class="separator:a2143777a0e4786ede2f935a2e81a8531"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4f3769cd6d7ea45e9fc75603f4e3c64d"><td class="memItemLeft" align="right" valign="top">struct <a class="el" href="structERI__item__status.html">ERI_item_status</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structwebqc__handler__t.html#a4f3769cd6d7ea45e9fc75603f4e3c64d">eri_status</a></td></tr>
+<tr class="memdesc:a4f3769cd6d7ea45e9fc75603f4e3c64d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Last known status of job as require by the WebQC server.  <a href="structwebqc__handler__t.html#a4f3769cd6d7ea45e9fc75603f4e3c64d">More...</a><br /></td></tr>
+<tr class="separator:a4f3769cd6d7ea45e9fc75603f4e3c64d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aabbc5a7f130bebb01e8edc6533a6b8f2"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structwebqc__handler__t.html#aabbc5a7f130bebb01e8edc6533a6b8f2">ERI_items_count</a></td></tr>
+<tr class="memdesc:aabbc5a7f130bebb01e8edc6533a6b8f2"><td class="mdescLeft">&#160;</td><td class="mdescRight">List of all ERI sub-jobs status...  <a href="structwebqc__handler__t.html#aabbc5a7f130bebb01e8edc6533a6b8f2">More...</a><br /></td></tr>
+<tr class="separator:aabbc5a7f130bebb01e8edc6533a6b8f2"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Internal structure that maintains the status of an asynchrounous WQC operation. </p>
@@ -139,6 +146,38 @@ Public Attributes</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Return value from last call to WQC API. </p>
+
+</div>
+</div>
+<a id="aabbc5a7f130bebb01e8edc6533a6b8f2"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aabbc5a7f130bebb01e8edc6533a6b8f2">&#9670;&nbsp;</a></span>ERI_items_count</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int webqc_handler_t::ERI_items_count</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>List of all ERI sub-jobs status... </p>
+
+</div>
+</div>
+<a id="a4f3769cd6d7ea45e9fc75603f4e3c64d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4f3769cd6d7ea45e9fc75603f4e3c64d">&#9670;&nbsp;</a></span>eri_status</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">struct <a class="el" href="structERI__item__status.html">ERI_item_status</a>* webqc_handler_t::eri_status</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Last known status of job as require by the WebQC server. </p>
 
 </div>
 </div>
@@ -197,7 +236,7 @@ Public Attributes</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">enum <a class="el" href="webqc-handler_8h.html#ae1082a3ceb302cee481387f33d277956">job_status_t</a> webqc_handler_t::job_status</td>
+          <td class="memname">enum <a class="el" href="libwebqc_8h.html#ae1082a3ceb302cee481387f33d277956">job_status_t</a> webqc_handler_t::job_status</td>
         </tr>
       </table>
 </div><div class="memdoc">

@@ -1,6 +1,6 @@
 var searchData=
 [
-  ['update_5feri_5fjob_5fstatus_57',['update_eri_job_status',['../webqc-json_8h.html#aa7031ed4ab1b3b738c1f5d566d97c94a',1,'webqc-json.h']]],
-  ['update_5fjob_5fdetails_58',['update_job_details',['../webqc-json_8h.html#ab973a9fcfcc775def2eaa2145285dfde',1,'webqc-json.h']]],
-  ['uuid_5flength_59',['UUID_LENGTH',['../webqc-handler_8h.html#a9226162b034cc837cd977f0fcf611c2c',1,'webqc-handler.h']]]
+  ['two_5felectron_5fintegrals_5fjob_5fparameters_62',['two_electron_integrals_job_parameters',['../structtwo__electron__integrals__job__parameters.html',1,'']]],
+  ['two_5felectrons_5fintegral_5fservice_5fendpoint_63',['TWO_ELECTRONS_INTEGRAL_SERVICE_ENDPOINT',['../libwebqc_8h.html#aa682850ec9e5d94f98586f7e989b830b',1,'libwebqc.h']]],
+  ['type_64',['type',['../structname__value__pair.html#a7b9e6a5840d831385005dbfb067e6b71',1,'name_value_pair']]]
 ];
