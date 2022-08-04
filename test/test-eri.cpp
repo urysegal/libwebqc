@@ -84,6 +84,40 @@ TEST_CASE( "try to parse a bad reply", "[eri]" ) {
         CHECK(error_structure.error_message[0] != '\0');
 
     }
+
+    SECTION("Parse illegal ERI item status arrays") {
+
+        const char *illegals_replies[] = {
+                "{\"job_id\": \"job-a\" , \"items\": [8]}",
+                "{\"job_id\": \"job-a\" }",
+                "{\"job_id\": \"job-a\" , \"items\": 8}",
+                "{\"job_id\": \"job-a\", \"items\": [{\"requestor\": \"ury\", \"id\": 9, \"status\": \"error\", \"result_blob\": null, \"begin\": [\"\",0,0,0], \"end\": [5, 0, 0, 0]}]}",
+                "{\"job_id\": \"job-a\", \"items\": [{\"requestor\": \"ury\", \"id\": 9, \"status\": \"pending\", \"result_blob\": null, \"begin\": [0], \"end\": [5, 0, 0, 0]}]}",
+                "{\"job_id\": \"job-a\", \"items\": [{\"requestor\": \"ury\", \"id\": 9, \"status\": \"WEIRD\", \"result_blob\": null, \"begin\": [0,0,0,0]}]}",
+                "{\"job_id\": \"job-a\", \"items\": [{\"requestor\": \"ury\", \"status\": \"done\", \"result_blob\": null, \"begin\": [0,0,0,0], \"end\": [5, 0, 0, 0]}]}",
+                NULL
+        };
+
+        handler->job_type = WQC_JOB_TWO_ELECTRONS_INTEGRALS;
+        strncpy(handler->job_id, "job-a", sizeof(handler->job_id));
+
+        for ( int  i = 0 ; illegals_replies[i] ; ++i ) {
+            const char *weird_ERI_reply = illegals_replies[i];
+
+            size_t total_size = strlen(weird_ERI_reply);
+
+            CHECK(wqc_set_downloaded_data((void *)weird_ERI_reply, total_size, &handler->web_call_info.web_reply) ==
+                  total_size);
+
+            struct wqc_return_value error_structure = init_webqc_return_value();
+
+            CHECK(update_eri_job_status(handler) == false);
+
+            CHECK(wqc_get_last_error(handler, &error_structure) == true);
+            CHECK(error_structure.error_code != 0);
+            CHECK(error_structure.error_message[0] != '\0');
+        }
+    }
     wqc_cleanup(handler);
 }
 
@@ -183,3 +217,4 @@ TEST_CASE( "submit integrals job to bad server", "[eri]" ) {
     }
     wqc_cleanup(handler);
 }
+

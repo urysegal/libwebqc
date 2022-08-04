@@ -201,8 +201,14 @@ parse_eri_integral_range(WQC *handler, cJSON *item, const char *field_name, int 
             }
         }
     } else {
-        wqc_set_error_with_message(handler, WEBQC_WEB_CALL_ERROR, "Cannot find range array in reply");
+        wqc_set_error_with_message(handler, WEBQC_WEB_CALL_ERROR, "Cannot find range array in ERI reply");
     }
+
+    if ( i != 4 ) {
+        rv = false;
+        wqc_set_error_with_message(handler, WEBQC_WEB_CALL_ERROR, "Not enough indices in ERI reply range");
+    }
+
     return rv;
 }
 
@@ -281,6 +287,7 @@ parse_eri_status_array(WQC *handler, cJSON *eri_items)
                 add_eri_status_item(handler, &status);
             }
         } else {
+            wqc_set_error_with_message(handler, WEBQC_WEB_CALL_ERROR, "Array 'items' in ERI reply must contain objects");
             rv = false;
         }
         if ( ! rv ) {
