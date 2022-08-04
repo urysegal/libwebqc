@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['handler_5fcurl_5finfo_116',['handler_curl_info',['../structhandler__curl__info.html',1,'']]]
+  ['eri_5fitem_5fstatus_136',['ERI_item_status',['../structERI__item__status.html',1,'']]]
 ];

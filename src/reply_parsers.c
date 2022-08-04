@@ -33,6 +33,26 @@ bool get_object_from_reply(cJSON *json, const char *field_name, cJSON **obj)
     return rv;
 }
 
+bool get_array_from_reply(cJSON *json, const char *field_name, cJSON **array)
+{
+    bool rv = false;
+    *array = cJSON_GetObjectItemCaseSensitive(json, field_name);
+    if (*array && cJSON_IsArray(*array) ) {
+        rv = true;
+    }
+    return rv;
+}
+
+bool get_int_from_JSON(cJSON *json, const char *field_name, int *dest)
+{
+    bool rv = false;
+    cJSON *job_id = cJSON_GetObjectItemCaseSensitive(json, field_name);
+    if (cJSON_IsNumber(job_id) ) {
+        *dest = job_id->valueint;
+        rv = true;
+    }
+    return rv;
+}
 
 
 bool parse_JSON_reply(WQC *handler, cJSON **reply_json)
@@ -154,5 +174,154 @@ bool update_job_details(WQC *handler)
                 break;
         }
     }
+    return rv;
+}
+
+static bool
+parse_eri_integral_range(WQC *handler, cJSON *item, const char *field_name, int *range)
+{
+    cJSON *range_array = NULL;
+    int i = 0;
+
+    bool rv = get_array_from_reply(item, field_name, &range_array);
+
+    if (rv && range_array) {
+        cJSON *array_iterator = NULL;
+
+        cJSON_ArrayForEach(array_iterator, range_array) {
+
+            if (cJSON_IsNumber(array_iterator)) {
+                range[i++] = array_iterator->valueint;
+            } else {
+                rv = false;
+            }
+
+            if (!rv || i == 4) {
+                break;
+            }
+        }
+    } else {
+        wqc_set_error_with_message(handler, WEBQC_WEB_CALL_ERROR, "Cannot find range array in ERI reply");
+    }
+
+    if ( i != 4 ) {
+        rv = false;
+        wqc_set_error_with_message(handler, WEBQC_WEB_CALL_ERROR, "Not enough indices in ERI reply range");
+    }
+
+    return rv;
+}
+
+
+enum job_status_t get_status_from_string(const char *status_str, int str_max_len)
+{
+    if (strncmp(status_str, "done", str_max_len) == 0 ) {
+        return WQC_JOB_STATUS_DONE;
+    }
+    if (strncmp(status_str, "pending", str_max_len) == 0 ) {
+        return WQC_JOB_STATUS_PENDING;
+    }
+    if (strncmp(status_str, "processing", str_max_len) == 0 ) {
+        return WQC_JOB_STATUS_PROCESSING;
+    }
+    if (strncmp(status_str, "error", str_max_len) == 0 ) {
+        return WQC_JOB_STATUS_ERROR;
+    }
+
+    return WQC_JOB_STATUS_UNKNOWN;
+}
+
+static bool
+parse_eri_status_item(WQC *handler, cJSON *iterator, struct ERI_item_status *status)
+{
+    bool rv = false;
+    char status_str[16];
+
+    rv = get_string_from_JSON(iterator, "status", status_str, sizeof status_str);
+    if ( rv ) {
+        status->status = get_status_from_string(status_str, sizeof status_str);
+        rv = get_int_from_JSON(iterator, "id", &status->id);
+    }
+
+    if ( rv && (status->status == WQC_JOB_STATUS_DONE) ) {
+        char blob_path[MAX_URL_SIZE];
+        rv = get_string_from_JSON(iterator, "result_blob", blob_path, sizeof blob_path);
+        status->output_blob_name = strdup(blob_path);
+    }
+
+    if (!rv) {
+        wqc_set_error_with_message(handler, WEBQC_WEB_CALL_ERROR, "Cannot parse ERI items reply");
+    }
+
+    if ( rv ) {
+        rv = parse_eri_integral_range(handler, iterator, "begin", status->range_begin);
+    }
+
+    if ( rv ) {
+        rv = parse_eri_integral_range(handler, iterator, "end", status->range_end);
+    }
+
+
+    return rv;
+}
+
+static void
+add_eri_status_item(WQC *handler, struct ERI_item_status *status)
+{
+    handler->eri_status = realloc(handler->eri_status, (handler->ERI_items_count+1) * sizeof (struct ERI_item_status));
+    memcpy(&handler->eri_status[handler->ERI_items_count], status, sizeof (struct ERI_item_status));
+    handler->ERI_items_count++;
+    status->output_blob_name=NULL;
+}
+
+static bool
+parse_eri_status_array(WQC *handler, cJSON *eri_items)
+{
+    bool rv = false;
+    cJSON *iterator = NULL;
+
+    cJSON_ArrayForEach(iterator, eri_items) {
+        if (cJSON_IsObject(iterator)) {
+            struct ERI_item_status status;
+            bzero(&status, sizeof status);
+            rv = parse_eri_status_item(handler, iterator, &status);
+            if ( rv ) {
+                add_eri_status_item(handler, &status);
+            }
+        } else {
+            wqc_set_error_with_message(handler, WEBQC_WEB_CALL_ERROR, "Array 'items' in ERI reply must contain objects");
+            rv = false;
+        }
+        if ( ! rv ) {
+            break;
+        }
+    }
+
+    return rv;
+}
+
+
+bool
+update_eri_job_status(WQC *handler)
+{
+    bool rv = false;
+    cJSON *reply_json = NULL;
+    cJSON *eri_items = NULL;
+
+    rv = parse_JSON_reply(handler, &reply_json);
+
+    if ( rv ) {
+        rv = get_array_from_reply(reply_json, "items", &eri_items);
+        if (rv && eri_items) {
+            rv = parse_eri_status_array(handler, eri_items);
+        } else {
+            wqc_set_error_with_message(handler, WEBQC_WEB_CALL_ERROR, "Cannot find array 'items' in reply");
+        }
+    }
+
+    if ( reply_json ) {
+        cJSON_Delete(reply_json);
+    }
+
     return rv;
 }

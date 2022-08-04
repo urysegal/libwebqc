@@ -60,11 +60,23 @@ struct name_value_pair {
 //! \param handler which handler to set the POST fields on
 //! \param values fields to set, array of struct name_value_pair
 //! \param num_values how many members in the array of fields to add
-//! \return trur on success, false on failure (and sets error on the handler)
+//! \return true on success, false on failure (and sets error on the handler)
 bool set_POST_fields(
     WQC *handler,
     struct name_value_pair values[],
     size_t num_values
+);
+
+
+//! Extend the URL to call by adding a resource to for an HTTP GET
+//! \param handler handler to make the call on
+//! \param param_name resource name to get
+//! \param param_value resource value
+//! \return true on success, false on failure (and sets error on the handler)
+bool prepare_get_parameter(
+    WQC *handler,
+    const char *param_name,
+    const char *param_value
 );
 
 

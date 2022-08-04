@@ -15,6 +15,21 @@ static const char *water_xyz_geometry =
 
 struct two_electron_integrals_job_parameters parameters = {"sto-3g", water_xyz_geometry, WQC_PRECISION_UNKNOWN, "angstrom"};
 
+TEST_CASE( "submit integrals job and get reply", "[eri]" ) {
+    WQC *handler = wqc_init();
+    REQUIRE(handler != NULL);
+
+    SECTION("Do REST Call") {
+
+        CHECK(wqc_get_status(handler) == false );
+        CHECK(wqc_submit_job(handler, WQC_JOB_TWO_ELECTRONS_INTEGRALS, &parameters) == true);
+        CHECK(wqc_get_status(handler) == true );
+
+    }
+    wqc_cleanup(handler);
+}
+
+
 TEST_CASE( "try to parse a bad reply", "[eri]" ) {
     WQC *handler = wqc_init();
     REQUIRE(handler != NULL);
@@ -69,8 +84,72 @@ TEST_CASE( "try to parse a bad reply", "[eri]" ) {
         CHECK(error_structure.error_message[0] != '\0');
 
     }
+
+    SECTION("Parse illegal ERI item status arrays") {
+
+        const char *illegals_replies[] = {
+                "{\"job_id\": \"job-a\" , \"items\": [{\"requestor\": \"ury\", \"id\": 9, \"status\": \"processing\", \"result_blob\": null, \"begin\": [0,0,0,0], \"end\": [5, 0, 0, 0]}, \"WHATISTHAT\"]}",
+                "{\"job_id\": \"job-a\" }",
+                "{\"job_id\": \"job-a\" , \"items\": 8}",
+                "{\"job_id\": \"job-a\", \"items\": [{\"requestor\": \"ury\", \"id\": 9, \"status\": \"error\", \"result_blob\": null, \"begin\": [\"\",0,0,0], \"end\": [5, 0, 0, 0]}]}",
+                "{\"job_id\": \"job-a\", \"items\": [{\"requestor\": \"ury\", \"id\": 9, \"status\": \"pending\", \"result_blob\": null, \"begin\": [0], \"end\": [5, 0, 0, 0]}]}",
+                "{\"job_id\": \"job-a\", \"items\": [{\"requestor\": \"ury\", \"id\": 9, \"status\": \"WEIRD\", \"result_blob\": null, \"begin\": [0,0,0,0]}]}",
+                "{\"job_id\": \"job-a\", \"items\": [{\"requestor\": \"ury\", \"status\": \"done\", \"result_blob\": null, \"begin\": [0,0,0,0], \"end\": [5, 0, 0, 0]}]}",
+                NULL
+        };
+
+        handler->job_type = WQC_JOB_TWO_ELECTRONS_INTEGRALS;
+        strncpy(handler->job_id, "job-a", sizeof(handler->job_id));
+
+        for ( int  i = 0 ; illegals_replies[i] ; ++i ) {
+            const char *weird_ERI_reply = illegals_replies[i];
+
+            size_t total_size = strlen(weird_ERI_reply);
+
+            CHECK(wqc_set_downloaded_data((void *)weird_ERI_reply, total_size, &handler->web_call_info.web_reply) ==
+                  total_size);
+
+            struct wqc_return_value error_structure = init_webqc_return_value();
+
+            CHECK(update_eri_job_status(handler) == false);
+
+            CHECK(wqc_get_last_error(handler, &error_structure) == true);
+            CHECK(error_structure.error_code != 0);
+            CHECK(error_structure.error_message[0] != '\0');
+        }
+    }
     wqc_cleanup(handler);
 }
+
+
+TEST_CASE( "parse ERI done reply with blob", "[eri]" ) {
+    WQC *handler = wqc_init();
+    REQUIRE(handler != NULL);
+
+    SECTION("Parse reply blobs") {
+
+        const char *blob_replies[] = {
+                "{\"job_id\": \"job-a\", \"items\": [{\"requestor\": \"ury\", \"id\": 9, \"status\": \"done\", \"result_blob\": \"bloby.blob.bin\", \"begin\": [0,0,0,0], \"end\": [5, 0, 0, 0]}]}",
+                NULL
+        };
+
+        handler->job_type = WQC_JOB_TWO_ELECTRONS_INTEGRALS;
+        strncpy(handler->job_id, "job-a", sizeof(handler->job_id));
+
+        for ( int  i = 0 ; blob_replies[i] ; ++i ) {
+            const char *ERI_reply = blob_replies[i];
+
+            size_t total_size = strlen(ERI_reply);
+
+            CHECK(wqc_set_downloaded_data((void *)ERI_reply, total_size, &handler->web_call_info.web_reply) ==
+                  total_size);
+
+            CHECK(update_eri_job_status(handler) == true);
+        }
+    }
+    wqc_cleanup(handler);
+}
+
 
 TEST_CASE( "submit integrals job", "[eri]" ) {
     WQC *handler = wqc_init();

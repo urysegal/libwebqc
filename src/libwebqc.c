@@ -38,6 +38,9 @@ WQC *wqc_init()
     handler->wqc_endpoint = NULL;
     handler->job_type = WQC_NULL_JOB;
     handler->is_duplicate = false;
+    handler->job_status = WQC_JOB_STATUS_UNKNOWN;
+    handler->eri_status = NULL;
+    handler->ERI_items_count = 0;
 
     wqc_init_web_calls(handler);
 
@@ -47,14 +50,9 @@ WQC *wqc_init()
 void wqc_reset(WQC *handler)
 {
     if (handler) {
-        if (handler->web_call_info.web_reply.reply) {
-            free(handler->web_call_info.web_reply.reply);
-            handler->web_call_info.web_reply.reply = NULL;
-            handler->web_call_info.web_reply.size=0;
-        }
+        reset_reply_buffer(&handler->web_call_info.web_reply);
         handler->web_call_info.http_reply_code = 0;
-        handler->wqc_endpoint = NULL;
-        handler->job_type = WQC_NULL_JOB;
+        handler->job_status = WQC_JOB_STATUS_UNKNOWN;
         cleanup_web_call(handler);
     }
 }
@@ -70,7 +68,12 @@ void wqc_cleanup(WQC *handler)
             free(handler->access_token);
             handler->access_token = NULL;
         }
-
+        if ( handler->eri_status ) {
+            for ( int i = 0 ; i < handler->ERI_items_count; ++i) {
+                free(handler->eri_status[i].output_blob_name);
+            }
+            free(handler->eri_status);
+        }
         free(handler->webqc_server_name);
         free(handler);
     }
@@ -185,11 +188,49 @@ bool wqc_submit_job(WQC *handler, enum wqc_job_type job_type, void *job_paramete
     return rv ;
 }
 
-bool wqc_get_reply(WQC *handler)
+
+static bool
+get_eri_job_status(WQC *handler)
 {
-    wqc_set_error(handler, WEBQC_NOT_IMPLEMENTED);
-    return false;
+    bool rv = false;
+
+    rv = prepare_web_call(handler, handler->wqc_endpoint);
+
+    if ( rv ) {
+        rv = prepare_get_parameter(handler, "job_id", handler->job_id);
+    }
+    if ( rv ) {
+        rv = make_web_call(handler);
+    }
+
+    if (rv) {
+        rv = update_eri_job_status(handler);
+        wqc_reset(handler);
+    }
+
+    return rv;
 }
+
+
+bool wqc_get_status(WQC *handler)
+{
+    bool rv = false;
+    if (handler->job_type == WQC_JOB_TWO_ELECTRONS_INTEGRALS) {
+        rv = get_eri_job_status(handler);
+    } else {
+        wqc_set_error(handler, WEBQC_NOT_IMPLEMENTED);
+        rv = false;
+    }
+    return rv;
+}
+
+
+bool wqc_job_done( WQC *handler)
+{
+    return handler->job_status == WQC_JOB_STATUS_DONE ||
+        handler->job_status == WQC_JOB_STATUS_ERROR ;
+}
+
 
 void wqc_global_init()
 {

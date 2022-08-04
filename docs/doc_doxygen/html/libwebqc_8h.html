@@ -103,6 +103,8 @@ This graph shows which files directly or indirectly include this file:</div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="nested-classes"></a>
 Classes</h2></td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structERI__item__status.html">ERI_item_status</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtwo__electron__integrals__job__parameters.html">two_electron_integrals_job_parameters</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Parameters for a jobs that calculates the two-electrons repulsion integrals in the given basis set on the given geormtry. The Geometry is in XYZ format. Units can be "angstrom" , "SI" for picometers or "au" (atomic units).  <a href="structtwo__electron__integrals__job__parameters.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -148,6 +150,17 @@ Enumerations</h2></td></tr>
  }</td></tr>
 <tr class="memdesc:aeba08d45efa4dd9ee71643a20362c0e2"><td class="mdescLeft">&#160;</td><td class="mdescRight">List of all the possible calls to WecQC service.  <a href="libwebqc_8h.html#aeba08d45efa4dd9ee71643a20362c0e2">More...</a><br /></td></tr>
 <tr class="separator:aeba08d45efa4dd9ee71643a20362c0e2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae1082a3ceb302cee481387f33d277956"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="libwebqc_8h.html#ae1082a3ceb302cee481387f33d277956">job_status_t</a> { <br />
+&#160;&#160;<a class="el" href="libwebqc_8h.html#ae1082a3ceb302cee481387f33d277956a94ab2ff59b5bac9c6f46b7c0bab88008">WQC_JOB_STATUS_UNKNOWN</a> = 0, 
+<a class="el" href="libwebqc_8h.html#ae1082a3ceb302cee481387f33d277956aa92a4a005ae0dff6c17750f08a0d61b2">WQC_JOB_STATUS_PENDING</a> = 1, 
+<a class="el" href="libwebqc_8h.html#ae1082a3ceb302cee481387f33d277956a3b581b6a167266916ec7b8c3c76146c6">WQC_JOB_STATUS_DONE</a> = 2, 
+<a class="el" href="libwebqc_8h.html#ae1082a3ceb302cee481387f33d277956af87d35d50c48fbb4f68a4f06c0d113e4">WQC_JOB_STATUS_PROCESSING</a> = 3, 
+<br />
+&#160;&#160;<a class="el" href="libwebqc_8h.html#ae1082a3ceb302cee481387f33d277956aff2f71dc001f1dd70497dba43df4559b">WQC_JOB_STATUS_ERROR</a> = 4
+<br />
+ }</td></tr>
+<tr class="memdesc:ae1082a3ceb302cee481387f33d277956"><td class="mdescLeft">&#160;</td><td class="mdescRight">Status of a job.  <a href="libwebqc_8h.html#ae1082a3ceb302cee481387f33d277956">More...</a><br /></td></tr>
+<tr class="separator:ae1082a3ceb302cee481387f33d277956"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>
@@ -169,19 +182,15 @@ Functions</h2></td></tr>
 <tr class="separator:aa2d5ed001905655d1d7d240410a943c1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa33a9c22aaae88e2a22b2c23e297e885"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="libwebqc_8h.html#aa33a9c22aaae88e2a22b2c23e297e885">wqc_submit_job</a> (<a class="el" href="libwebqc_8h.html#abe28abf4c31fae106b70ac6f5884ccf5">WQC</a> *handler, enum <a class="el" href="libwebqc_8h.html#aeba08d45efa4dd9ee71643a20362c0e2">wqc_job_type</a> job_type, void *job_parameters)</td></tr>
 <tr class="separator:aa33a9c22aaae88e2a22b2c23e297e885"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a1397d81d3de58d562ad24fb115752e15"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="libwebqc_8h.html#a1397d81d3de58d562ad24fb115752e15">wqc_get_reply</a> (<a class="el" href="libwebqc_8h.html#abe28abf4c31fae106b70ac6f5884ccf5">WQC</a> *handler)</td></tr>
-<tr class="separator:a1397d81d3de58d562ad24fb115752e15"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a234822505abd35b28ad36792c297eb6f"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="libwebqc_8h.html#a234822505abd35b28ad36792c297eb6f">wqc_get_status</a> (<a class="el" href="libwebqc_8h.html#abe28abf4c31fae106b70ac6f5884ccf5">WQC</a> *handler)</td></tr>
+<tr class="separator:a234822505abd35b28ad36792c297eb6f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aed8c9831d9ca99cfe20dcb1d58d69aa5"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="libwebqc_8h.html#aed8c9831d9ca99cfe20dcb1d58d69aa5">wqc_set_option</a> (<a class="el" href="libwebqc_8h.html#abe28abf4c31fae106b70ac6f5884ccf5">WQC</a> *handler, <a class="el" href="webqc-options_8h.html#a63a8fa6198fce259fbc456cf00b2d4ef">wqc_option_t</a> option,...)</td></tr>
 <tr class="separator:aed8c9831d9ca99cfe20dcb1d58d69aa5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a42fb71cec2262cb5b8fe0ecf497f9e58"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="libwebqc_8h.html#a42fb71cec2262cb5b8fe0ecf497f9e58">wqc_get_option</a> (<a class="el" href="libwebqc_8h.html#abe28abf4c31fae106b70ac6f5884ccf5">WQC</a> *handler, <a class="el" href="webqc-options_8h.html#a63a8fa6198fce259fbc456cf00b2d4ef">wqc_option_t</a> option,...)</td></tr>
 <tr class="memdesc:a42fb71cec2262cb5b8fe0ecf497f9e58"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the value of an option. For string or struct values, a pointer is returned, which is const and you must not change. The pointer is valid until the next call to the library with the same handler.  <a href="libwebqc_8h.html#a42fb71cec2262cb5b8fe0ecf497f9e58">More...</a><br /></td></tr>
 <tr class="separator:a42fb71cec2262cb5b8fe0ecf497f9e58"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a345d0e10a5c9b68e2127f05d041a9940"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="libwebqc_8h.html#a345d0e10a5c9b68e2127f05d041a9940">wqc_set_error</a> (<a class="el" href="libwebqc_8h.html#abe28abf4c31fae106b70ac6f5884ccf5">WQC</a> *handler, <a class="el" href="webqc-errors_8h.html#ac56393178dee8bdc3424e58ec5c5b319">error_code_t</a> code)</td></tr>
-<tr class="separator:a345d0e10a5c9b68e2127f05d041a9940"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a1c59d525beed059c94261e3a13defa08"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="libwebqc_8h.html#a1c59d525beed059c94261e3a13defa08">wqc_set_error_with_message</a> (<a class="el" href="libwebqc_8h.html#abe28abf4c31fae106b70ac6f5884ccf5">WQC</a> *handler, <a class="el" href="webqc-errors_8h.html#ac56393178dee8bdc3424e58ec5c5b319">error_code_t</a> code, const char *extra_message)</td></tr>
-<tr class="separator:a1c59d525beed059c94261e3a13defa08"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad30aa7424b76897852be3e60cec5d778"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="libwebqc_8h.html#ad30aa7424b76897852be3e60cec5d778">wqc_set_error_with_messages</a> (<a class="el" href="libwebqc_8h.html#abe28abf4c31fae106b70ac6f5884ccf5">WQC</a> *handler, <a class="el" href="webqc-errors_8h.html#ac56393178dee8bdc3424e58ec5c5b319">error_code_t</a> code, const char *extra_messages[])</td></tr>
-<tr class="separator:ad30aa7424b76897852be3e60cec5d778"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5e738e08e8094579c173e8928944f74b"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="libwebqc_8h.html#a5e738e08e8094579c173e8928944f74b">wqc_job_done</a> (<a class="el" href="libwebqc_8h.html#abe28abf4c31fae106b70ac6f5884ccf5">WQC</a> *handler)</td></tr>
+<tr class="separator:a5e738e08e8094579c173e8928944f74b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a21ec73b92240578981c5e77feda8b468"><td class="memItemLeft" align="right" valign="top">struct <a class="el" href="structwqc__return__value.html">wqc_return_value</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="libwebqc_8h.html#a21ec73b92240578981c5e77feda8b468">init_webqc_return_value</a> ()</td></tr>
 <tr class="memdesc:a21ec73b92240578981c5e77feda8b468"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initialize variables of type webqc_return_value_t.  <a href="libwebqc_8h.html#a21ec73b92240578981c5e77feda8b468">More...</a><br /></td></tr>
 <tr class="separator:a21ec73b92240578981c5e77feda8b468"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -338,6 +347,33 @@ Functions</h2></td></tr>
 </div>
 </div>
 <h2 class="groupheader">Enumeration Type Documentation</h2>
+<a id="ae1082a3ceb302cee481387f33d277956"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae1082a3ceb302cee481387f33d277956">&#9670;&nbsp;</a></span>job_status_t</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">enum <a class="el" href="libwebqc_8h.html#ae1082a3ceb302cee481387f33d277956">job_status_t</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Status of a job. </p>
+<table class="fieldtable">
+<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="ae1082a3ceb302cee481387f33d277956a94ab2ff59b5bac9c6f46b7c0bab88008"></a>WQC_JOB_STATUS_UNKNOWN&#160;</td><td class="fielddoc"></td></tr>
+<tr><td class="fieldname"><a id="ae1082a3ceb302cee481387f33d277956aa92a4a005ae0dff6c17750f08a0d61b2"></a>WQC_JOB_STATUS_PENDING&#160;</td><td class="fielddoc"><p>Job staus unknown (was not fetched form WebQC server yet) </p>
+</td></tr>
+<tr><td class="fieldname"><a id="ae1082a3ceb302cee481387f33d277956a3b581b6a167266916ec7b8c3c76146c6"></a>WQC_JOB_STATUS_DONE&#160;</td><td class="fielddoc"><p>Job did not start executing. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="ae1082a3ceb302cee481387f33d277956af87d35d50c48fbb4f68a4f06c0d113e4"></a>WQC_JOB_STATUS_PROCESSING&#160;</td><td class="fielddoc"><p>Job finished successfully. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="ae1082a3ceb302cee481387f33d277956aff2f71dc001f1dd70497dba43df4559b"></a>WQC_JOB_STATUS_ERROR&#160;</td><td class="fielddoc"><p>Job executing now. </p>
+</td></tr>
+</table>
+
+</div>
+</div>
 <a id="a19fc3057b454ae54c81e2cb00de8a110"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a19fc3057b454ae54c81e2cb00de8a110">&#9670;&nbsp;</a></span>wqc_data_type</h2>
 
@@ -537,14 +573,14 @@ Functions</h2></td></tr>
 
 </div>
 </div>
-<a id="a1397d81d3de58d562ad24fb115752e15"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a1397d81d3de58d562ad24fb115752e15">&#9670;&nbsp;</a></span>wqc_get_reply()</h2>
+<a id="a234822505abd35b28ad36792c297eb6f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a234822505abd35b28ad36792c297eb6f">&#9670;&nbsp;</a></span>wqc_get_status()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">bool wqc_get_reply </td>
+          <td class="memname">bool wqc_get_status </td>
           <td>(</td>
           <td class="paramtype"><a class="el" href="libwebqc_8h.html#abe28abf4c31fae106b70ac6f5884ccf5">WQC</a> *&#160;</td>
           <td class="paramname"><em>handler</em></td><td>)</td>
@@ -552,13 +588,13 @@ Functions</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<p>Get a reply for the given job. If result is not yet ready, wait for it. </p><dl class="params"><dt>Parameters</dt><dd>
+<p>Get the status of a job that was sent on the handler </p><dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">handler</td><td>handler the job was submitted on </td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>true on successful retrival and if the job completed successfully, false otherwise </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>true on successful retrieval of the job status, false otherwise </dd></dl>
 
 </div>
 </div>
@@ -618,6 +654,31 @@ Functions</h2></td></tr>
 
 </div>
 </div>
+<a id="a5e738e08e8094579c173e8928944f74b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5e738e08e8094579c173e8928944f74b">&#9670;&nbsp;</a></span>wqc_job_done()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool wqc_job_done </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="libwebqc_8h.html#abe28abf4c31fae106b70ac6f5884ccf5">WQC</a> *&#160;</td>
+          <td class="paramname"><em>handler</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Find if a job is done on the WebQC server side. </p><dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">handler</td><td>handler that the job was submitted on </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>true if the job is done (either successfully or not), false if it's still processing </dd></dl>
+
+</div>
+</div>
 <a id="aa2d5ed001905655d1d7d240410a943c1"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#aa2d5ed001905655d1d7d240410a943c1">&#9670;&nbsp;</a></span>wqc_job_is_duplicate()</h2>
 
@@ -667,125 +728,6 @@ Functions</h2></td></tr>
 <p>Reset a handler so we can make another call with same access parameters </p><dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">handler</td><td>the handler to reset </td></tr>
-  </table>
-  </dd>
-</dl>
-
-</div>
-</div>
-<a id="a345d0e10a5c9b68e2127f05d041a9940"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a345d0e10a5c9b68e2127f05d041a9940">&#9670;&nbsp;</a></span>wqc_set_error()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">void wqc_set_error </td>
-          <td>(</td>
-          <td class="paramtype"><a class="el" href="libwebqc_8h.html#abe28abf4c31fae106b70ac6f5884ccf5">WQC</a> *&#160;</td>
-          <td class="paramname"><em>handler</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype"><a class="el" href="webqc-errors_8h.html#ac56393178dee8bdc3424e58ec5c5b319">error_code_t</a>&#160;</td>
-          <td class="paramname"><em>code</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-<p>Set the error code on the handler. Error message is also set automatically. </p><dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">handler</td><td>Handler to set the error on </td></tr>
-    <tr><td class="paramname">code</td><td>the error code to set </td></tr>
-  </table>
-  </dd>
-</dl>
-
-</div>
-</div>
-<a id="a1c59d525beed059c94261e3a13defa08"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a1c59d525beed059c94261e3a13defa08">&#9670;&nbsp;</a></span>wqc_set_error_with_message()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">void wqc_set_error_with_message </td>
-          <td>(</td>
-          <td class="paramtype"><a class="el" href="libwebqc_8h.html#abe28abf4c31fae106b70ac6f5884ccf5">WQC</a> *&#160;</td>
-          <td class="paramname"><em>handler</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype"><a class="el" href="webqc-errors_8h.html#ac56393178dee8bdc3424e58ec5c5b319">error_code_t</a>&#160;</td>
-          <td class="paramname"><em>code</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">const char *&#160;</td>
-          <td class="paramname"><em>extra_message</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-<p>Set the error code on the handler. Error message is also set automatically, plus an additional message </p><dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">handler</td><td>Handler to set the error on </td></tr>
-    <tr><td class="paramname">code</td><td>the error code to set </td></tr>
-    <tr><td class="paramname">extra_message</td><td>NULL-terminated message </td></tr>
-  </table>
-  </dd>
-</dl>
-
-</div>
-</div>
-<a id="ad30aa7424b76897852be3e60cec5d778"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ad30aa7424b76897852be3e60cec5d778">&#9670;&nbsp;</a></span>wqc_set_error_with_messages()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">void wqc_set_error_with_messages </td>
-          <td>(</td>
-          <td class="paramtype"><a class="el" href="libwebqc_8h.html#abe28abf4c31fae106b70ac6f5884ccf5">WQC</a> *&#160;</td>
-          <td class="paramname"><em>handler</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype"><a class="el" href="webqc-errors_8h.html#ac56393178dee8bdc3424e58ec5c5b319">error_code_t</a>&#160;</td>
-          <td class="paramname"><em>code</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">const char *&#160;</td>
-          <td class="paramname"><em>extra_messages</em>[]&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-<p>Set the error code on the handler. Error message is also set automatically, plus a NULL-terminated array of additional messages </p><dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">handler</td><td>Handler to set the error on </td></tr>
-    <tr><td class="paramname">code</td><td>the error code to set </td></tr>
-    <tr><td class="paramname">extra_messages</td><td>NULL-terminated array of additional messages </td></tr>
   </table>
   </dd>
 </dl>

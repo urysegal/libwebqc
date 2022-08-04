@@ -16,11 +16,28 @@
 #include "webqc-handler.h"
 #include "webqc-web-access.h"
 
+
+void reset_reply_buffer(struct web_reply_buffer *buf)
+{
+    if ( buf->reply ) {
+        free(buf->reply);
+        buf->reply = NULL;
+    }
+    buf->size=0;
+}
+
+
 static size_t collect_curl_downloaded_data(void *data, size_t size, size_t nmemb, void *userp)
 {
     size_t total_size = size * nmemb;
     struct web_reply_buffer *buf = &(((struct webqc_handler_t *) userp)->web_call_info.web_reply);
 
+    return wqc_collect_downloaded_data(data, total_size, buf);
+}
+
+size_t wqc_set_downloaded_data(void *data, size_t total_size, struct web_reply_buffer *buf)
+{
+    reset_reply_buffer(buf);
     return wqc_collect_downloaded_data(data, total_size, buf);
 }
 
@@ -88,6 +105,8 @@ prepare_curl_URL(WQC *handler, const char *web_endpoint)
                  web_endpoint) < MAX_URL_SIZE) {
         curl_easy_setopt(handler->web_call_info.curl_handler, CURLOPT_URL, handler->web_call_info.full_URL);
         rv = true;
+    } else {
+        wqc_set_error(handler, WEBQC_OUT_OF_MEMORY); // LCOV_EXCL_LINE
     }
 
     return rv;
@@ -273,8 +292,26 @@ set_no_parameters(WQC *handler)
     return true;
 }
 
+bool prepare_get_parameter( WQC *handler, const char *param_name, const char *param_value)
+{
+    bool rv = false;
 
-void web_access_init()
+    char URL_with_options[MAX_URL_SIZE];
+
+    if (snprintf(URL_with_options, MAX_URL_SIZE, "%s?%s=%s", handler->web_call_info.full_URL, param_name,
+                 param_value) < MAX_URL_SIZE) {
+        strncpy(handler->web_call_info.full_URL, URL_with_options, MAX_URL_SIZE);
+        curl_easy_setopt(handler->web_call_info.curl_handler, CURLOPT_URL, handler->web_call_info.full_URL);
+        rv = true;
+    } else {
+        wqc_set_error(handler, WEBQC_OUT_OF_MEMORY); // LCOV_EXCL_LINE
+    }
+
+    return rv;
+}
+
+
+    void web_access_init()
 {
     curl_global_init(CURL_GLOBAL_DEFAULT);
 }
@@ -283,4 +320,3 @@ void web_access_cleanup()
 {
     curl_global_cleanup();
 }
-

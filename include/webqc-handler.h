@@ -14,6 +14,8 @@ extern "C" {
 #define WQC_JOB_ID_LENGTH (UUID_LENGTH) /// Job IDs are UUIDs
 #define WQC_PARAM_SET_ID_LENGTH (UUID_LENGTH) /// Parameter set IDs are UUIDs
 
+
+
 //! Structure to hold a reply from a cURL call
 struct web_reply_buffer {
     char *reply; /// Reply data
@@ -49,11 +51,22 @@ struct webqc_handler_t {
     const char *wqc_endpoint; /// Which WebQC endpoint to call
     enum wqc_job_type job_type; /// What is the job type this handler is calling for
     bool is_duplicate; /// Job was found to be a duplicate of another one
+    enum job_status_t job_status; /// Last known status of job as require by the WebQC server
+    struct ERI_item_status *eri_status; /// List of all ERI sub-jobs status...
+    int ERI_items_count;    /// How many ERI sub-jobs there are
 };
 
-//! Add reply data received from the web service to a reply buffer
-//! \param data data recieved
-//! \param total_size total size of data recieved (in bytes)
+
+//! Reset the web reply buffer, releasing memory used
+//! \param buf Buffer to reset
+void reset_reply_buffer(
+    struct web_reply_buffer *buf
+);
+
+
+//! Add reply data received from the web service to a reply buffer. The buffer gorws as needed.
+//! \param data data received
+//! \param total_size total size of data received (in bytes)
 //! \param buf reply buffer to add to
 //! \return number of bytes added
 size_t wqc_collect_downloaded_data
@@ -62,6 +75,18 @@ size_t wqc_collect_downloaded_data
     size_t total_size,
     struct web_reply_buffer *buf
 );
+
+//! Set reply data received from the web service to a reply buffer, replacing existing data
+//! \param data data received
+//! \param total_size total size of data received (in bytes)
+//! \param buf reply buffer to add to
+//! \return number of bytes added
+size_t wqc_set_downloaded_data
+        (
+                void *data,
+                size_t total_size,
+                struct web_reply_buffer *buf
+        );
 
 #ifdef __cplusplus
 } // "extern C"

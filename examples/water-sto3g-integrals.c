@@ -59,17 +59,23 @@ calculate_integrals(WQC *job_handler)
 }
 
 bool
-save_integrals( WQC *job_handler, const char *output_filename)
+save_integrals( WQC *handler, const char *output_filename)
 {
-    bool res = wqc_get_reply( job_handler ) ;
+    bool res = wqc_get_status(handler) ;
 
-    if ( ! res )
-    {
+    if ( res ) {
+        if ( ! wqc_job_done(handler) ) {
+            //res = wqc_wait_for_job(handler);
+        }
+        if ( res )
+        {
+            //res = wqc_get_eri_results(handler);
+        }
+    }
+    if ( ! res ) {
         struct wqc_return_value error;
-        wqc_get_last_error(job_handler, &error);
+        wqc_get_last_error(handler, &error);
         fprintf(stderr, "Error %" PRIu64 ": %s\n", error.error_code, error.error_message);
-    } else {
-
     }
     return res;
 }

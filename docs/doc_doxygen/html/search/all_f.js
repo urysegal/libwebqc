@@ -1,8 +1,10 @@
 var searchData=
 [
-  ['set_5feri_5fjob_5fparameters_46',['set_eri_job_parameters',['../webqc-web-access_8h.html#ae778cd3711de3df4f275898c9b176667',1,'webqc-web-access.h']]],
-  ['set_5fno_5fparameters_47',['set_no_parameters',['../webqc-web-access_8h.html#a96bc99026da13f666a6af7fd7e3a2280',1,'webqc-web-access.h']]],
-  ['set_5fpost_5ffields_48',['set_POST_fields',['../webqc-web-access_8h.html#a6becddd38be5c5ef698861d2a9a9674e',1,'webqc-web-access.h']]],
-  ['size_49',['size',['../structweb__reply__buffer.html#a94903291c2de0cca41f312361a4427a6',1,'web_reply_buffer']]],
-  ['str_5fvalue_50',['str_value',['../structname__value__pair.html#a63b85a31efc47c31bfb6230ff94dbf65',1,'name_value_pair']]]
+  ['range_5fbegin_50',['range_begin',['../structERI__item__status.html#ac4bd3cce8c0010a37fe526261b4027bf',1,'ERI_item_status']]],
+  ['range_5fend_51',['range_end',['../structERI__item__status.html#a6017c358ba7a68288ba77ec33e92a630',1,'ERI_item_status']]],
+  ['readme_2emd_52',['README.md',['../README_8md.html',1,'']]],
+  ['real_5fvalue_53',['real_value',['../structname__value__pair.html#a730b8d4b192b064eb1f704079d7828e7',1,'name_value_pair']]],
+  ['reply_54',['reply',['../structweb__reply__buffer.html#af9773d3231fec341483205e62f8a3f70',1,'web_reply_buffer']]],
+  ['reset_5freply_5fbuffer_55',['reset_reply_buffer',['../webqc-handler_8h.html#a08381dabe5e2cafee1f60758609ca82c',1,'webqc-handler.h']]],
+  ['return_5fvalue_56',['return_value',['../structwebqc__handler__t.html#a07b914bbcb863d1c52ceb883bb21439f',1,'webqc_handler_t']]]
 ];

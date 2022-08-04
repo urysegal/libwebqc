@@ -101,6 +101,8 @@ Functions</h2></td></tr>
 <tr class="separator:aa8c2c2d1b475a8ddfd13644fedc4f4a3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab973a9fcfcc775def2eaa2145285dfde"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="webqc-json_8h.html#ab973a9fcfcc775def2eaa2145285dfde">update_job_details</a> (<a class="el" href="libwebqc_8h.html#abe28abf4c31fae106b70ac6f5884ccf5">WQC</a> *handler)</td></tr>
 <tr class="separator:ab973a9fcfcc775def2eaa2145285dfde"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa7031ed4ab1b3b738c1f5d566d97c94a"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="webqc-json_8h.html#aa7031ed4ab1b3b738c1f5d566d97c94a">update_eri_job_status</a> (<a class="el" href="libwebqc_8h.html#abe28abf4c31fae106b70ac6f5884ccf5">WQC</a> *handler)</td></tr>
+<tr class="separator:aa7031ed4ab1b3b738c1f5d566d97c94a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Function Documentation</h2>
 <a id="a9ca214093e49680325a40906ea938355"></a>
@@ -186,6 +188,31 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>true on success, false on failure (and error set on the handler). </dd></dl>
+
+</div>
+</div>
+<a id="aa7031ed4ab1b3b738c1f5d566d97c94a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa7031ed4ab1b3b738c1f5d566d97c94a">&#9670;&nbsp;</a></span>update_eri_job_status()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool update_eri_job_status </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="libwebqc_8h.html#abe28abf4c31fae106b70ac6f5884ccf5">WQC</a> *&#160;</td>
+          <td class="paramname"><em>handler</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Update the handler structure with the information about ERI calculation, and mark the job done if all ERI are done </p><dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">handler</td><td>handler that just completed successfuly a call to GET on the eri endpoint </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>true on success, false on failure (and sets error on the handler) </dd></dl>
 
 </div>
 </div>

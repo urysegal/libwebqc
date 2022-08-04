@@ -1,22 +1,5 @@
 var searchData=
 [
-  ['web_5faccess_5fcleanup_141',['web_access_cleanup',['../webqc-web-access_8h.html#a8d9c7c2102863d125a272ec042df19ef',1,'webqc-web-access.h']]],
-  ['web_5faccess_5finit_142',['web_access_init',['../webqc-web-access_8h.html#acb48ee544bf32a0a0b045a27d1ae21f9',1,'webqc-web-access.h']]],
-  ['wqc_5fcleanup_143',['wqc_cleanup',['../libwebqc_8h.html#a8eb1e5833ec61fd04152cf4ea31cc291',1,'libwebqc.h']]],
-  ['wqc_5fcollect_5fdownloaded_5fdata_144',['wqc_collect_downloaded_data',['../webqc-handler_8h.html#a978349c1372fb21397548d8f5231f0ee',1,'webqc-handler.h']]],
-  ['wqc_5fget_5ferror_5fby_5fcode_145',['wqc_get_error_by_code',['../libwebqc_8h.html#a7a10923a5050fd20236adbd27b5110b5',1,'libwebqc.h']]],
-  ['wqc_5fget_5flast_5ferror_146',['wqc_get_last_error',['../libwebqc_8h.html#ac1e725de779e7ce1d73cdea412331354',1,'libwebqc.h']]],
-  ['wqc_5fget_5foption_147',['wqc_get_option',['../libwebqc_8h.html#a42fb71cec2262cb5b8fe0ecf497f9e58',1,'libwebqc.h']]],
-  ['wqc_5fget_5freply_148',['wqc_get_reply',['../libwebqc_8h.html#a1397d81d3de58d562ad24fb115752e15',1,'libwebqc.h']]],
-  ['wqc_5fglobal_5fcleanup_149',['wqc_global_cleanup',['../libwebqc_8h.html#ae9b44aaf97c07bc16c086d58f19f132d',1,'libwebqc.h']]],
-  ['wqc_5fglobal_5finit_150',['wqc_global_init',['../libwebqc_8h.html#aa1a8a38d859ec48bbaa014c426435b6b',1,'libwebqc.h']]],
-  ['wqc_5finit_151',['wqc_init',['../libwebqc_8h.html#a14c4001a9318ea08f46664400c32c47c',1,'libwebqc.h']]],
-  ['wqc_5finit_5fweb_5fcalls_152',['wqc_init_web_calls',['../webqc-web-access_8h.html#ac140daeaa54e84521e7457cef121f8f5',1,'webqc-web-access.h']]],
-  ['wqc_5fjob_5fis_5fduplicate_153',['wqc_job_is_duplicate',['../libwebqc_8h.html#aa2d5ed001905655d1d7d240410a943c1',1,'libwebqc.h']]],
-  ['wqc_5freset_154',['wqc_reset',['../libwebqc_8h.html#a8b4b5f9306c80cbde6d7ac4fea368523',1,'libwebqc.h']]],
-  ['wqc_5fset_5ferror_155',['wqc_set_error',['../libwebqc_8h.html#a345d0e10a5c9b68e2127f05d041a9940',1,'libwebqc.h']]],
-  ['wqc_5fset_5ferror_5fwith_5fmessage_156',['wqc_set_error_with_message',['../libwebqc_8h.html#a1c59d525beed059c94261e3a13defa08',1,'libwebqc.h']]],
-  ['wqc_5fset_5ferror_5fwith_5fmessages_157',['wqc_set_error_with_messages',['../libwebqc_8h.html#ad30aa7424b76897852be3e60cec5d778',1,'libwebqc.h']]],
-  ['wqc_5fset_5foption_158',['wqc_set_option',['../libwebqc_8h.html#aed8c9831d9ca99cfe20dcb1d58d69aa5',1,'libwebqc.h']]],
-  ['wqc_5fsubmit_5fjob_159',['wqc_submit_job',['../libwebqc_8h.html#aa33a9c22aaae88e2a22b2c23e297e885',1,'libwebqc.h']]]
+  ['update_5feri_5fjob_5fstatus_163',['update_eri_job_status',['../webqc-json_8h.html#aa7031ed4ab1b3b738c1f5d566d97c94a',1,'webqc-json.h']]],
+  ['update_5fjob_5fdetails_164',['update_job_details',['../webqc-json_8h.html#ab973a9fcfcc775def2eaa2145285dfde',1,'webqc-json.h']]]
 ];

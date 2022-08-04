@@ -2,6 +2,7 @@
 
 #include <stdint.h>
 
+typedef struct webqc_handler_t WQC;
 
 #define MAX_WEBQC_ERROR_MESSAGE_LEN (1024) ///< Maximum size of error message in webqc_return_value_t;
 
@@ -27,4 +28,34 @@ struct wqc_return_value {
         const char *file; ///< File name where error occurred
         const char *func;///< Function name where error occurred
 } ;
+
+//! Set the error code on the handler. Error message is also set automatically.
+//! \param handler Handler to set the error on
+//! \param code the error code to set
+void wqc_set_error(
+        WQC *handler,
+        error_code_t code
+);
+
+//! Set the error code on the handler. Error message is also set automatically, plus an
+//! additional message
+//! \param handler  Handler to set the error on
+//! \param code the error code to set
+//! \param extra_message NULL-terminated message
+void wqc_set_error_with_message(
+        WQC *handler,
+        error_code_t code,
+        const char *extra_message
+);
+
+//! Set the error code on the handler. Error message is also set automatically, plus a NULL-terminated array
+//! of additional messages
+//! \param handler  Handler to set the error on
+//! \param code the error code to set
+//! \param extra_messages NULL-terminated array of additional messages
+void wqc_set_error_with_messages(
+        WQC *handler,
+        error_code_t code,
+        const char *extra_messages[]
+);
 

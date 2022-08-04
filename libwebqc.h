@@ -42,6 +42,23 @@ enum wqc_job_type {
     WQC_JOB_TWO_ELECTRONS_INTEGRALS = 3 /// Calculate all two-electrons repulsion integrals
 };
 
+/// Status of a job
+enum job_status_t {
+    WQC_JOB_STATUS_UNKNOWN = 0, /// Job staus unknown (was not fetched form WebQC server yet)
+    WQC_JOB_STATUS_PENDING = 1, /// Job did not start executing
+    WQC_JOB_STATUS_DONE = 2, /// Job finished successfully
+    WQC_JOB_STATUS_PROCESSING = 3, /// Job executing now
+    WQC_JOB_STATUS_ERROR = 4 /// Job finished with error
+};
+
+struct ERI_item_status {
+    enum job_status_t status;
+    int id ;
+    char *output_blob_name;
+    int range_begin[4];
+    int range_end[4];
+};
+
 //! Initialize the WQC library. Call once before calling any thing WQC functions.
 void wqc_global_init();
 
@@ -109,10 +126,10 @@ bool wqc_submit_job
 );
 
 
-/// Get a reply for the given job. If result is not yet ready, wait for it.
+/// Get the status of a job that was sent on the handler
 /// \param handler handler the job was submitted on
-/// \return true on successful retrival and if the job completed successfully, false otherwise
-bool wqc_get_reply
+/// \return true on successful retrieval of the job status, false otherwise
+bool wqc_get_status
 (
     WQC *handler
 );
@@ -137,39 +154,17 @@ bool wqc_set_option(
 //! \param ... pointer to space that can contain the value. FOr string or struct values, a pointer to a const-pointer.
 //! \return true on success, false on failure
 bool wqc_get_option(
-        WQC *handler,
-        wqc_option_t option,
-        ...
+    WQC *handler,
+    wqc_option_t option,
+    ...
 );
 
-//! Set the error code on the handler. Error message is also set automatically.
-//! \param handler Handler to set the error on
-//! \param code the error code to set
-void wqc_set_error(
-        WQC *handler,
-        error_code_t code
-);
 
-//! Set the error code on the handler. Error message is also set automatically, plus an
-//! additional message
-//! \param handler  Handler to set the error on
-//! \param code the error code to set
-//! \param extra_message NULL-terminated message
-void wqc_set_error_with_message(
-        WQC *handler,
-        error_code_t code,
-        const char *extra_message
-);
-
-//! Set the error code on the handler. Error message is also set automatically, plus a NULL-terminated array
-//! of additional messages
-//! \param handler  Handler to set the error on
-//! \param code the error code to set
-//! \param extra_messages NULL-terminated array of additional messages
-void wqc_set_error_with_messages(
-        WQC *handler,
-        error_code_t code,
-        const char *extra_messages[]
+//! Find if a job is done on the WebQC server side.
+//! \param handler handler that the job was submitted on
+//! \return true if the job is done (either successfully or not), false if it's still processing
+bool wqc_job_done(
+    WQC *handler
 );
 
 //! @brief Initialize variables of type  webqc_return_value_t.
