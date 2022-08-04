@@ -16,11 +16,28 @@
 #include "webqc-handler.h"
 #include "webqc-web-access.h"
 
+
+void reset_reply_buffer(struct web_reply_buffer *buf)
+{
+    if ( buf->reply ) {
+        free(buf->reply);
+        buf->reply = NULL;
+    }
+    buf->size=0;
+}
+
+
 static size_t collect_curl_downloaded_data(void *data, size_t size, size_t nmemb, void *userp)
 {
     size_t total_size = size * nmemb;
     struct web_reply_buffer *buf = &(((struct webqc_handler_t *) userp)->web_call_info.web_reply);
 
+    return wqc_collect_downloaded_data(data, total_size, buf);
+}
+
+size_t wqc_set_downloaded_data(void *data, size_t total_size, struct web_reply_buffer *buf)
+{
+    reset_reply_buffer(buf);
     return wqc_collect_downloaded_data(data, total_size, buf);
 }
 

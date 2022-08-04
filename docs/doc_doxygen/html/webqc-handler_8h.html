@@ -119,8 +119,12 @@ Macros</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>
+<tr class="memitem:a08381dabe5e2cafee1f60758609ca82c"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="webqc-handler_8h.html#a08381dabe5e2cafee1f60758609ca82c">reset_reply_buffer</a> (struct <a class="el" href="structweb__reply__buffer.html">web_reply_buffer</a> *buf)</td></tr>
+<tr class="separator:a08381dabe5e2cafee1f60758609ca82c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a978349c1372fb21397548d8f5231f0ee"><td class="memItemLeft" align="right" valign="top">size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="webqc-handler_8h.html#a978349c1372fb21397548d8f5231f0ee">wqc_collect_downloaded_data</a> (void *data, size_t total_size, struct <a class="el" href="structweb__reply__buffer.html">web_reply_buffer</a> *buf)</td></tr>
 <tr class="separator:a978349c1372fb21397548d8f5231f0ee"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac2485dbc792d42a6de30b0d8c6bc0070"><td class="memItemLeft" align="right" valign="top">size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="webqc-handler_8h.html#ac2485dbc792d42a6de30b0d8c6bc0070">wqc_set_downloaded_data</a> (void *data, size_t total_size, struct <a class="el" href="structweb__reply__buffer.html">web_reply_buffer</a> *buf)</td></tr>
+<tr class="separator:ac2485dbc792d42a6de30b0d8c6bc0070"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Macro Definition Documentation</h2>
 <a id="ab9c288a59a1c4d29847845c5d6ca455f"></a>
@@ -180,6 +184,30 @@ Functions</h2></td></tr>
 </div>
 </div>
 <h2 class="groupheader">Function Documentation</h2>
+<a id="a08381dabe5e2cafee1f60758609ca82c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a08381dabe5e2cafee1f60758609ca82c">&#9670;&nbsp;</a></span>reset_reply_buffer()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void reset_reply_buffer </td>
+          <td>(</td>
+          <td class="paramtype">struct <a class="el" href="structweb__reply__buffer.html">web_reply_buffer</a> *&#160;</td>
+          <td class="paramname"><em>buf</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Reset the web reply buffer, releasing memory used </p><dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">buf</td><td>Buffer to reset </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
 <a id="a978349c1372fb21397548d8f5231f0ee"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a978349c1372fb21397548d8f5231f0ee">&#9670;&nbsp;</a></span>wqc_collect_downloaded_data()</h2>
 
@@ -211,10 +239,53 @@ Functions</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<p>Add reply data received from the web service to a reply buffer </p><dl class="params"><dt>Parameters</dt><dd>
+<p>Add reply data received from the web service to a reply buffer. The buffer gorws as needed. </p><dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">data</td><td>data recieved </td></tr>
-    <tr><td class="paramname">total_size</td><td>total size of data recieved (in bytes) </td></tr>
+    <tr><td class="paramname">data</td><td>data received </td></tr>
+    <tr><td class="paramname">total_size</td><td>total size of data received (in bytes) </td></tr>
+    <tr><td class="paramname">buf</td><td>reply buffer to add to </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>number of bytes added </dd></dl>
+
+</div>
+</div>
+<a id="ac2485dbc792d42a6de30b0d8c6bc0070"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac2485dbc792d42a6de30b0d8c6bc0070">&#9670;&nbsp;</a></span>wqc_set_downloaded_data()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">size_t wqc_set_downloaded_data </td>
+          <td>(</td>
+          <td class="paramtype">void *&#160;</td>
+          <td class="paramname"><em>data</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>total_size</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">struct <a class="el" href="structweb__reply__buffer.html">web_reply_buffer</a> *&#160;</td>
+          <td class="paramname"><em>buf</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Set reply data received from the web service to a reply buffer, replacing existing data </p><dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">data</td><td>data received </td></tr>
+    <tr><td class="paramname">total_size</td><td>total size of data received (in bytes) </td></tr>
     <tr><td class="paramname">buf</td><td>reply buffer to add to </td></tr>
   </table>
   </dd>

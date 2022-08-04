@@ -56,9 +56,17 @@ struct webqc_handler_t {
     int ERI_items_count;    /// How many ERI sub-jobs there are
 };
 
-//! Add reply data received from the web service to a reply buffer
-//! \param data data recieved
-//! \param total_size total size of data recieved (in bytes)
+
+//! Reset the web reply buffer, releasing memory used
+//! \param buf Buffer to reset
+void reset_reply_buffer(
+    struct web_reply_buffer *buf
+);
+
+
+//! Add reply data received from the web service to a reply buffer. The buffer gorws as needed.
+//! \param data data received
+//! \param total_size total size of data received (in bytes)
 //! \param buf reply buffer to add to
 //! \return number of bytes added
 size_t wqc_collect_downloaded_data
@@ -68,6 +76,17 @@ size_t wqc_collect_downloaded_data
     struct web_reply_buffer *buf
 );
 
+//! Set reply data received from the web service to a reply buffer, replacing existing data
+//! \param data data received
+//! \param total_size total size of data received (in bytes)
+//! \param buf reply buffer to add to
+//! \return number of bytes added
+size_t wqc_set_downloaded_data
+        (
+                void *data,
+                size_t total_size,
+                struct web_reply_buffer *buf
+        );
 
 #ifdef __cplusplus
 } // "extern C"

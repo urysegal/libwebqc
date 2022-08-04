@@ -120,17 +120,29 @@ $(function() {
 <div class="line"><a name="l00056"></a><span class="lineno"><a class="line" href="structwebqc__handler__t.html#aabbc5a7f130bebb01e8edc6533a6b8f2">   56</a></span>&#160;    <span class="keywordtype">int</span> <a class="code" href="structwebqc__handler__t.html#aabbc5a7f130bebb01e8edc6533a6b8f2">ERI_items_count</a>;    </div>
 <div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;};</div>
 <div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160; </div>
-<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;<span class="keywordtype">size_t</span> <a class="code" href="webqc-handler_8h.html#a978349c1372fb21397548d8f5231f0ee">wqc_collect_downloaded_data</a></div>
-<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;(</div>
-<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;    <span class="keywordtype">void</span> *data,</div>
-<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;    <span class="keywordtype">size_t</span> total_size,</div>
-<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;    <span class="keyword">struct</span> <a class="code" href="structweb__reply__buffer.html">web_reply_buffer</a> *buf</div>
-<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;);</div>
-<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160; </div>
-<div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160; </div>
-<div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;<span class="preprocessor">#ifdef __cplusplus</span></div>
-<div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;} <span class="comment">// &quot;extern C&quot;</span></div>
-<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;<span class="preprocessor">#endif</span></div>
+<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160; </div>
+<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;<span class="keywordtype">void</span> <a class="code" href="webqc-handler_8h.html#a08381dabe5e2cafee1f60758609ca82c">reset_reply_buffer</a>(</div>
+<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;    <span class="keyword">struct</span> <a class="code" href="structweb__reply__buffer.html">web_reply_buffer</a> *buf</div>
+<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;);</div>
+<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160; </div>
+<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160; </div>
+<div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;<span class="keywordtype">size_t</span> <a class="code" href="webqc-handler_8h.html#a978349c1372fb21397548d8f5231f0ee">wqc_collect_downloaded_data</a></div>
+<div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;(</div>
+<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;    <span class="keywordtype">void</span> *data,</div>
+<div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;    <span class="keywordtype">size_t</span> total_size,</div>
+<div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160;    <span class="keyword">struct</span> <a class="code" href="structweb__reply__buffer.html">web_reply_buffer</a> *buf</div>
+<div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160;);</div>
+<div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160; </div>
+<div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160;<span class="keywordtype">size_t</span> <a class="code" href="webqc-handler_8h.html#ac2485dbc792d42a6de30b0d8c6bc0070">wqc_set_downloaded_data</a></div>
+<div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160;        (</div>
+<div class="line"><a name="l00086"></a><span class="lineno">   86</span>&#160;                <span class="keywordtype">void</span> *data,</div>
+<div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160;                <span class="keywordtype">size_t</span> total_size,</div>
+<div class="line"><a name="l00088"></a><span class="lineno">   88</span>&#160;                <span class="keyword">struct</span> <a class="code" href="structweb__reply__buffer.html">web_reply_buffer</a> *buf</div>
+<div class="line"><a name="l00089"></a><span class="lineno">   89</span>&#160;        );</div>
+<div class="line"><a name="l00090"></a><span class="lineno">   90</span>&#160; </div>
+<div class="line"><a name="l00091"></a><span class="lineno">   91</span>&#160;<span class="preprocessor">#ifdef __cplusplus</span></div>
+<div class="line"><a name="l00092"></a><span class="lineno">   92</span>&#160;} <span class="comment">// &quot;extern C&quot;</span></div>
+<div class="line"><a name="l00093"></a><span class="lineno">   93</span>&#160;<span class="preprocessor">#endif</span></div>
 </div><!-- fragment --></div><!-- contents -->
 <div class="ttc" id="astructwebqc__handler__t_html_a76c3b8a34af41940e8238b781698a650"><div class="ttname"><a href="structwebqc__handler__t.html#a76c3b8a34af41940e8238b781698a650">webqc_handler_t::job_type</a></div><div class="ttdeci">enum wqc_job_type job_type</div><div class="ttdoc">Which WebQC endpoint to call.</div><div class="ttdef"><b>Definition:</b> webqc-handler.h:52</div></div>
 <div class="ttc" id="awebqc-handler_8h_html_a22bab548d3c1abd5046ee2b7ee360ec1"><div class="ttname"><a href="webqc-handler_8h.html#a22bab548d3c1abd5046ee2b7ee360ec1">WQC_JOB_ID_LENGTH</a></div><div class="ttdeci">#define WQC_JOB_ID_LENGTH</div><div class="ttdef"><b>Definition:</b> webqc-handler.h:14</div></div>
@@ -138,6 +150,8 @@ $(function() {
 <div class="ttc" id="astructhandler__curl__info_html_a17bdb266a96c4e2614a00657f9d18219"><div class="ttname"><a href="structhandler__curl__info.html#a17bdb266a96c4e2614a00657f9d18219">handler_curl_info::web_error_bufffer</a></div><div class="ttdeci">char web_error_bufffer[CURL_ERROR_SIZE]</div><div class="ttdoc">Buffer to collect replies from a web service.</div><div class="ttdef"><b>Definition:</b> webqc-handler.h:33</div></div>
 <div class="ttc" id="astructwebqc__handler__t_html_a6a78ba49ffa98b93738a3fdacc907aca"><div class="ttname"><a href="structwebqc__handler__t.html#a6a78ba49ffa98b93738a3fdacc907aca">webqc_handler_t::is_duplicate</a></div><div class="ttdeci">bool is_duplicate</div><div class="ttdoc">What is the job type this handler is calling for.</div><div class="ttdef"><b>Definition:</b> webqc-handler.h:53</div></div>
 <div class="ttc" id="awebqc-handler_8h_html_ab9c288a59a1c4d29847845c5d6ca455f"><div class="ttname"><a href="webqc-handler_8h.html#ab9c288a59a1c4d29847845c5d6ca455f">MAX_URL_SIZE</a></div><div class="ttdeci">#define MAX_URL_SIZE</div><div class="ttdef"><b>Definition:</b> webqc-handler.h:12</div></div>
+<div class="ttc" id="awebqc-handler_8h_html_a08381dabe5e2cafee1f60758609ca82c"><div class="ttname"><a href="webqc-handler_8h.html#a08381dabe5e2cafee1f60758609ca82c">reset_reply_buffer</a></div><div class="ttdeci">void reset_reply_buffer(struct web_reply_buffer *buf)</div></div>
+<div class="ttc" id="awebqc-handler_8h_html_ac2485dbc792d42a6de30b0d8c6bc0070"><div class="ttname"><a href="webqc-handler_8h.html#ac2485dbc792d42a6de30b0d8c6bc0070">wqc_set_downloaded_data</a></div><div class="ttdeci">size_t wqc_set_downloaded_data(void *data, size_t total_size, struct web_reply_buffer *buf)</div></div>
 <div class="ttc" id="astructwebqc__handler__t_html_a60f9e8ba1d51254592502a63d9900a21"><div class="ttname"><a href="structwebqc__handler__t.html#a60f9e8ba1d51254592502a63d9900a21">webqc_handler_t::wqc_endpoint</a></div><div class="ttdeci">const char * wqc_endpoint</div><div class="ttdoc">Job ID the handler is currently doing.</div><div class="ttdef"><b>Definition:</b> webqc-handler.h:51</div></div>
 <div class="ttc" id="astructhandler__curl__info_html"><div class="ttname"><a href="structhandler__curl__info.html">handler_curl_info</a></div><div class="ttdef"><b>Definition:</b> webqc-handler.h:28</div></div>
 <div class="ttc" id="astructwebqc__handler__t_html_a4f3769cd6d7ea45e9fc75603f4e3c64d"><div class="ttname"><a href="structwebqc__handler__t.html#a4f3769cd6d7ea45e9fc75603f4e3c64d">webqc_handler_t::eri_status</a></div><div class="ttdeci">struct ERI_item_status * eri_status</div><div class="ttdoc">Last known status of job as require by the WebQC server.</div><div class="ttdef"><b>Definition:</b> webqc-handler.h:55</div></div>

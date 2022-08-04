@@ -50,11 +50,7 @@ WQC *wqc_init()
 void wqc_reset(WQC *handler)
 {
     if (handler) {
-        if (handler->web_call_info.web_reply.reply) {
-            free(handler->web_call_info.web_reply.reply);
-            handler->web_call_info.web_reply.reply = NULL;
-            handler->web_call_info.web_reply.size=0;
-        }
+        reset_reply_buffer(&handler->web_call_info.web_reply);
         handler->web_call_info.http_reply_code = 0;
         handler->job_status = WQC_JOB_STATUS_UNKNOWN;
         cleanup_web_call(handler);

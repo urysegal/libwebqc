@@ -88,7 +88,7 @@ TEST_CASE( "try to parse a bad reply", "[eri]" ) {
     SECTION("Parse illegal ERI item status arrays") {
 
         const char *illegals_replies[] = {
-                "{\"job_id\": \"job-a\" , \"items\": [8]}",
+                "{\"job_id\": \"job-a\" , \"items\": [{\"requestor\": \"ury\", \"id\": 9, \"status\": \"processing\", \"result_blob\": null, \"begin\": [0,0,0,0], \"end\": [5, 0, 0, 0]}, \"WHATISTHAT\"]}",
                 "{\"job_id\": \"job-a\" }",
                 "{\"job_id\": \"job-a\" , \"items\": 8}",
                 "{\"job_id\": \"job-a\", \"items\": [{\"requestor\": \"ury\", \"id\": 9, \"status\": \"error\", \"result_blob\": null, \"begin\": [\"\",0,0,0], \"end\": [5, 0, 0, 0]}]}",
@@ -120,6 +120,36 @@ TEST_CASE( "try to parse a bad reply", "[eri]" ) {
     }
     wqc_cleanup(handler);
 }
+
+
+TEST_CASE( "parse ERI done reply with blob", "[eri]" ) {
+    WQC *handler = wqc_init();
+    REQUIRE(handler != NULL);
+
+    SECTION("Parse reply blobs") {
+
+        const char *blob_replies[] = {
+                "{\"job_id\": \"job-a\", \"items\": [{\"requestor\": \"ury\", \"id\": 9, \"status\": \"done\", \"result_blob\": \"bloby.blob.bin\", \"begin\": [0,0,0,0], \"end\": [5, 0, 0, 0]}]}",
+                NULL
+        };
+
+        handler->job_type = WQC_JOB_TWO_ELECTRONS_INTEGRALS;
+        strncpy(handler->job_id, "job-a", sizeof(handler->job_id));
+
+        for ( int  i = 0 ; blob_replies[i] ; ++i ) {
+            const char *ERI_reply = blob_replies[i];
+
+            size_t total_size = strlen(ERI_reply);
+
+            CHECK(wqc_set_downloaded_data((void *)ERI_reply, total_size, &handler->web_call_info.web_reply) ==
+                  total_size);
+
+            CHECK(update_eri_job_status(handler) == true);
+        }
+    }
+    wqc_cleanup(handler);
+}
+
 
 TEST_CASE( "submit integrals job", "[eri]" ) {
     WQC *handler = wqc_init();

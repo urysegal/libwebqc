@@ -244,7 +244,9 @@ parse_eri_status_item(WQC *handler, cJSON *iterator, struct ERI_item_status *sta
     }
 
     if ( rv && (status->status == WQC_JOB_STATUS_DONE) ) {
-        rv = get_string_from_JSON(iterator, "result_blob", status->output_blob_name, sizeof status->output_blob_name);
+        char blob_path[MAX_URL_SIZE];
+        rv = get_string_from_JSON(iterator, "result_blob", blob_path, sizeof blob_path);
+        status->output_blob_name = strdup(blob_path);
     }
 
     if (!rv) {

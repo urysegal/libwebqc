@@ -1,5 +1,6 @@
 var searchData=
 [
-  ['update_5feri_5fjob_5fstatus_160',['update_eri_job_status',['../webqc-json_8h.html#aa7031ed4ab1b3b738c1f5d566d97c94a',1,'webqc-json.h']]],
-  ['update_5fjob_5fdetails_161',['update_job_details',['../webqc-json_8h.html#ab973a9fcfcc775def2eaa2145285dfde',1,'webqc-json.h']]]
+  ['set_5feri_5fjob_5fparameters_160',['set_eri_job_parameters',['../webqc-web-access_8h.html#ae778cd3711de3df4f275898c9b176667',1,'webqc-web-access.h']]],
+  ['set_5fno_5fparameters_161',['set_no_parameters',['../webqc-web-access_8h.html#a96bc99026da13f666a6af7fd7e3a2280',1,'webqc-web-access.h']]],
+  ['set_5fpost_5ffields_162',['set_POST_fields',['../webqc-web-access_8h.html#a6becddd38be5c5ef698861d2a9a9674e',1,'webqc-web-access.h']]]
 ];
