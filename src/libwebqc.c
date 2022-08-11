@@ -1,5 +1,6 @@
 #include <stddef.h>
 #include <string.h>
+#include <unistd.h>
 
 #ifdef __APPLE__
   #include <malloc/malloc.h>
@@ -224,11 +225,49 @@ bool wqc_get_status(WQC *handler)
     return rv;
 }
 
+static bool integrals_job_done(WQC *handler)
+{
+    bool rv = ( handler->ERI_items_count != 0 ) ;
+    for ( int i = 0 ; rv && i < handler->ERI_items_count ; i++ ) {
+        enum job_status_t subjob_status = handler->eri_status[i].status;
+        if ( subjob_status != WQC_JOB_STATUS_DONE && subjob_status != WQC_JOB_STATUS_ERROR ) {
+            rv = false;
+        }
+    }
+    return rv;
+}
+
 
 bool wqc_job_done( WQC *handler)
 {
+    if ( handler->job_type == WQC_JOB_TWO_ELECTRONS_INTEGRALS ) {
+        return integrals_job_done(handler);
+    }
     return handler->job_status == WQC_JOB_STATUS_DONE ||
         handler->job_status == WQC_JOB_STATUS_ERROR ;
+}
+
+
+bool wqc_wait_for_job( WQC *handler, int seconds_to_wait)
+{
+    bool rv = wqc_job_done(handler);
+
+    int seconds_to_sleep = 1;
+    while ( rv == false && seconds_to_wait > 0 ) {
+        rv = wqc_get_status(handler);
+        if ( rv ) {
+            rv = wqc_job_done(handler);
+            if (! rv ) {
+                sleep(seconds_to_sleep);
+                seconds_to_wait -= seconds_to_sleep;
+                seconds_to_sleep *= 2;
+                if ( seconds_to_sleep > 64 ) {
+                    seconds_to_sleep = 1;
+                }
+            }
+        }
+    }
+    return rv;
 }
 
 
