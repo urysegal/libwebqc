@@ -247,23 +247,29 @@ bool wqc_job_done( WQC *handler)
         handler->job_status == WQC_JOB_STATUS_ERROR ;
 }
 
+static const useconds_t initial_sleep = 8000;
+static const useconds_t max_sleep = 1000*1000000;
 
-bool wqc_wait_for_job( WQC *handler, int seconds_to_wait)
+
+bool wqc_wait_for_job( WQC *handler, int64_t milliseconds_to_wait)
 {
-    bool rv = wqc_job_done(handler);
+    bool rv = false;
+    useconds_t microseconds_to_wait = milliseconds_to_wait * 1000;
 
-    int seconds_to_sleep = 1;
-    while ( rv == false && seconds_to_wait > 0 ) {
+    useconds_t microseconds_to_sleep = max_sleep;
+    while ( rv == false && microseconds_to_wait > 0 ) {
+
+        microseconds_to_sleep *= 2;
+        if ( microseconds_to_sleep > max_sleep ) {
+            microseconds_to_sleep = initial_sleep;
+        }
+        usleep(microseconds_to_sleep);
+        microseconds_to_wait -= microseconds_to_sleep;
+
         rv = wqc_get_status(handler);
         if ( rv ) {
             rv = wqc_job_done(handler);
             if (! rv ) {
-                sleep(seconds_to_sleep);
-                seconds_to_wait -= seconds_to_sleep;
-                seconds_to_sleep *= 2;
-                if ( seconds_to_sleep > 64 ) {
-                    seconds_to_sleep = 1;
-                }
             }
         }
     }

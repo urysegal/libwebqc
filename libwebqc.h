@@ -172,11 +172,11 @@ bool wqc_job_done(
 //! The function will return early (with false value) if an error was encountered. It will call the WebQC server with an exponential backoff,
 //! every 1,2,4,8,16,32, 64 seconds, and then again in this sequence.
 //! \param handler Handler to the job. Job should have been submitted with wqc_submit_job()
-//! \param seconds_to_wait how many seconds to wait for the job to be done.
+//! \param milliseconds_to_wait how many milliseconds to wait for the job to be done.
 //! \return true if the job is done by the time seconds_to_wait has passed.
 bool wqc_wait_for_job(
         WQC *handler,
-        int seconds_to_wait
+        int64_t milliseconds_to_wait
 );
 
 //! @brief Initialize variables of type  webqc_return_value_t.

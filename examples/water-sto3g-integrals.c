@@ -65,7 +65,7 @@ save_integrals( WQC *handler, const char *output_filename)
 
     if ( res ) {
         if ( ! wqc_job_done(handler) ) {
-            res = wqc_wait_for_job(handler, 600);
+            res = wqc_wait_for_job(handler, 600*1000);
         }
         if ( res ) {
             //res = wqc_get_eri_results(handler);

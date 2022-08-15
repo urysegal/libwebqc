@@ -39,6 +39,7 @@ TEST_CASE( "submit integrals job and get status", "[eri]" ) {
 
         CHECK(wqc_get_status(handler) == false );
         CHECK(wqc_submit_job(handler, WQC_JOB_TWO_ELECTRONS_INTEGRALS, &parameters) == true);
+        CHECK(wqc_job_done(handler) == false);
         CHECK(wqc_get_status(handler) == true );
 
     }
