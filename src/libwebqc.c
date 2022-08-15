@@ -1,5 +1,6 @@
 #include <stddef.h>
 #include <string.h>
+#include <unistd.h>
 
 #ifdef __APPLE__
   #include <malloc/malloc.h>
@@ -224,11 +225,56 @@ bool wqc_get_status(WQC *handler)
     return rv;
 }
 
+static bool integrals_job_done(WQC *handler)
+{
+    if ( handler->ERI_items_count == 0 ) {
+        return false; // We don't know what the status is
+    }
+    bool rv = true;
+    for ( int i = 0 ; rv && i < handler->ERI_items_count ; i++ ) {
+        enum job_status_t subjob_status = handler->eri_status[i].status;
+        rv =  ( subjob_status == WQC_JOB_STATUS_DONE || subjob_status == WQC_JOB_STATUS_ERROR ) ;
+    }
+    return rv;
+}
+
 
 bool wqc_job_done( WQC *handler)
 {
+    if ( handler->job_type == WQC_JOB_TWO_ELECTRONS_INTEGRALS ) {
+        return integrals_job_done(handler);
+    }
     return handler->job_status == WQC_JOB_STATUS_DONE ||
         handler->job_status == WQC_JOB_STATUS_ERROR ;
+}
+
+static const useconds_t initial_sleep = 8000;
+static const useconds_t max_sleep = 1000*1000000;
+
+
+bool wqc_wait_for_job( WQC *handler, int64_t milliseconds_to_wait)
+{
+    bool rv = false;
+    useconds_t microseconds_to_wait = milliseconds_to_wait * 1000;
+
+    useconds_t microseconds_to_sleep = max_sleep;
+    while ( rv == false && microseconds_to_wait > 0 ) {
+
+        microseconds_to_sleep *= 2;
+        if ( microseconds_to_sleep > max_sleep ) {
+            microseconds_to_sleep = initial_sleep;
+        }
+        usleep(microseconds_to_sleep);
+        microseconds_to_wait -= microseconds_to_sleep;
+
+        rv = wqc_get_status(handler);
+        if ( rv ) {
+            rv = wqc_job_done(handler);
+            if (! rv ) {
+            }
+        }
+    }
+    return rv;
 }
 
 

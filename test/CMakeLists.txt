@@ -21,7 +21,4 @@ target_include_directories(test-all PUBLIC ${CMAKE_SOURCE_DIR})
 add_dependencies(test-all libwebqc)
 target_link_libraries(test-all libwebqc Catch2::Catch2WithMain ${CURL_LIBRARIES})
 
-add_test(NAME test-all
-        COMMAND test-all)
-
 catch_discover_tests(test-all)

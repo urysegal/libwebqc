@@ -65,11 +65,12 @@ save_integrals( WQC *handler, const char *output_filename)
 
     if ( res ) {
         if ( ! wqc_job_done(handler) ) {
-            //res = wqc_wait_for_job(handler);
+            res = wqc_wait_for_job(handler, 600*1000);
         }
-        if ( res )
-        {
+        if ( res ) {
             //res = wqc_get_eri_results(handler);
+        } else {
+            fprintf(stderr, "Could not get ERI results within 10 minutes\n");
         }
     }
     if ( ! res ) {
