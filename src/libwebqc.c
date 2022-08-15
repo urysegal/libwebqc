@@ -227,12 +227,13 @@ bool wqc_get_status(WQC *handler)
 
 static bool integrals_job_done(WQC *handler)
 {
-    bool rv = ( handler->ERI_items_count != 0 ) ;
+    if ( handler->ERI_items_count == 0 ) {
+        return false; // We don't know what the status is
+    }
+    bool rv = true;
     for ( int i = 0 ; rv && i < handler->ERI_items_count ; i++ ) {
         enum job_status_t subjob_status = handler->eri_status[i].status;
-        if ( subjob_status != WQC_JOB_STATUS_DONE && subjob_status != WQC_JOB_STATUS_ERROR ) {
-            rv = false;
-        }
+        rv =  ( subjob_status == WQC_JOB_STATUS_DONE || subjob_status == WQC_JOB_STATUS_ERROR ) ;
     }
     return rv;
 }

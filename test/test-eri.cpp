@@ -206,6 +206,7 @@ TEST_CASE( "submit duplicate job", "[eri]" ) {
 
         CHECK(wqc_submit_job(handler, WQC_JOB_TWO_ELECTRONS_INTEGRALS, &parameters1) == true);
         CHECK(wqc_job_is_duplicate(handler) == false);
+        CHECK(wqc_job_done(handler) == false);
         CHECK(wqc_submit_job(handler, WQC_JOB_TWO_ELECTRONS_INTEGRALS, &parameters1) == true);
         CHECK(wqc_job_is_duplicate(handler) == true);
 
@@ -249,6 +250,7 @@ TEST_CASE( "submit nonexistent job type", "[eri]" ) {
     REQUIRE(handler != NULL);
 
     REQUIRE( wqc_submit_job(handler, (enum wqc_job_type)432432, nullptr ) == false ) ;
+    REQUIRE( wqc_job_done(handler) == false );
     wqc_cleanup(handler);
 }
 
