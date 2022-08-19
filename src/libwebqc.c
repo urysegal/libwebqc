@@ -27,6 +27,27 @@ struct wqc_return_value init_webqc_return_value()
     return rv;
 }
 
+static void init_basis_functions(WQC *handler)
+{
+    bzero(&handler->eri_info, sizeof(handler->eri_info));
+    handler->basis_functions = NULL;
+    handler->basis_function_primitives = NULL;
+    handler->number_of_primitives = 0;
+}
+
+static void cleanup_basis_functions(WQC *handler)
+{
+    if (handler->basis_functions) {
+        free(handler->basis_functions);
+    }
+    if (handler->basis_function_primitives) {
+        free(handler->basis_function_primitives);
+    }
+    handler->basis_functions = NULL;
+    handler->basis_function_primitives = NULL;
+}
+
+
 WQC *wqc_init()
 {
     WQC *handler = malloc(sizeof(struct webqc_handler_t));
@@ -42,6 +63,7 @@ WQC *wqc_init()
     handler->job_status = WQC_JOB_STATUS_UNKNOWN;
     handler->eri_status = NULL;
     handler->ERI_items_count = 0;
+    init_basis_functions(handler);
 
     wqc_init_web_calls(handler);
 
@@ -76,6 +98,7 @@ void wqc_cleanup(WQC *handler)
             free(handler->eri_status);
         }
         free(handler->webqc_server_name);
+        cleanup_basis_functions(handler);
         free(handler);
     }
 }
@@ -189,6 +212,27 @@ bool wqc_submit_job(WQC *handler, enum wqc_job_type job_type, void *job_paramete
     return rv ;
 }
 
+bool
+wqc_get_integrals_details(WQC *handler)
+{
+    bool rv = false;
+
+    rv = prepare_web_call(handler, "int_info");
+
+    if ( rv ) {
+        rv = prepare_get_parameter(handler, "set_id", handler->parameter_set_id);
+    }
+    if ( rv ) {
+        rv = make_web_call(handler);
+    }
+
+    if (rv) {
+        rv = update_eri_details(handler);
+        wqc_reset(handler);
+    }
+
+    return rv;
+}
 
 static bool
 get_eri_job_status(WQC *handler)
@@ -270,11 +314,16 @@ bool wqc_wait_for_job( WQC *handler, int64_t milliseconds_to_wait)
         rv = wqc_get_status(handler);
         if ( rv ) {
             rv = wqc_job_done(handler);
-            if (! rv ) {
-            }
         }
     }
     return rv;
+}
+
+
+const char *
+wqc_get_parameter_set_id(WQC *handler)
+{
+    return handler->parameter_set_id;
 }
 
 

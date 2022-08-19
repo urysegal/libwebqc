@@ -25,6 +25,9 @@ typedef double wqc_real;
 
 #define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
 
+#define MAX_ELEMENT_NAME (14) /// That would be rutherfordium
+#define MAX_BASIS_FUNCTION_LABEL (32) /// e.g. d_x^2-y^2
+
 /// When sending data to the cloud service, use these constants to specify what type is each parameter
 enum wqc_data_type
 {
@@ -32,7 +35,16 @@ enum wqc_data_type
     WQC_REAL_TYPE = 2 /// WebQC cloud call parameter is a real number
 };
 
+/// Types of coordinate system
+enum wqc_coodinate_system
+{
+    WQC_CARTESIAN = 1,
+    WQC_SPHERICAL = 2
+};
+
 typedef struct webqc_handler_t WQC; ///< A handler to a WQC operation. When starting an asynchronous job, a WQC is returned to the caller.
+
+typedef double wqc_location_t[3]; /// A 3D location in the system
 
 /// List of all the possible calls to WecQC service
 enum wqc_job_type {
@@ -51,13 +63,50 @@ enum job_status_t {
     WQC_JOB_STATUS_ERROR = 4 /// Job finished with error
 };
 
+/// Status of one sub-task of the overall ERI calculation
 struct ERI_item_status {
-    enum job_status_t status;
-    int id ;
-    char *output_blob_name;
-    int range_begin[4];
-    int range_end[4];
+    enum job_status_t status; /// Sub-Task status
+    int id ; /// Sub-Task id
+    char *output_blob_name; /// If task is done, where to download the ERIs from
+    int range_begin[4]; /// Beginning of range of integrals to calculate
+    int range_end[4]; /// End of range of integrals to calculate
 };
+
+/// Information about the system being solved
+struct ERI_information {
+    unsigned int number_of_atoms; /// Number of atoms in the system
+    unsigned int number_of_electrons;  /// Number of electrons in the system
+    unsigned int number_of_functions;  ///  Overall number of functions, including all electrons on all atoms with all orientations. E.g. P orbital gives 3 functions.
+    unsigned int number_of_integrals; /// Number of ERI integrals ( number_of_functions to the power of 4 )
+    unsigned int number_of_shells; /// Number of shells ( similar to number_of_functions, but not counting different orientations). E.g. P orbital is one shell.
+};
+
+/// Information about ONE function, including specific orientation. For GTO , this also includes contractions
+struct basis_function_instance {
+    unsigned int angular_moment_l; /// Angular moment quantum number
+    char angular_moment_symbol; ///  s,p,d etc.
+    unsigned int atom_index; /// Running index of atoms in the system
+    unsigned int shell_index; /// Running index of shells in the system
+    unsigned int atomic_number; /// Atomic number of the element this function is centered on
+    char element_name[MAX_ELEMENT_NAME+1]; /// Element name, e.g. Iron
+    char element_symbol[4]; /// Element symbol, e.g. Fe
+    char function_label[MAX_BASIS_FUNCTION_LABEL+1]; /// Full function label, e.g. "p_x^2-y^2"
+    enum wqc_coodinate_system coordinate_type; /// Coordinates for the function - spherical or cartesian
+    unsigned int number_of_primitives; /// Number of primitives in the contraction
+    wqc_location_t origin; /// Origin of the function co-ordinates. This is where the atom is located in the system.
+};
+
+/// Information about the radial part of a basis function (eg one primitive in a contraction )
+/// in Case of GTO, the radial part will have elements coefficient*exp(-exponent*x^2)
+/// in Case of STO, the radial part will have elements coefficient*exp(-exponent*x)
+
+struct radial_function_info {
+    int coefficient; /// Coefficient for one primitives term
+    int exponent; /// Also known as "alpha" and "zetta"
+};
+
+
+
 
 //! Initialize the WQC library. Call once before calling any thing WQC functions.
 void wqc_global_init();
@@ -188,8 +237,29 @@ struct wqc_return_value init_webqc_return_value();
 //! \return read-only string that contains the corresponding error message
 const char *
 wqc_get_error_by_code(
-        error_code_t error_code
+    error_code_t error_code
 );
+
+//! Get the parameter set used for the job.
+//! \param handler Hanlder that were used to submit the job
+//! \return pointer to a read-only null-terminated paramter set id string.
+
+const char *
+wqc_get_parameter_set_id(
+    WQC *handler
+);
+
+//! Get details about integrals calculated by any integral-related job that was submitted with the handler. You
+//! have to call wqc_reset on the handler between submitting the integrals job and calling this function.
+//! \param handler hanlder that an integral job was called on
+//! \return true on success, false otherwise
+
+bool
+wqc_get_integrals_details(
+    WQC *handler
+);
+
+
 
 
 #ifdef __cplusplus

@@ -38,11 +38,18 @@ bool update_job_details(
     WQC *handler
 );
 
-//! Update the handler structure with the information about ERI calculation, and mark the job done if all ERI are done
+//! Update the handler structure with the information about ERI calculation progress, and mark the job done if all ERI are done
 //! \param handler handler that just completed successfuly a call to GET on the eri endpoint
 //! \return true on success, false on failure (and sets error on the handler)
 bool update_eri_job_status(
         WQC *handler
+);
+
+//! Update the handler structure with the information about the ERIs.
+//! \param handler handler that just completed successfuly any integral-related call
+//! \return true on success, false on failure (and sets error on the handler)
+bool update_eri_details(
+    WQC *handler
 );
 
 

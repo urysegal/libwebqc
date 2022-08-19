@@ -81,6 +81,13 @@ save_integrals( WQC *handler, const char *output_filename)
     return res;
 }
 
+bool
+get_integrals_details(const char *parameter_set)
+{
+    bool res = true;
+
+    return res;
+}
 
 int
 main(int argc, const char *argv[])
@@ -96,8 +103,16 @@ main(int argc, const char *argv[])
     bool rv = calculate_integrals(handler);
 
     if ( rv ) {
-        save_integrals(handler, output_filename);
+        rv = save_integrals(handler, output_filename);
     }
+
+    if ( rv ) {
+
+        wqc_reset(handler);
+
+        rv = wqc_get_integrals_details(handler);
+    }
+
     wqc_cleanup(handler);
 
     wqc_global_cleanup();

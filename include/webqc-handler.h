@@ -54,6 +54,10 @@ struct webqc_handler_t {
     enum job_status_t job_status; /// Last known status of job as require by the WebQC server
     struct ERI_item_status *eri_status; /// List of all ERI sub-jobs status...
     int ERI_items_count;    /// How many ERI sub-jobs there are
+    struct ERI_information eri_info;  /// Full ERI information
+    struct basis_function_instance *basis_functions; /// All basis functions instances
+    struct radial_function_info *basis_function_primitives; /// All the primitives involved in the system
+    unsigned int number_of_primitives; /// Overall number of primitives in the entire system
 };
 
 
