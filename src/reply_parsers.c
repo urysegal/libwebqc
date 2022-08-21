@@ -23,7 +23,7 @@ bool get_string_from_JSON(cJSON *json, const char *field_name, char *dest, unsig
     return rv;
 }
 
-bool get_object_from_reply(cJSON *json, const char *field_name, cJSON **obj)
+bool get_object_from_reply(const cJSON *json, const char *field_name, cJSON **obj)
 {
     bool rv = false;
     *obj = cJSON_GetObjectItemCaseSensitive(json, field_name);
@@ -33,7 +33,7 @@ bool get_object_from_reply(cJSON *json, const char *field_name, cJSON **obj)
     return rv;
 }
 
-bool get_array_from_reply(cJSON *json, const char *field_name, cJSON **array)
+bool get_array_from_reply(const cJSON *json, const char *field_name, cJSON **array)
 {
     bool rv = false;
     *array = cJSON_GetObjectItemCaseSensitive(json, field_name);
@@ -325,3 +325,4 @@ update_eri_job_status(WQC *handler)
 
     return rv;
 }
+
