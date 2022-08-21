@@ -66,11 +66,30 @@ extract_json_fields(WQC *handler, const cJSON *json_object, const struct json_fi
     return rv;
 }
 
-static bool get_primitives_info(WQC *handler, struct basis_function_instance function_instance, const cJSON *primitives_info);
-static bool get_origin_info(WQC *handler, struct basis_function_instance function_instance, const cJSON *origin_info);
+static bool get_primitives_info(WQC *handler, struct basis_function_instance *function_instance, const cJSON *primitives_info);
+
+static bool get_origin_info(WQC *handler, struct basis_function_instance *function_instance, const cJSON *origin_info)
+{
+    bool rv = true;
+    const cJSON *val = NULL;
+    int i = 0;
+
+    cJSON_ArrayForEach(val, origin_info) {
+        if (cJSON_IsNumber(val) ) {
+            function_instance->origin[i++] = cJSON_GetNumberValue(val);
+        } else {
+            wqc_set_error_with_message(handler, WEBQC_WEB_CALL_ERROR, "Non-Number in origin array field on a basis function");
+            rv = false;
+        }
+        if ( i == 3) {
+            break;
+        }
+    }
+    return rv;
+}
 
 static bool
-get_function_info(WQC *handler, struct basis_function_instance function_instance, const cJSON *function_info)
+get_function_info(WQC *handler, struct basis_function_instance *function_instance, const cJSON *function_info)
 {
     /*
         "origin": [
@@ -93,14 +112,14 @@ get_function_info(WQC *handler, struct basis_function_instance function_instance
     cJSON *origin_info = NULL;
 
     struct json_field_info fields[] = {
-        {"angular_moment_symbol", WQC_JSON_STRING, &function_instance.angular_moment_symbol, sizeof(function_instance.angular_moment_symbol)},
-        {"element_name", WQC_JSON_STRING, &function_instance.element_name, sizeof(function_instance.element_name)},
-        {"element_symbol", WQC_JSON_STRING, &function_instance.element_symbol, sizeof(function_instance.element_symbol)},
-        {"function_label", WQC_JSON_STRING, &function_instance.function_label , sizeof(function_instance.function_label)},
-        {"angular_moment_l", WQC_JSON_INT, &function_instance.angular_moment_l},
-        {"atom_index", WQC_JSON_INT, &function_instance.atom_index},
-        {"atomic_number", WQC_JSON_INT, &function_instance.atomic_number},
-        {"number_of_primitives", WQC_JSON_INT, &function_instance.number_of_primitives},
+        {"angular_moment_symbol", WQC_JSON_STRING, &function_instance->angular_moment_symbol, sizeof(function_instance->angular_moment_symbol)},
+        {"element_name", WQC_JSON_STRING, &function_instance->element_name, sizeof(function_instance->element_name)},
+        {"element_symbol", WQC_JSON_STRING, &function_instance->element_symbol, sizeof(function_instance->element_symbol)},
+        {"function_label", WQC_JSON_STRING, &function_instance->function_label , sizeof(function_instance->function_label)},
+        {"angular_moment_l", WQC_JSON_INT, &function_instance->angular_moment_l},
+        {"atom_index", WQC_JSON_INT, &function_instance->atom_index},
+        {"atomic_number", WQC_JSON_INT, &function_instance->atomic_number},
+        {"number_of_primitives", WQC_JSON_INT, &function_instance->number_of_primitives},
         {"spherical", WQC_JSON_INT, &spherical},
         {"primitives", WQC_JSON_ARRAY, &primitives_info},
         {"origin", WQC_JSON_ARRAY, &origin_info},
@@ -111,9 +130,9 @@ get_function_info(WQC *handler, struct basis_function_instance function_instance
 
     if ( rv ) {
         if ( spherical ) {
-            function_instance.coordinate_type = WQC_SPHERICAL;
+            function_instance->coordinate_type = WQC_SPHERICAL;
         } else {
-            function_instance.coordinate_type = WQC_CARTESIAN;
+            function_instance->coordinate_type = WQC_CARTESIAN;
         }
         rv = get_origin_info(handler, function_instance, origin_info);
     }
@@ -136,7 +155,7 @@ get_functions(WQC *handler, const cJSON *functions_info)
     cJSON_ArrayForEach(function, functions_info) {
         struct basis_function_instance function_instance;
         bzero(&function_instance, sizeof function_instance);
-        rv = get_function_info(handler, function_instance, function);
+        rv = get_function_info(handler, &function_instance, function);
         if ( ! rv ) {
             break;
         }
