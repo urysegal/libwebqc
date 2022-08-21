@@ -11,7 +11,9 @@ extern "C" {
 /// Type of JSON fields, to be used to extract values from HTTP replies.
 enum json_field_types {
     WQC_JSON_INT = 0, /// Integer field
-    WQC_JSON_STRING   /// String field
+    WQC_JSON_STRING = 1,  /// String field
+    WQC_JSON_BOOL = 2, /// Boolean field
+    WQC_JSON_ARRAY = 3 /// Array field
 };
 
 /// Instructions for extracting fields from a JSON, used to extract values from HTTP replies.
@@ -19,6 +21,7 @@ struct json_field_info {
     const char *field_name; /// JSON field name
     enum json_field_types field_type; /// type of field to expect
     void *target; /// Where to put the extracted value
+    unsigned int max_size; /// maximum number of bytes to copy into target. Only used for string
 };
 
 
@@ -107,7 +110,7 @@ bool get_object_from_reply(
 //! \param field_name field name of an array inside
 //! \param obj on success, pointer will set to the field
 //! \return true on success - there was an array with the given name
-bool get_array_from_reply(
+bool get_array_from_JSON(
     const cJSON *json,
     const char *field_name,
     cJSON **obj
@@ -117,12 +120,37 @@ bool get_array_from_reply(
 //! Get an integer with the given name from a JSON object
 //! \param json JSON object to extract the integer from
 //! \param field_name field name of an array inside
-//! \param obj on success, pointer will set to the field
+//! \param value on success, pointer will set to the field
 //! \return true on success - there was an integer with the given name
 bool get_int_from_JSON(
     const cJSON *json,
     const char *field_name,
     int *value
+);
+
+
+//! Get a string with the given name from a JSON object, up to a given size
+//! \param json JSON object to extract the integer from
+//! \param field_name field name of an array inside
+//! \param dest output buffer for the string
+//! \param max_size buffer size that dest points to
+//! \return true on success - there was a string with the given name
+bool get_string_from_JSON(
+    const cJSON *json,
+    const char *field_name,
+    char *dest,
+    unsigned int max_size
+);
+
+//! Get a boolean with the given name from a JSON object
+//! \param json JSON object to extract the boolean from
+//! \param field_name field name of an array inside
+//! \param value on success, pointer will set to the field
+//! \return true on success - there was a boolean with the given name
+bool get_bool_from_JSON(
+    const cJSON *json,
+    const char *field_name,
+    bool *value
 );
 
 

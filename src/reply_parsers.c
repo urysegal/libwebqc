@@ -11,8 +11,9 @@
 #endif
 
 #include "webqc-handler.h"
+#include "webqc-json.h"
 
-bool get_string_from_JSON(cJSON *json, const char *field_name, char *dest, unsigned int max_size)
+bool get_string_from_JSON(const cJSON *json, const char *field_name, char *dest, unsigned int max_size)
 {
     bool rv = false;
     cJSON *job_id = cJSON_GetObjectItemCaseSensitive(json, field_name);
@@ -33,17 +34,17 @@ bool get_object_from_reply(const cJSON *json, const char *field_name, cJSON **ob
     return rv;
 }
 
-bool get_array_from_reply(const cJSON *json, const char *field_name, cJSON **array)
+bool get_array_from_JSON(const cJSON *json, const char *field_name, cJSON **obj)
 {
     bool rv = false;
-    *array = cJSON_GetObjectItemCaseSensitive(json, field_name);
-    if (*array && cJSON_IsArray(*array) ) {
+    *obj = cJSON_GetObjectItemCaseSensitive(json, field_name);
+    if (*obj && cJSON_IsArray(*obj) ) {
         rv = true;
     }
     return rv;
 }
 
-bool get_int_from_JSON(cJSON *json, const char *field_name, int *dest)
+bool get_int_from_JSON(const cJSON *json, const char *field_name, int *dest)
 {
     bool rv = false;
     cJSON *job_id = cJSON_GetObjectItemCaseSensitive(json, field_name);
@@ -53,6 +54,18 @@ bool get_int_from_JSON(cJSON *json, const char *field_name, int *dest)
     }
     return rv;
 }
+
+bool get_bool_from_JSON(const cJSON *json, const char *field_name, bool *dest)
+{
+    bool rv = false;
+    cJSON *f = cJSON_GetObjectItemCaseSensitive(json, field_name);
+    if (cJSON_IsBool(f) ) {
+        *dest = cJSON_IsTrue(f);
+        rv = true;
+    }
+    return rv;
+}
+
 
 
 bool parse_JSON_reply(WQC *handler, cJSON **reply_json)
@@ -183,7 +196,7 @@ parse_eri_integral_range(WQC *handler, cJSON *item, const char *field_name, int 
     cJSON *range_array = NULL;
     int i = 0;
 
-    bool rv = get_array_from_reply(item, field_name, &range_array);
+    bool rv = get_array_from_JSON(item, field_name, &range_array);
 
     if (rv && range_array) {
         cJSON *array_iterator = NULL;
@@ -311,7 +324,7 @@ update_eri_job_status(WQC *handler)
     rv = parse_JSON_reply(handler, &reply_json);
 
     if ( rv ) {
-        rv = get_array_from_reply(reply_json, "items", &eri_items);
+        rv = get_array_from_JSON(reply_json, "items", &eri_items);
         if (rv && eri_items) {
             rv = parse_eri_status_array(handler, eri_items);
         } else {

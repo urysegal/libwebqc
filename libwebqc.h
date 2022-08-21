@@ -84,7 +84,7 @@ struct ERI_information {
 /// Information about ONE function, including specific orientation. For GTO , this also includes contractions
 struct basis_function_instance {
     unsigned int angular_moment_l; /// Angular moment quantum number
-    char angular_moment_symbol; ///  s,p,d etc.
+    char angular_moment_symbol[2]; ///  s,p,d etc.
     unsigned int atom_index; /// Running index of atoms in the system
     unsigned int shell_index; /// Running index of shells in the system
     unsigned int atomic_number; /// Atomic number of the element this function is centered on
