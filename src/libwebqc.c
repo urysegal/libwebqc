@@ -33,6 +33,9 @@ static void init_basis_functions(WQC *handler)
     handler->eri_info.basis_functions = NULL;
     handler->eri_info.basis_function_primitives = NULL;
     handler->eri_info.number_of_primitives = 0;
+    handler->eri_info.next_function = 0;
+    handler->eri_info.next_primitive = 0;
+
 }
 
 static void cleanup_basis_functions(WQC *handler)

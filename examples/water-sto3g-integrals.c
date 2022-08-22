@@ -111,6 +111,10 @@ main(int argc, const char *argv[])
         wqc_reset(handler);
 
         rv = wqc_get_integrals_details(handler);
+
+        if (rv) {
+            wqc_print_integrals_details(handler, stdout);
+        }
     }
 
     wqc_cleanup(handler);

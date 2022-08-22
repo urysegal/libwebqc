@@ -8,7 +8,7 @@ extern "C" {
 
 #include "webqc-errors.h"
 #include "webqc-options.h"
-
+#include <stdio.h>
 
 #define TWO_ELECTRONS_INTEGRAL_SERVICE_ENDPOINT "eri"
 #define NEW_JOB_SERVICE_ENDPOINT "job"
@@ -79,11 +79,11 @@ struct ERI_information {
     unsigned int number_of_functions;  ///  Overall number of functions, including all electrons on all atoms with all orientations. E.g. P orbital gives 3 functions.
     unsigned int number_of_integrals; /// Number of ERI integrals ( number_of_functions to the power of 4 )
     unsigned int number_of_shells; /// Number of shells ( similar to number_of_functions, but not counting different orientations). E.g. P orbital is one shell.
+    unsigned int number_of_primitives; /// Overall number of primitives in the entire system
     struct basis_function_instance *basis_functions; /// All basis functions instances
     struct radial_function_info *basis_function_primitives; /// All the primitives involved in the system
-    unsigned int number_of_primitives; /// Overall number of primitives in the entire system
-    unsigned int allocated_number_of_primitives; /// how much allocated space for primitives in basis_function_primitives
-
+    unsigned int next_primitive; /// Next primitive to fill up
+    unsigned int next_function; /// Next function to fill up
 };
 
 /// Information about ONE function, including specific orientation. For GTO , this also includes contractions
@@ -97,8 +97,8 @@ struct basis_function_instance {
     char element_symbol[4]; /// Element symbol, e.g. Fe
     char function_label[MAX_BASIS_FUNCTION_LABEL+1]; /// Full function label, e.g. "p_x^2-y^2"
     enum wqc_coodinate_system coordinate_type; /// Coordinates for the function - spherical or cartesian
-    unsigned int first_primitives; /// First primitives in the contraction, index into the handler's array of primitives
     unsigned int number_of_primitives; /// Number of primitives in the contraction
+    unsigned int first_primitives; /// First primitives in the contraction, index into the handler's array of primitives
     wqc_location_t origin; /// Origin of the function co-ordinates. This is where the atom is located in the system.
 };
 
@@ -107,8 +107,8 @@ struct basis_function_instance {
 /// in Case of STO, the radial part will have elements coefficient*exp(-exponent*x)
 
 struct radial_function_info {
-    int coefficient; /// Coefficient for one primitives term
-    int exponent; /// Also known as "alpha" and "zetta"
+    double coefficient; /// Coefficient for one primitives term
+    double exponent; /// Also known as "alpha" and "zetta"
 };
 
 
@@ -266,6 +266,14 @@ wqc_get_integrals_details(
 );
 
 
+//! Print full details about ERIs
+//! \param handler Hanlder where the integrals details were fetched
+//! \param fp File pointer to print to
+void
+wqc_print_integrals_details(
+    WQC *handler,
+    FILE *fp
+);
 
 
 #ifdef __cplusplus

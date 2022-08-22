@@ -47,13 +47,25 @@ bool get_array_from_JSON(const cJSON *json, const char *field_name, cJSON **obj)
 bool get_int_from_JSON(const cJSON *json, const char *field_name, int *dest)
 {
     bool rv = false;
-    cJSON *job_id = cJSON_GetObjectItemCaseSensitive(json, field_name);
-    if (cJSON_IsNumber(job_id) ) {
-        *dest = job_id->valueint;
+    cJSON *i = cJSON_GetObjectItemCaseSensitive(json, field_name);
+    if (cJSON_IsNumber(i) ) {
+        *dest = i->valueint;
         rv = true;
     }
     return rv;
 }
+
+bool get_number_from_JSON(const cJSON *json, const char *field_name, double *dest)
+{
+    bool rv = false;
+    cJSON *n = cJSON_GetObjectItemCaseSensitive(json, field_name);
+    if (cJSON_IsNumber(n) ) {
+        *dest = n->valuedouble;
+        rv = true;
+    }
+    return rv;
+}
+
 
 bool get_bool_from_JSON(const cJSON *json, const char *field_name, bool *dest)
 {

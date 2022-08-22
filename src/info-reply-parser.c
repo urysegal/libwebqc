@@ -70,18 +70,29 @@ extract_json_fields(WQC *handler, const cJSON *json_object, const struct json_fi
     return rv;
 }
 
-static void add_function_to_basis_set(WQC *handler, struct basis_function_instance *function_instance);
+static void add_function_to_basis_set(WQC *handler, struct basis_function_instance *function_instance)
+{
+    struct ERI_information *eri_info = & handler->eri_info;
+    if ( eri_info->basis_functions == NULL) {
+        eri_info->basis_functions = malloc ( eri_info->number_of_functions * sizeof (struct basis_function_instance));
+    }
+    if ( eri_info->next_function == 0 ) {
+        function_instance->first_primitives = 0;
+    } else {
+        function_instance->first_primitives = eri_info->basis_functions[eri_info->next_function-1].first_primitives+
+            eri_info->basis_functions[eri_info->next_function-1].number_of_primitives;
+    }
+    memcpy(&(eri_info->basis_functions[eri_info->next_function++]), function_instance, sizeof (*function_instance));
+}
 
 
 static void add_radial_info_to_basis_set(WQC *handler, struct radial_function_info *radial_info)
 {
     struct ERI_information *eri_info = & handler->eri_info;
-    if ( eri_info->number_of_primitives == eri_info->allocated_number_of_primitives ) {
-        eri_info->allocated_number_of_primitives = (2 + eri_info->allocated_number_of_primitives*2) ;
-        eri_info->basis_function_primitives = realloc(eri_info->basis_function_primitives, eri_info->allocated_number_of_primitives * sizeof(struct radial_function_info));
-        memcpy(&(eri_info->basis_function_primitives[eri_info->number_of_primitives]), radial_info, sizeof (struct radial_function_info));
-        eri_info->number_of_primitives++;
+    if ( eri_info->basis_function_primitives == NULL ) {
+        eri_info->basis_function_primitives = malloc(eri_info->number_of_primitives * sizeof(struct radial_function_info));
     }
+    memcpy(&(eri_info->basis_function_primitives[eri_info->next_primitive++]), radial_info, sizeof (*radial_info));
 }
 
 static bool get_primitives_info(WQC *handler, struct basis_function_instance *function_instance, const cJSON *primitives_info)
@@ -132,21 +143,6 @@ static bool get_origin_info(WQC *handler, struct basis_function_instance *functi
 static bool
 get_function_info(WQC *handler, struct basis_function_instance *function_instance, const cJSON *function_info)
 {
-    /*
-        "origin": [
-          0,
-          0,
-          -0.13650366740929115
-        ],
-        "primitives": [
-          {
-            "coefficient": 1.6754501961195145,
-            "exponent": 5.033151319
-          },
-...
-     ],
-
-     */
     bool rv = false;
     bool spherical = false;
     cJSON *primitives_info = NULL;
@@ -161,7 +157,7 @@ get_function_info(WQC *handler, struct basis_function_instance *function_instanc
         {"atom_index", WQC_JSON_INT, &function_instance->atom_index},
         {"atomic_number", WQC_JSON_INT, &function_instance->atomic_number},
         {"number_of_primitives", WQC_JSON_INT, &function_instance->number_of_primitives},
-        {"spherical", WQC_JSON_INT, &spherical},
+        {"spherical", WQC_JSON_BOOL, &spherical},
         {"primitives", WQC_JSON_ARRAY, &primitives_info},
         {"origin", WQC_JSON_ARRAY, &origin_info},
         {NULL}
@@ -217,6 +213,7 @@ get_system_sizes(WQC *handler, const cJSON *system_info)
         {"number_of_functions", WQC_JSON_INT, &handler->eri_info.number_of_functions},
         {"number_of_integrals", WQC_JSON_INT, &handler->eri_info.number_of_integrals},
         {"number_of_shells", WQC_JSON_INT, &handler->eri_info.number_of_shells},
+        {"number_of_primitives", WQC_JSON_INT, &handler->eri_info.number_of_primitives},
         {NULL}
     };
 
