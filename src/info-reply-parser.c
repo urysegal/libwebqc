@@ -10,10 +10,12 @@
 
 #endif
 
+#include <assert.h>
+
 #include "webqc-handler.h"
 #include "webqc-json.h"
 
-static const char *JSON_field_types[] = { "integer", "string", "boolean" , "array"};
+static const char *JSON_field_types[] = { "integer", "string", "boolean" , "array", "number"};
 
 static const char *get_JSON_field_type_name(enum json_field_types t)
 {
@@ -38,7 +40,9 @@ extract_one_json_field(WQC *handler, const cJSON *json_object, const struct json
         case WQC_JSON_ARRAY:
             rv = get_array_from_JSON(json_object, field->field_name, (cJSON **)(field->target));
             break;
-
+        case WQC_JSON_NUMBER:
+            rv = get_number_from_JSON(json_object, field->field_name, (double *)(field->target));
+            break;
     }
 
     if ( ! rv ) {
@@ -66,7 +70,44 @@ extract_json_fields(WQC *handler, const cJSON *json_object, const struct json_fi
     return rv;
 }
 
-static bool get_primitives_info(WQC *handler, struct basis_function_instance *function_instance, const cJSON *primitives_info);
+static void add_function_to_basis_set(WQC *handler, struct basis_function_instance *function_instance);
+
+
+static void add_radial_info_to_basis_set(WQC *handler, struct radial_function_info *radial_info)
+{
+    struct ERI_information *eri_info = & handler->eri_info;
+    if ( eri_info->number_of_primitives == eri_info->allocated_number_of_primitives ) {
+        eri_info->allocated_number_of_primitives = (2 + eri_info->allocated_number_of_primitives*2) ;
+        eri_info->basis_function_primitives = realloc(eri_info->basis_function_primitives, eri_info->allocated_number_of_primitives * sizeof(struct radial_function_info));
+        memcpy(&(eri_info->basis_function_primitives[eri_info->number_of_primitives]), radial_info, sizeof (struct radial_function_info));
+        eri_info->number_of_primitives++;
+    }
+}
+
+static bool get_primitives_info(WQC *handler, struct basis_function_instance *function_instance, const cJSON *primitives_info)
+{
+    bool rv = false;
+    cJSON *primitive = NULL;
+
+    cJSON_ArrayForEach(primitive, primitives_info) {
+        struct radial_function_info radial_info;
+        struct json_field_info fields[] = {
+            {"coefficient", WQC_JSON_NUMBER, &radial_info.coefficient},
+            {"exponent", WQC_JSON_NUMBER, &radial_info.exponent},
+            {NULL}
+        };
+
+        rv = extract_json_fields(handler, primitive, fields);
+
+        if ( rv ) {
+            add_radial_info_to_basis_set(handler, &radial_info);
+        } else {
+            break;
+        }
+    }
+
+    return rv;
+}
 
 static bool get_origin_info(WQC *handler, struct basis_function_instance *function_instance, const cJSON *origin_info)
 {
@@ -156,7 +197,9 @@ get_functions(WQC *handler, const cJSON *functions_info)
         struct basis_function_instance function_instance;
         bzero(&function_instance, sizeof function_instance);
         rv = get_function_info(handler, &function_instance, function);
-        if ( ! rv ) {
+        if ( rv ) {
+            add_function_to_basis_set(handler, &function_instance);
+        } else {
             break;
         }
     }

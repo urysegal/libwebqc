@@ -13,7 +13,8 @@ enum json_field_types {
     WQC_JSON_INT = 0, /// Integer field
     WQC_JSON_STRING = 1,  /// String field
     WQC_JSON_BOOL = 2, /// Boolean field
-    WQC_JSON_ARRAY = 3 /// Array field
+    WQC_JSON_ARRAY = 3, /// Array field
+    WQC_JSON_NUMBER = 4 // Number field
 };
 
 /// Instructions for extracting fields from a JSON, used to extract values from HTTP replies.
@@ -126,6 +127,17 @@ bool get_int_from_JSON(
     const cJSON *json,
     const char *field_name,
     int *value
+);
+
+//! Get a double precision number with the given name from a JSON object
+//! \param json JSON object to extract the number from
+//! \param field_name field name of an array inside
+//! \param value on success, pointer will set to the field
+//! \return true on success - there was an number with the given name
+bool get_number_from_JSON(
+    const cJSON *json,
+    const char *field_name,
+    double *value
 );
 
 

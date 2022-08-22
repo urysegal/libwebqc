@@ -79,6 +79,11 @@ struct ERI_information {
     unsigned int number_of_functions;  ///  Overall number of functions, including all electrons on all atoms with all orientations. E.g. P orbital gives 3 functions.
     unsigned int number_of_integrals; /// Number of ERI integrals ( number_of_functions to the power of 4 )
     unsigned int number_of_shells; /// Number of shells ( similar to number_of_functions, but not counting different orientations). E.g. P orbital is one shell.
+    struct basis_function_instance *basis_functions; /// All basis functions instances
+    struct radial_function_info *basis_function_primitives; /// All the primitives involved in the system
+    unsigned int number_of_primitives; /// Overall number of primitives in the entire system
+    unsigned int allocated_number_of_primitives; /// how much allocated space for primitives in basis_function_primitives
+
 };
 
 /// Information about ONE function, including specific orientation. For GTO , this also includes contractions
@@ -92,6 +97,7 @@ struct basis_function_instance {
     char element_symbol[4]; /// Element symbol, e.g. Fe
     char function_label[MAX_BASIS_FUNCTION_LABEL+1]; /// Full function label, e.g. "p_x^2-y^2"
     enum wqc_coodinate_system coordinate_type; /// Coordinates for the function - spherical or cartesian
+    unsigned int first_primitives; /// First primitives in the contraction, index into the handler's array of primitives
     unsigned int number_of_primitives; /// Number of primitives in the contraction
     wqc_location_t origin; /// Origin of the function co-ordinates. This is where the atom is located in the system.
 };

@@ -30,21 +30,21 @@ struct wqc_return_value init_webqc_return_value()
 static void init_basis_functions(WQC *handler)
 {
     bzero(&handler->eri_info, sizeof(handler->eri_info));
-    handler->basis_functions = NULL;
-    handler->basis_function_primitives = NULL;
-    handler->number_of_primitives = 0;
+    handler->eri_info.basis_functions = NULL;
+    handler->eri_info.basis_function_primitives = NULL;
+    handler->eri_info.number_of_primitives = 0;
 }
 
 static void cleanup_basis_functions(WQC *handler)
 {
-    if (handler->basis_functions) {
-        free(handler->basis_functions);
+    if (handler->eri_info.basis_functions) {
+        free(handler->eri_info.basis_functions);
     }
-    if (handler->basis_function_primitives) {
-        free(handler->basis_function_primitives);
+    if (handler->eri_info.basis_function_primitives) {
+        free(handler->eri_info.basis_function_primitives);
     }
-    handler->basis_functions = NULL;
-    handler->basis_function_primitives = NULL;
+    handler->eri_info.basis_functions = NULL;
+    handler->eri_info.basis_function_primitives = NULL;
 }
 
 
