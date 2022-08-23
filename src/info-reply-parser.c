@@ -155,6 +155,7 @@ get_function_info(WQC *handler, struct basis_function_instance *function_instanc
         {"function_label", WQC_JSON_STRING, &function_instance->function_label , sizeof(function_instance->function_label)},
         {"angular_moment_l", WQC_JSON_INT, &function_instance->angular_moment_l},
         {"atom_index", WQC_JSON_INT, &function_instance->atom_index},
+        {"shell_index", WQC_JSON_INT, &function_instance->shell_index},
         {"atomic_number", WQC_JSON_INT, &function_instance->atomic_number},
         {"number_of_primitives", WQC_JSON_INT, &function_instance->number_of_primitives},
         {"spherical", WQC_JSON_BOOL, &spherical},

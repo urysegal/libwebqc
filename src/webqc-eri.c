@@ -14,7 +14,8 @@ print_system_sizes(const struct ERI_information *eri, FILE *fp)
     eri-> number_of_primitives);
 }
 
-static void print_primitives(const struct ERI_information *eri,  FILE *fp)
+static void
+print_primitives(const struct ERI_information *eri,  FILE *fp)
 {
     fprintf(fp, "id\tcoefficient\texponent\n");
 
@@ -24,7 +25,30 @@ static void print_primitives(const struct ERI_information *eri,  FILE *fp)
     }
 }
 
-static void print_basis_set(const struct ERI_information *eri,  FILE *fp)
+static void
+print_atoms(const struct ERI_information *eri,  FILE *fp)
+{
+    fprintf(fp, "AtomID\tSymbol\tX\t\tY\t\tZ\t\tName\n");
+    int atom_id = -1;
+
+    for (int i = 0U; i < eri->number_of_functions; ++i) {
+        const struct basis_function_instance *func = &eri->basis_functions[i];
+
+        if (atom_id == func->atom_index) {
+            continue;
+        }
+        atom_id = func->atom_index;
+        fprintf(fp, "%u\t%s\t%f\t%f\t%f\t%s\n",
+                atom_id,
+                func->element_symbol,
+                func->origin[0], func->origin[1], func->origin[2],
+                func->element_name);
+
+    }
+}
+
+static void
+print_basis_set(const struct ERI_information *eri,  FILE *fp)
 {
     fprintf(fp,"AtomID\tElem\tShell\tam\tCrtsian\tFunc\tPrims\tFirst\n");
     for ( int i = 0U ; i < eri->number_of_functions ; ++i ) {
@@ -47,9 +71,11 @@ void wqc_print_integrals_details( WQC *handler, FILE *fp)
     struct ERI_information *eri = &handler->eri_info;
 
     print_system_sizes(eri, fp);
-
+    fprintf(fp, "\n");
+    print_atoms(eri, fp);
+    fprintf(fp, "\n");
     print_basis_set(eri, fp);
-
+    fprintf(fp, "\n");
     print_primitives(eri, fp);
 
 }
