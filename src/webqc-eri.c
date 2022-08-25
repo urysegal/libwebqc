@@ -17,7 +17,7 @@ print_system_sizes(const struct ERI_information *eri, FILE *fp)
 static void
 print_primitives(const struct ERI_information *eri,  FILE *fp)
 {
-    fprintf(fp, "id\tcoefficient\texponent\n");
+    fprintf(fp, "primId\tcoefficient\texponent\n");
 
     for (int i = 0U; i < eri->number_of_primitives; ++i) {
         const struct radial_function_info *func = &eri->basis_function_primitives[i];

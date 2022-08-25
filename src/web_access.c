@@ -311,7 +311,9 @@ bool prepare_get_parameter( WQC *handler, const char *param_name, const char *pa
 }
 
 
-    void web_access_init()
+
+
+void web_access_init()
 {
     curl_global_init(CURL_GLOBAL_DEFAULT);
 }

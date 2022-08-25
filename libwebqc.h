@@ -46,6 +46,9 @@ typedef struct webqc_handler_t WQC; ///< A handler to a WQC operation. When star
 
 typedef double wqc_location_t[3]; /// A 3D location in the system
 
+typedef unsigned int eri_index_t[4]; /// An index of an ERI
+
+
 /// List of all the possible calls to WecQC service
 enum wqc_job_type {
     WQC_NULL_JOB = 0, /// Bad job type to specify unset value
@@ -275,6 +278,53 @@ wqc_print_integrals_details(
     FILE *fp
 );
 
+//! Fetch from the WQC server the [eri_range_begin, eri_range_end) range of ERI that were calculated using the handler.
+//! \param handler A handler where a ERI calculation was submitted on
+//! \param eri_range_begin First ERI to fetch
+//! \param eri_range_end end of the ERI integrals to fetch
+//! \return true on success, false on failure and set up the error description in the handler
+bool
+wqc_fetch_ERI_values(
+    WQC *handler,
+    const eri_index_t *eri_range_begin,
+    const eri_index_t *eri_range_end
+);
+
+
+//! When iterating over ERIs sequantialy, use this function to increment the ERI index to the next position.
+//! \param handler Handler where a call to calculate ERIs was made on
+//! \param eri_index  in - Current index ; out - next index position
+//! \return true if index has not yet reached beyond data we actually have stored in the handler.
+bool
+wqc_next_eri_index(
+    WQC *handler,
+    eri_index_t *eri_index
+);
+
+
+//! Check if two ERI indices are equal. Used to check end of iteration over a range of ERIs.
+//! \param eri_index_a  first index to compare
+//! \param eri_index_b second index to compare
+//! \return true if the indices are equal.
+bool
+wqc_eri_indices_equal(
+    const eri_index_t *eri_index_a,
+    const eri_index_t *eri_index_b
+);
+
+//! Get the value of an ERI, after it was fetched from the WQC server
+//! \param handler Handler the ERI calculation was called on
+//! \param eri_index which ERI to fetch , in chemist's notation [ij|kl]
+//! \param eri_value output - the value of the integral
+//! \param eri_precision output - the precision of the value returned
+//! \return true if the integral value exists in the handler and is returned. False otherwise, and error set the hanlder
+bool
+wqc_get_eri_value(
+    WQC *handler,
+    const eri_index_t *eri_index,
+    double *eri_value,
+    double *eri_precision
+);
 
 #ifdef __cplusplus
 } // "extern C"
