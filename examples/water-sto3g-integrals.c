@@ -7,10 +7,8 @@
 
 /*
  * Example program that calculates all the two-electron integrals needed for building the hamiltonian of
- * the water molecule, and prints some of them.
+ * the water molecule, print information about the system and the ERIs, and prints some of ERI values.
  */
-
-
 
 
 int
