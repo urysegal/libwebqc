@@ -77,5 +77,42 @@ void wqc_print_integrals_details( WQC *handler, FILE *fp)
     print_basis_set(eri, fp);
     fprintf(fp, "\n");
     print_primitives(eri, fp);
-
 }
+
+
+bool wqc_eri_indices_equal( const eri_index_t *eri_index_a, const eri_index_t *eri_index_b)
+{
+    bool rv = true ;
+    for ( unsigned int i =0 ; rv && i < 4 ; ++i ) {
+        if ( (*eri_index_a)[i] != (*eri_index_b)[i] ) {
+            rv = false;
+        }
+    }
+    return rv;
+}
+
+static bool eri_available_in_handler(WQC *handler, const eri_index_t *eri_index);
+
+bool wqc_next_eri_index(
+    WQC *handler,
+    eri_index_t *eri_index
+)
+{
+    unsigned int number_of_functions = handler->eri_info.number_of_functions;
+    (*eri_index)[0]++;
+    if ( (*eri_index)[3] == number_of_functions ) {
+        (*eri_index)[3] = 0;
+        (*eri_index)[2]++;
+        if ( (*eri_index)[2] == number_of_functions ) {
+            (*eri_index)[2] = 0;
+            (*eri_index)[1]++;
+            if ((*eri_index)[1] == number_of_functions) {
+                (*eri_index)[1] = 0;
+                (*eri_index)[0]++;
+            }
+        }
+    }
+
+    return eri_available_in_handler(handler, eri_index);
+}
+

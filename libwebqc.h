@@ -294,7 +294,7 @@ wqc_fetch_ERI_values(
 //! When iterating over ERIs sequantialy, use this function to increment the ERI index to the next position.
 //! \param handler Handler where a call to calculate ERIs was made on
 //! \param eri_index  in - Current index ; out - next index position
-//! \return true if index has not yet reached beyond data we actually have stored in the handler.
+//! \return true if the index reached is actually stored in the handler.
 bool
 wqc_next_eri_index(
     WQC *handler,
