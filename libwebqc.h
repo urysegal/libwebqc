@@ -75,6 +75,14 @@ struct ERI_item_status {
     int range_end[4]; /// End of range of integrals to calculate
 };
 
+/// information about ERI values, and the values fetched from the server
+struct ERI_values {
+    eri_index_t begin_eri_index; /// Index of first ERI value we have in RAM
+    eri_index_t end_eri_index; /// Index of end ERI (one after last) value we have in RAM
+    double *eri_values; /// The ERI values themselves, in C ordering
+    double eri_precision; /// Precision of the ERIs in RAM
+};
+
 /// Information about the system being solved
 struct ERI_information {
     unsigned int number_of_atoms; /// Number of atoms in the system
@@ -85,6 +93,7 @@ struct ERI_information {
     unsigned int number_of_primitives; /// Overall number of primitives in the entire system
     struct basis_function_instance *basis_functions; /// All basis functions instances
     struct radial_function_info *basis_function_primitives; /// All the primitives involved in the system
+    struct ERI_values eri_values; ///  ERI values fetched fromthe WQC server
     unsigned int next_primitive; /// Next primitive to fill up
     unsigned int next_function; /// Next function to fill up
 };
@@ -317,7 +326,7 @@ wqc_eri_indices_equal(
 //! \param eri_index which ERI to fetch , in chemist's notation [ij|kl]
 //! \param eri_value output - the value of the integral
 //! \param eri_precision output - the precision of the value returned
-//! \return true if the integral value exists in the handler and is returned. False otherwise, and error set the hanlder
+//! \return true if the integral value exists in the handler and is returned. False otherwise, and error set the handler
 bool
 wqc_get_eri_value(
     WQC *handler,

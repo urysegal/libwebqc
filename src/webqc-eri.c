@@ -1,6 +1,10 @@
-#include "webqc-handler.h"
-#include "libwebqc.h"
+#include <string.h>
 
+#include "webqc-handler.h"
+#include "webqc-web-access.h"
+#include "webqc-json.h"
+#include "webqc-errors.h"
+#include "libwebqc.h"
 
 static void
 print_system_sizes(const struct ERI_information *eri, FILE *fp)
@@ -91,7 +95,30 @@ bool wqc_eri_indices_equal( const eri_index_t *eri_index_a, const eri_index_t *e
     return rv;
 }
 
-static bool eri_available_in_handler(WQC *handler, const eri_index_t *eri_index);
+
+static int
+eri_index_to_memory_position(WQC *handler, const eri_index_t *eri_index)
+{
+    unsigned int n = handler->eri_info.number_of_functions;
+    unsigned int offset = 1;
+    unsigned int pos = 0;
+
+    for ( unsigned int i = 0 ; i < 4 ; i++ ) {
+        pos += offset * (*eri_index)[3-i];
+        offset*=n;
+    }
+
+    return pos;
+}
+
+static bool
+eri_available_in_handler(WQC *handler, const eri_index_t *eri_index)
+{
+    unsigned int first_available_function = eri_index_to_memory_position(handler, &handler->eri_info.eri_values.begin_eri_index);
+    unsigned int end_available_function = eri_index_to_memory_position(handler, &handler->eri_info.eri_values.end_eri_index);
+    unsigned int idx_position = eri_index_to_memory_position(handler, eri_index);
+    return idx_position >= first_available_function && idx_position < end_available_function;
+}
 
 bool wqc_next_eri_index(
     WQC *handler,
@@ -116,3 +143,58 @@ bool wqc_next_eri_index(
     return eri_available_in_handler(handler, eri_index);
 }
 
+
+bool
+wqc_get_eri_value(  WQC *handler,  const eri_index_t *eri_index, double *eri_value, double *eri_precision)
+{
+    bool rv = false;
+
+    if ( eri_available_in_handler(handler, eri_index )) {
+        unsigned int idx_position = eri_index_to_memory_position(handler, eri_index);
+        unsigned int first_available_function = eri_index_to_memory_position(handler, &handler->eri_info.eri_values.begin_eri_index);
+
+        *eri_precision = handler->eri_info.eri_values.eri_precision;
+        *eri_value = handler->eri_info.eri_values.eri_values[idx_position-first_available_function];
+        rv = true;
+    }  else {
+        wqc_set_error_with_message(handler, WEBQC_NOT_FETCHED , "Reading ERI value that was not retrieved from the WQC server");
+    }
+
+    return rv;
+}
+
+
+bool
+wqc_fetch_ERI_values(WQC *handler, const eri_index_t *eri_range_begin, const eri_index_t *eri_range_end)
+{
+    bool rv = false;
+
+    rv = prepare_web_call(handler, "eri_values");
+
+
+    if ( rv ) {
+        char URL_with_options[MAX_URL_SIZE];
+
+        if (snprintf(URL_with_options, MAX_URL_SIZE, "%s?%s=%s&%s=%u_%u_%u_%u&%s=%u_%u_%u_%u", handler->web_call_info.full_URL,
+                     "set_id", handler->parameter_set_id,
+                     "begin", (*eri_range_begin)[0], (*eri_range_begin)[1], (*eri_range_begin)[2], (*eri_range_begin)[3],
+                     "end",  (*eri_range_end)[0], (*eri_range_end)[1], (*eri_range_end)[2], (*eri_range_end)[3]
+                     ) < MAX_URL_SIZE) {
+            strncpy(handler->web_call_info.full_URL, URL_with_options, MAX_URL_SIZE);
+            curl_easy_setopt(handler->web_call_info.curl_handler, CURLOPT_URL, handler->web_call_info.full_URL);
+            rv = true;
+        } else {
+            wqc_set_error(handler, WEBQC_OUT_OF_MEMORY); // LCOV_EXCL_LINE
+        }
+    }
+    if ( rv ) {
+        rv = make_web_call(handler);
+    }
+
+    if (rv) {
+        rv = update_eri_values(handler);
+        wqc_reset(handler);
+    }
+
+    return rv;
+}

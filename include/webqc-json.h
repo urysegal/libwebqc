@@ -78,16 +78,23 @@ bool update_eri_job_status(
 );
 
 //! Update the handler structure with the information about the ERIs.
-//! \param handler handler that just completed successfuly any integral-related call
+//! \param handler handler that just completed successfully any integral-related call
 //! \return true on success, false on failure (and sets error on the handler)
 bool update_eri_details(
     WQC *handler
 );
 
+//! Update the handler structure with the values of the calculated ERIs.
+//! \param handler handler that just completed successfully ERI calculation job
+//! \return true on success, false on failure (and sets error on the handler)
+bool update_eri_values(
+    WQC *handler
+);
+
 
 //! Parse a JSON that we returned as the reply body of the most most recent HTTP call
-//! \param handler Hanlder that call was made on
-//! \param reply_json Parsed JSON will be retuened in this pointer if there was no error
+//! \param handler Handler that call was made on
+//! \param reply_json Parsed JSON will be returned in this pointer if there was no error
 //! \return true on success, false on failure (and sets error on the handler)
 bool parse_JSON_reply(
     WQC *handler,

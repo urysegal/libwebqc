@@ -12,6 +12,8 @@ typedef struct webqc_handler_t WQC;
 #define WEBQC_NOT_IMPLEMENTED (3) ///< The operation is not yet implemented
 #define WEBQC_OUT_OF_MEMORY (4) ///< Run out of memory
 #define WEBQC_WEB_CALL_ERROR (5) ///< Error calling a web service
+#define WEBQC_NOT_FETCHED (6) ///< A value called for was not yet fetched from the WQC server
+
 
 typedef uint64_t error_code_t; ///< Numerical error code
 
