@@ -74,7 +74,7 @@ main()
             wqc_print_integrals_details(handler, stdout);
         }
 
-        // Make another call on the same handler, to get one specific ERI value
+        // Make another call on the same handler, to get some ERI values
         wqc_reset(handler);
 
         eri_index_t eri_range_begin = { 1,1,0,3 };

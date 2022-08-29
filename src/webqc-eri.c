@@ -164,6 +164,15 @@ wqc_get_eri_value(  WQC *handler,  const eri_index_t *eri_index, double *eri_val
 }
 
 
+static void
+func_index_to_shell_index(WQC *handler, const eri_index_t *func_range, unsigned int *shell_index)
+{
+    for ( unsigned int i = 0U ; i < 4 ; ++i ) {
+        shell_index[i] = handler->eri_info.basis_functions[(*func_range)[i]].shell_index;
+    }
+}
+
+
 bool
 wqc_fetch_ERI_values(WQC *handler, const eri_index_t *eri_range_begin, const eri_index_t *eri_range_end)
 {
@@ -171,14 +180,18 @@ wqc_fetch_ERI_values(WQC *handler, const eri_index_t *eri_range_begin, const eri
 
     rv = prepare_web_call(handler, "eri_values");
 
-
     if ( rv ) {
         char URL_with_options[MAX_URL_SIZE];
+        unsigned int shell_range_begin[4];
+        unsigned int shell_range_end[4];
+
+        func_index_to_shell_index(handler, eri_range_begin, shell_range_begin);
+        func_index_to_shell_index(handler, eri_range_end, shell_range_end);
 
         if (snprintf(URL_with_options, MAX_URL_SIZE, "%s?%s=%s&%s=%u_%u_%u_%u&%s=%u_%u_%u_%u", handler->web_call_info.full_URL,
                      "set_id", handler->parameter_set_id,
-                     "begin", (*eri_range_begin)[0], (*eri_range_begin)[1], (*eri_range_begin)[2], (*eri_range_begin)[3],
-                     "end",  (*eri_range_end)[0], (*eri_range_end)[1], (*eri_range_end)[2], (*eri_range_end)[3]
+                     "begin", shell_range_begin[0], shell_range_begin[1], shell_range_begin[2], shell_range_begin[3],
+                     "end",  shell_range_end[0], shell_range_end[1], shell_range_end[2], shell_range_end[3]
                      ) < MAX_URL_SIZE) {
             strncpy(handler->web_call_info.full_URL, URL_with_options, MAX_URL_SIZE);
             curl_easy_setopt(handler->web_call_info.curl_handler, CURLOPT_URL, handler->web_call_info.full_URL);
