@@ -123,6 +123,7 @@ prepare_web_call(WQC *handler, const char *web_endpoint)
     if (handler->web_call_info.curl_handler) {
 
         curl_easy_setopt(handler->web_call_info.curl_handler, CURLOPT_USERAGENT, "curl/7.68.0");
+        curl_easy_setopt(handler->web_call_info.curl_handler, CURLOPT_FOLLOWLOCATION, 1L);
 
         prepare_curl_reply_buffers(handler);
 

@@ -202,36 +202,45 @@ bool update_job_details(WQC *handler)
     return rv;
 }
 
+bool
+parse_int_array(WQC *handler, const cJSON *array_json, int *array_out, int array_size)
+{
+    cJSON *array_iterator = NULL;
+    int i = 0;
+    bool rv = true;
+
+    cJSON_ArrayForEach(array_iterator, array_json) {
+
+        if (cJSON_IsNumber(array_iterator)) {
+            array_out[i++] = array_iterator->valueint;
+        } else {
+            rv = false;
+        }
+
+        if (!rv || ( (array_size != -1) && i == array_size) ) {
+            break;
+        }
+   }
+
+    if ( ( (array_size != -1) && i != array_size)  ) {
+        rv = false;
+        wqc_set_error_with_message(handler, WEBQC_WEB_CALL_ERROR, "Wrong array size in reply");
+    }
+
+    return rv;
+}
+
 static bool
 parse_eri_integral_range(WQC *handler, cJSON *item, const char *field_name, int *range)
 {
     cJSON *range_array = NULL;
-    int i = 0;
 
     bool rv = get_array_from_JSON(item, field_name, &range_array);
 
     if (rv && range_array) {
-        cJSON *array_iterator = NULL;
-
-        cJSON_ArrayForEach(array_iterator, range_array) {
-
-            if (cJSON_IsNumber(array_iterator)) {
-                range[i++] = array_iterator->valueint;
-            } else {
-                rv = false;
-            }
-
-            if (!rv || i == 4) {
-                break;
-            }
-        }
+        rv = parse_int_array(handler, range_array, range, 4);
     } else {
         wqc_set_error_with_message(handler, WEBQC_WEB_CALL_ERROR, "Cannot find range array in ERI reply");
-    }
-
-    if ( i != 4 ) {
-        rv = false;
-        wqc_set_error_with_message(handler, WEBQC_WEB_CALL_ERROR, "Not enough indices in ERI reply range");
     }
 
     return rv;

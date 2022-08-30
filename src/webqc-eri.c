@@ -33,7 +33,7 @@ static void
 print_atoms(const struct ERI_information *eri,  FILE *fp)
 {
     fprintf(fp, "AtomID\tSymbol\tX\t\tY\t\tZ\t\tName\n");
-    int atom_id = -1;
+    unsigned int atom_id = -1;
 
     for (int i = 0U; i < eri->number_of_functions; ++i) {
         const struct basis_function_instance *func = &eri->basis_functions[i];
@@ -211,3 +211,40 @@ wqc_fetch_ERI_values(WQC *handler, const eri_index_t *eri_range_begin, const eri
 
     return rv;
 }
+
+// {"begin": [0, 0, 0, 0], "end": [5, 0, 0, 0], "raw_data_url": "https://cloudcompchem.s3.amazonaws.com/public/c08d1e03-4982-4f15-bc99-d4a11bb98e55_56120fe7-16f6-44e9-9fc8-2b4abe34ef25_0_0_0_0_5_0_0_0.eri"}
+
+bool update_eri_values(WQC *handler)
+{
+    bool rv = false;
+    cJSON *reply_json = NULL;
+    cJSON *begin_info = NULL;
+    cJSON *end_info = NULL;
+    char ERI_URL[MAX_URL_SIZE];
+
+    rv = parse_JSON_reply(handler, &reply_json);
+
+    if ( rv ) {
+
+        struct json_field_info fields[] = {
+            {"raw_data_url", WQC_JSON_STRING, ERI_URL, sizeof(ERI_URL)},
+            {"begin", WQC_JSON_ARRAY, &begin_info},
+            {"end", WQC_JSON_ARRAY, &end_info},
+            {NULL}
+        };
+
+        rv = extract_json_fields(handler, reply_json, fields);
+
+        if (rv) {
+            rv = parse_int_array(handler, begin_info, handler->eri_info.eri_values.begin_eri_index, 4);
+        }
+        if ( rv ) {
+            rv = parse_int_array(handler, end_info, handler->eri_info.eri_values.end_eri_index , 4);
+        }
+    }
+
+    if ( reply_json ) {
+        cJSON_Delete(reply_json);
+    }
+
+    return rv;}

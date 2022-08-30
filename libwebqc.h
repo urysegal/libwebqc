@@ -46,7 +46,7 @@ typedef struct webqc_handler_t WQC; ///< A handler to a WQC operation. When star
 
 typedef double wqc_location_t[3]; /// A 3D location in the system
 
-typedef unsigned int eri_index_t[4]; /// An index of an ERI
+typedef int eri_index_t[4]; /// An index of an ERI
 
 
 /// List of all the possible calls to WecQC service

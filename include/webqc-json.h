@@ -173,6 +173,22 @@ bool get_bool_from_JSON(
 );
 
 
+//! Parse an array of integers, optionally making sure it has at least array_size elements
+//! \param handler Hanlder the reply can on, used to set the error message in case of error
+//! \param array_json JSON of the array
+//! \param array_out pointer to enough memory to contain array_size integers
+//! \param array_size if -1, there is no limit on the array size. If not, read this number of ints from the start of the
+//! array. Less than that will set an error on the handler.
+//! \return true if the array was parsed, else false and error set on the handler.
+bool parse_int_array(
+    WQC *handler,
+    const cJSON *array_json,
+    int *array_out,
+    int array_size
+);
+
+
+
 #ifdef __cplusplus
 } // "extern C"
 #endif
