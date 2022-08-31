@@ -23,7 +23,25 @@ TEST_CASE( "submit integrals job and wait for it to finish", "[eri]" ) {
 
         CHECK(wqc_get_status(handler) == false );
         CHECK(wqc_submit_job(handler, WQC_JOB_TWO_ELECTRONS_INTEGRALS, &parameters) == true);
-        CHECK(wqc_wait_for_job(handler, 20) == true );
+        CHECK(wqc_wait_for_job(handler, 60000) == true );
+        wqc_reset(handler);
+        CHECK(wqc_get_integrals_details(handler) == true);
+        wqc_print_integrals_details(handler, stdout);
+        wqc_reset(handler);
+        eri_index_t eri_range_begin = { 1,1,0,3 };
+        eri_index_t eri_range_end = { 3,0,2,2 };
+        CHECK(wqc_fetch_ERI_values(handler, &eri_range_begin, &eri_range_end) == true );
+        double eri_value = 0;
+        double eri_precision = WQC_PRECISION_UNKNOWN;
+
+        for (
+            eri_index_t eri_index = { eri_range_begin[0], eri_range_begin[1], eri_range_begin[2], eri_range_begin[3]} ;
+            ! wqc_eri_indices_equal(&eri_index, &eri_range_end)  ;
+            wqc_next_eri_index(handler, &eri_index)
+            ) {
+
+            CHECK( wqc_get_eri_value(handler, &eri_index, &eri_value, &eri_precision) == true );
+        }
 
     }
     wqc_cleanup(handler);

@@ -169,7 +169,11 @@ static void
 func_index_to_shell_index(WQC *handler, const eri_index_t *func_range, unsigned int *shell_index)
 {
     for ( unsigned int i = 0U ; i < 4 ; ++i ) {
-        shell_index[i] = handler->eri_info.basis_functions[(*func_range)[i]].shell_index;
+        if ((*func_range)[i] == handler->eri_info.number_of_functions) {
+            shell_index[i] = handler->eri_info.number_of_shells;
+        } else {
+            shell_index[i] = handler->eri_info.basis_functions[(*func_range)[i]].shell_index;
+        }
     }
 }
 
