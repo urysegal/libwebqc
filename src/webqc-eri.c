@@ -127,7 +127,7 @@ bool wqc_next_eri_index(
 )
 {
     unsigned int number_of_functions = handler->eri_info.number_of_functions;
-    (*eri_index)[0]++;
+    (*eri_index)[3]++;
     if ( (*eri_index)[3] == number_of_functions ) {
         (*eri_index)[3] = 0;
         (*eri_index)[2]++;

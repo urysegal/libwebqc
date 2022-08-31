@@ -91,7 +91,7 @@ static void calculate_shell_to_function_mapping(WQC *handler)
     if ( eri_info->shell_to_function ) {
         free(eri_info->shell_to_function);
     }
-    eri_info->shell_to_function = calloc( eri_info->number_of_shells, sizeof(int) );
+    eri_info->shell_to_function = calloc( eri_info->number_of_shells +1, sizeof(int) );
     for ( int i = 0 ; i < eri_info->number_of_functions ; i++ ) {
         assert(eri_info->basis_functions[i].shell_index< eri_info->number_of_shells);
         if (eri_info->basis_functions[i].shell_index == eri_info->number_of_shells-1 ) {
@@ -102,7 +102,7 @@ static void calculate_shell_to_function_mapping(WQC *handler)
     for ( int i = 1 ; i < eri_info->number_of_shells ; i++ ) {
         eri_info->shell_to_function[i]+=eri_info->shell_to_function[i-1];
     }
-
+    eri_info->shell_to_function[eri_info->number_of_shells] = eri_info->number_of_functions;
 }
 
 static void add_radial_info_to_basis_set(WQC *handler, struct radial_function_info *radial_info)

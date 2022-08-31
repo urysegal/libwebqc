@@ -95,7 +95,7 @@ main()
 
                 res = wqc_get_eri_value(handler, &eri_index, &eri_value, &eri_precision);
                 if ( res ) {
-                    printf("[%u %u | %u %u ] = %f (error: %f %%)",
+                    printf("[%u %u | %u %u ] = %.9e (error: %f )\n",
                            eri_index[0], eri_index[1], eri_index[2], eri_index[3],
                            eri_value, eri_precision);
                 } else {
