@@ -32,6 +32,7 @@ static void init_ERI_info(WQC *handler)
     bzero(&handler->eri_info, sizeof(handler->eri_info));
     handler->eri_info.basis_functions = NULL;
     handler->eri_info.basis_function_primitives = NULL;
+    handler->eri_info.shell_to_function = NULL;
     handler->eri_info.number_of_primitives = 0;
     handler->eri_info.next_function = 0;
     handler->eri_info.next_primitive = 0;
@@ -43,15 +44,23 @@ static void cleanup_ERI_info(WQC *handler)
 {
     if (handler->eri_info.basis_functions) {
         free(handler->eri_info.basis_functions);
+        handler->eri_info.basis_functions = NULL;
     }
     if (handler->eri_info.basis_function_primitives) {
         free(handler->eri_info.basis_function_primitives);
+        handler->eri_info.basis_function_primitives = NULL;
     }
+    if (handler->eri_info.shell_to_function) {
+        free(handler->eri_info.shell_to_function);
+        handler->eri_info.shell_to_function = NULL;
+    }
+
     handler->eri_info.basis_functions = NULL;
     handler->eri_info.basis_function_primitives = NULL;
 
     if ( handler->eri_info.eri_values.eri_values ) {
         free(handler->eri_info.eri_values.eri_values);
+        handler->eri_info.eri_values.eri_values = NULL;
     }
     bzero(&handler->eri_info.eri_values, sizeof(struct ERI_values));
     handler->eri_info.eri_values.eri_precision = WQC_PRECISION_UNKNOWN;

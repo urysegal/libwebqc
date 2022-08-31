@@ -80,6 +80,18 @@ bool prepare_get_parameter(
 );
 
 
+//! Download a file into an open file pointer
+//! \param handler Hanlder to set error on, in case of error
+//! \param URL URL of the file to download
+//! \param fp file pointer to write the data into. Should be opened with "wb" attributes
+//! \return true if all went well. If not, false, and set error on the handler
+bool wqc_download_file(
+    WQC *handler,
+    const char *URL,
+    FILE *fp
+);
+
+
 //! Set up the web access library
 void web_access_init();
 

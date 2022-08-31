@@ -311,6 +311,37 @@ bool prepare_get_parameter( WQC *handler, const char *param_name, const char *pa
     return rv;
 }
 
+bool wqc_download_file(WQC *handler, const char *URL, FILE *fp)
+{
+    bool rv = false;
+    CURL *curl = curl_easy_init();
+    CURLcode res;
+
+    if (curl) {
+        curl_easy_setopt(curl, CURLOPT_URL, URL);
+        curl_easy_setopt(curl, CURLOPT_WRITEDATA, fp);
+        curl_easy_setopt(curl, CURLOPT_ERRORBUFFER, handler->web_call_info.web_error_bufffer);
+
+
+        res = curl_easy_perform(curl);
+
+        if (res) {
+            const char *additional_messages[] = {
+                URL,
+                handler->web_call_info.web_error_bufffer,
+                curl_easy_strerror(res),
+                NULL
+            };
+            wqc_set_error_with_messages(handler, WEBQC_WEB_CALL_ERROR,
+                                        additional_messages); //need some more error information
+        } else {
+            rv = true;
+        }
+
+        curl_easy_cleanup(curl);
+    }
+    return rv;
+}
 
 
 

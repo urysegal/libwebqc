@@ -1,5 +1,6 @@
 #include <string.h>
-
+#include <errno.h>
+#include <malloc.h>
 #include "webqc-handler.h"
 #include "webqc-web-access.h"
 #include "webqc-json.h"
@@ -212,7 +213,65 @@ wqc_fetch_ERI_values(WQC *handler, const eri_index_t *eri_range_begin, const eri
     return rv;
 }
 
+static void shell_index_to_eri_index(WQC *handler, const int *shell_index, eri_index_t *eri_index)
+{
+    for ( int i = 0 ; i < 4 ; i++ ) {
+        (*eri_index)[i] = handler->eri_info.shell_to_function[shell_index[i]];
+    }
+}
+
+static bool read_ERI_values_from_file(WQC *handler, FILE *fp, const int *begin_shell_index, const int *end_shell_index)
+{
+    bool rv = false;
+
+    if ( handler->eri_info.eri_values.eri_values ) {
+        free(handler->eri_info.eri_values.eri_values);
+        handler->eri_info.eri_values.eri_values = NULL;
+    }
+
+    shell_index_to_eri_index(handler, begin_shell_index, &handler->eri_info.eri_values.begin_eri_index);
+    shell_index_to_eri_index(handler, end_shell_index, &handler->eri_info.eri_values.end_eri_index);
+
+    unsigned int first_available_function = eri_index_to_memory_position(handler, &handler->eri_info.eri_values.begin_eri_index);
+    unsigned int end_available_function = eri_index_to_memory_position(handler, &handler->eri_info.eri_values.end_eri_index);
+    int no_of_values = end_available_function - first_available_function;
+
+    handler->eri_info.eri_values.eri_values = malloc (sizeof(double) * no_of_values);
+
+    if (fread(handler->eri_info.eri_values.eri_values, sizeof(double), no_of_values, fp) != no_of_values ) {
+        wqc_set_error_with_message(handler, WEBQC_IO_ERROR, "Cannot read ERI values from downloaded file");
+    } else {
+        rv = true;
+    }
+
+    return rv;
+}
+
 // {"begin": [0, 0, 0, 0], "end": [5, 0, 0, 0], "raw_data_url": "https://cloudcompchem.s3.amazonaws.com/public/c08d1e03-4982-4f15-bc99-d4a11bb98e55_56120fe7-16f6-44e9-9fc8-2b4abe34ef25_0_0_0_0_5_0_0_0.eri"}
+
+static bool download_ERI_values(WQC *handler, const char *URL, const int *begin_shell_index, const int *end_shell_index)
+{
+    bool rv = false;
+    FILE *fp = tmpfile();
+    if ( ! fp ) {
+        const char * messages[] = { "Cannot open temporary ERI values file" , strerror(errno), NULL} ;
+        wqc_set_error_with_messages(handler, WEBQC_IO_ERROR, messages);
+    } else {
+        rv = wqc_download_file(handler, URL, fp);
+        if ( rv ) {
+            fflush(fp);
+            if ( fseek(fp, 0L, SEEK_SET) < 0 ) {
+                const char * messages[] = { "Cannot rewind temporary ERI values file" , strerror(errno), NULL};
+                wqc_set_error_with_messages(handler, WEBQC_IO_ERROR, messages);
+            } else {
+                rv = read_ERI_values_from_file(handler, fp, begin_shell_index, end_shell_index);
+            }
+        }
+        fclose(fp);
+    }
+    return rv;
+}
+
 
 bool update_eri_values(WQC *handler)
 {
@@ -228,23 +287,32 @@ bool update_eri_values(WQC *handler)
 
         struct json_field_info fields[] = {
             {"raw_data_url", WQC_JSON_STRING, ERI_URL, sizeof(ERI_URL)},
-            {"begin", WQC_JSON_ARRAY, &begin_info},
-            {"end", WQC_JSON_ARRAY, &end_info},
+            {"begin",        WQC_JSON_ARRAY,  &begin_info},
+            {"end",          WQC_JSON_ARRAY,  &end_info},
+            {"precision",    WQC_JSON_NUMBER, &handler->eri_info.eri_values.eri_precision},
             {NULL}
         };
 
         rv = extract_json_fields(handler, reply_json, fields);
+    }
 
-        if (rv) {
-            rv = parse_int_array(handler, begin_info, handler->eri_info.eri_values.begin_eri_index, 4);
-        }
-        if ( rv ) {
-            rv = parse_int_array(handler, end_info, handler->eri_info.eri_values.end_eri_index , 4);
-        }
+    int begin_shell_index[4];
+    int end_shell_index[4];
+    if (rv) {
+        rv = parse_int_array(handler, begin_info, begin_shell_index, 4);
+    }
+
+    if ( rv ) {
+        rv = parse_int_array(handler, end_info, end_shell_index , 4);
+    }
+
+    if ( rv ) {
+        rv = download_ERI_values(handler, ERI_URL, begin_shell_index, end_shell_index);
     }
 
     if ( reply_json ) {
         cJSON_Delete(reply_json);
     }
 
-    return rv;}
+    return rv;
+}

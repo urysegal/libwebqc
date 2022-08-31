@@ -85,6 +85,25 @@ static void add_function_to_basis_set(WQC *handler, struct basis_function_instan
     memcpy(&(eri_info->basis_functions[eri_info->next_function++]), function_instance, sizeof (*function_instance));
 }
 
+static void calculate_shell_to_function_mapping(WQC *handler)
+{
+    struct ERI_information *eri_info = & handler->eri_info;
+    if ( eri_info->shell_to_function ) {
+        free(eri_info->shell_to_function);
+    }
+    eri_info->shell_to_function = calloc( eri_info->number_of_shells, sizeof(int) );
+    for ( int i = 0 ; i < eri_info->number_of_functions ; i++ ) {
+        assert(eri_info->basis_functions[i].shell_index< eri_info->number_of_shells);
+        if (eri_info->basis_functions[i].shell_index == eri_info->number_of_shells-1 ) {
+            break;
+        }
+        eri_info->shell_to_function[eri_info->basis_functions[i].shell_index+1]++;
+    }
+    for ( int i = 1 ; i < eri_info->number_of_shells ; i++ ) {
+        eri_info->shell_to_function[i]+=eri_info->shell_to_function[i-1];
+    }
+
+}
 
 static void add_radial_info_to_basis_set(WQC *handler, struct radial_function_info *radial_info)
 {
@@ -199,6 +218,9 @@ get_functions(WQC *handler, const cJSON *functions_info)
         } else {
             break;
         }
+    }
+    if (rv) {
+        calculate_shell_to_function_mapping(handler);
     }
     return rv;
 }

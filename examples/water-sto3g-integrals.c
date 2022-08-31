@@ -105,6 +105,10 @@ main()
                     break;
                 }
             }
+        } else {
+            struct wqc_return_value error;
+            wqc_get_last_error(handler, &error);
+            fprintf(stderr, "Error downloading ERI values : %s", error.error_message);
         }
     }
 

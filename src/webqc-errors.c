@@ -32,7 +32,11 @@ static struct webqc_error_strings {
         {
             WEBQC_NOT_FETCHED,
             "The value was not yet fetched from the server"
-        }
+        },
+        {
+            WEBQC_IO_ERROR,
+            "I/O error"
+        },
 };
 
 

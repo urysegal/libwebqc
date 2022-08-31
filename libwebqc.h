@@ -93,6 +93,7 @@ struct ERI_information {
     unsigned int number_of_primitives; /// Overall number of primitives in the entire system
     struct basis_function_instance *basis_functions; /// All basis functions instances
     struct radial_function_info *basis_function_primitives; /// All the primitives involved in the system
+    unsigned int *shell_to_function; /// Map shell index to function index
     struct ERI_values eri_values; ///  ERI values fetched fromthe WQC server
     unsigned int next_primitive; /// Next primitive to fill up
     unsigned int next_function; /// Next function to fill up
