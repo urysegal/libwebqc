@@ -258,15 +258,15 @@ static bool download_ERI_values(WQC *handler, const char *URL, const int *begin_
     bool rv = false;
     FILE *fp = tmpfile();
     if ( ! fp ) {
-        const char * messages[] = { "Cannot open temporary ERI values file" , strerror(errno), NULL} ;
-        wqc_set_error_with_messages(handler, WEBQC_IO_ERROR, messages);
+        const char * messages[] = { "Cannot open temporary ERI values file" , strerror(errno), NULL} ; // LCOV_EXCL_LINE
+        wqc_set_error_with_messages(handler, WEBQC_IO_ERROR, messages); // LCOV_EXCL_LINE
     } else {
         rv = wqc_download_file(handler, URL, fp);
         if ( rv ) {
             fflush(fp);
             if ( fseek(fp, 0L, SEEK_SET) < 0 ) {
-                const char * messages[] = { "Cannot rewind temporary ERI values file" , strerror(errno), NULL};
-                wqc_set_error_with_messages(handler, WEBQC_IO_ERROR, messages);
+                const char * messages[] = { "Cannot rewind temporary ERI values file" , strerror(errno), NULL}; // LCOV_EXCL_LINE
+                wqc_set_error_with_messages(handler, WEBQC_IO_ERROR, messages);// LCOV_EXCL_LINE
             } else {
                 rv = read_ERI_values_from_file(handler, fp, begin_shell_index, end_shell_index);
             }

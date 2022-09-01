@@ -31,6 +31,32 @@ TEST_CASE("Parse Illegal integrals info replies", "[eri]") {
      "number_of_shells" : 5,
      "number_of_primitives" : 13,
      "functions": [
+        { "origin":[1,2,3] ,
+          "angular_moment_symbol" : "s",
+          "element_name" : "element_name",
+          "element_symbol" : "element_symbol",
+          "function_label" : "function_label",
+          "angular_moment_l" : 0,
+          "atom_index" : 0,
+          "shell_index" : 0,
+          "atomic_number":3,
+          "number_of_primitives":1,
+          "spherical":true,
+          "primitives":[  { "exponent:":1, "coCOefficient":5 }]
+        }
+      ]
+    }
+}
+            )json",
+            R"json(
+{ "system": {
+     "number_of_atoms":1,
+     "number_of_electrons" : 3,
+     "number_of_functions" : 3,
+     "number_of_integrals" : 13,
+     "number_of_shells" : 5,
+     "number_of_primitives" : 13,
+     "functions": [
         { "origin":[1,2,"FOO"] ,
           "angular_moment_symbol" : "s",
           "element_name" : "element_name",
@@ -47,10 +73,9 @@ TEST_CASE("Parse Illegal integrals info replies", "[eri]") {
       ]
     }
 }
-            )json"
-            
-            
-            ,
+            )json",
+
+
 
             "{\"system\": {} }",
             "{\"functions\": [{}]}",
