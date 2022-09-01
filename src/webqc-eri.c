@@ -224,7 +224,7 @@ static void shell_index_to_eri_index(WQC *handler, const int *shell_index, eri_i
     }
 }
 
-static bool read_ERI_values_from_file(WQC *handler, FILE *fp, const int *begin_shell_index, const int *end_shell_index)
+bool read_ERI_values_from_file(WQC *handler, FILE *fp, const int *begin_shell_index, const int *end_shell_index)
 {
     bool rv = false;
 

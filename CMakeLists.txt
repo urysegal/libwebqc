@@ -55,6 +55,10 @@ endif()
 
 add_subdirectory(test)
 
+add_custom_target(cleancov
+        COMMAND find ${CMAKE_BINARY_DIR} -name '*.gc??' -delete
+        )
+
 # first we can indicate the documentation build as an option and set it to ON by default
 option(BUILD_DOC "Build documentation" )
 

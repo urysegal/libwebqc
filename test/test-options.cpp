@@ -4,6 +4,7 @@
 #include <catch2/reporters/catch_reporter_event_listener.hpp>
 #include <catch2/reporters/catch_reporter_registrars.hpp>
 #include <catch2/interfaces/catch_interfaces_reporter.hpp>
+#include "webqc-web-access.h"
 
 class testRunListener : public Catch::EventListenerBase {
 public:
@@ -78,4 +79,21 @@ TEST_CASE( "bool values get and set", "[options]" ) {
 
     }
     wqc_cleanup(handler);
+}
+
+TEST_CASE("Download nonexistent file", "[web]")
+{
+    WQC *handler = wqc_init();
+    REQUIRE(handler != NULL);
+
+    FILE *fp = tmpfile();
+    CHECK(wqc_download_file(handler, "https://nosuchurlatall/foo", fp) == false);
+    fclose(fp);
+
+    struct wqc_return_value error_structure = init_webqc_return_value();
+    CHECK(wqc_get_last_error(handler, &error_structure) == true );
+    CHECK(error_structure.error_code == WEBQC_WEB_CALL_ERROR );
+    CHECK(error_structure.error_message[0] != '\0');
+    wqc_cleanup(handler);
+
 }

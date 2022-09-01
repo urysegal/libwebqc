@@ -88,9 +88,8 @@ static void add_function_to_basis_set(WQC *handler, struct basis_function_instan
 static void calculate_shell_to_function_mapping(WQC *handler)
 {
     struct ERI_information *eri_info = & handler->eri_info;
-    if ( eri_info->shell_to_function ) {
-        free(eri_info->shell_to_function);
-    }
+
+    free(eri_info->shell_to_function);
     eri_info->shell_to_function = calloc( eri_info->number_of_shells +1, sizeof(int) );
     for ( int i = 0 ; i < eri_info->number_of_functions ; i++ ) {
         assert(eri_info->basis_functions[i].shell_index< eri_info->number_of_shells);

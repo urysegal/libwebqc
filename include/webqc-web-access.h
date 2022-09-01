@@ -2,6 +2,10 @@
 #include <stdbool.h>
 #include "libwebqc.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 //! Prepare a CURL object to make a call to the WebQC server
 //! \param handler handler to make a call with
 //! \param web_endpoint specific service on the WebQC server
@@ -102,3 +106,6 @@ void web_access_cleanup();
 //! \param handler  handler to initialize
 void wqc_init_web_calls(WQC *handler);
 
+#ifdef __cplusplus
+} // "extern C"
+#endif

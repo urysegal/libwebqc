@@ -123,10 +123,18 @@ TEST_CASE( "submit integrals job and wait for it to finish", "[eri]" ) {
         wqc_print_integrals_details(handler, stdout);
         wqc_reset(handler);
         eri_index_t eri_range_begin = { 1,1,0,3 };
-        eri_index_t eri_range_end = { 3,0,2,2 };
+        eri_index_t eri_range_end = { 7,0,0,0 };
         CHECK(wqc_fetch_ERI_values(handler, &eri_range_begin, &eri_range_end) == true );
         double eri_value = 0;
         double eri_precision = WQC_PRECISION_UNKNOWN;
+
+        eri_index_t out_of_range_eri_index = { 7,0,0,0};
+        CHECK(wqc_get_eri_value(handler, &out_of_range_eri_index, &eri_value, &eri_precision) == false);
+
+        struct wqc_return_value error_structure = init_webqc_return_value();
+        CHECK(wqc_get_last_error(handler, &error_structure) == true );
+        CHECK(error_structure.error_code == WEBQC_NOT_FETCHED );
+        CHECK(error_structure.error_message[0] != '\0');
 
         for (
             eri_index_t eri_index = { eri_range_begin[0], eri_range_begin[1], eri_range_begin[2], eri_range_begin[3]} ;
@@ -137,6 +145,16 @@ TEST_CASE( "submit integrals job and wait for it to finish", "[eri]" ) {
             CHECK( wqc_get_eri_value(handler, &eri_index, &eri_value, &eri_precision) == true );
         }
 
+        int begin_shell_index[4] = {1,2,3,4};
+        int end_shell_index[4] = {4,2,2,2};
+
+        FILE *emptyfile= tmpfile();
+        CHECK(read_ERI_values_from_file(handler, emptyfile, begin_shell_index, end_shell_index) == false);
+        CHECK(wqc_get_last_error(handler, &error_structure) == true );
+        CHECK(error_structure.error_code == WEBQC_IO_ERROR );
+        CHECK(error_structure.error_message[0] != '\0');
+
+        fclose(emptyfile);
     }
     wqc_cleanup(handler);
 }
@@ -151,6 +169,7 @@ TEST_CASE( "submit integrals job and get status", "[eri]" ) {
 
         CHECK(wqc_get_status(handler) == false );
         CHECK(wqc_submit_job(handler, WQC_JOB_TWO_ELECTRONS_INTEGRALS, &parameters) == true);
+        CHECK(wqc_get_parameter_set_id(handler) != NULL);
         CHECK(wqc_job_done(handler) == false);
         CHECK(wqc_get_status(handler) == true );
 
