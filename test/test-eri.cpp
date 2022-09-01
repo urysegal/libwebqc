@@ -13,7 +13,7 @@ static const char *water_xyz_geometry =
         "H 0.83020871 0.00000000  0.53109206\n"
         "H 0.00000000 0.53109206  0.56568542\n";
 
-struct two_electron_integrals_job_parameters parameters = {"sto-3g", water_xyz_geometry, WQC_PRECISION_UNKNOWN, "angstrom"};
+struct two_electron_integrals_job_parameters parameters = {"sto-3g", water_xyz_geometry, WQC_PRECISION_UNKNOWN, "angstrom", 0};
 
 TEST_CASE("Parse Illegal integrals info replies", "[eri]") {
     WQC *handler = wqc_init();
@@ -116,7 +116,9 @@ TEST_CASE( "submit integrals job and wait for it to finish", "[eri]" ) {
     SECTION("Do REST Call") {
 
         CHECK(wqc_get_status(handler) == false );
-        CHECK(wqc_submit_job(handler, WQC_JOB_TWO_ELECTRONS_INTEGRALS, &parameters) == true);
+        struct two_electron_integrals_job_parameters multifile =  parameters;
+        multifile.shell_set_per_file = 125;
+        CHECK(wqc_submit_job(handler, WQC_JOB_TWO_ELECTRONS_INTEGRALS, &multifile) == true);
         CHECK(wqc_wait_for_job(handler, 60000) == true );
         wqc_reset(handler);
         CHECK(wqc_get_integrals_details(handler) == true);
@@ -332,7 +334,8 @@ TEST_CASE( "submit duplicate job", "[eri]" ) {
 
     memcpy(geometry1+2, random_name, std::min(strlen(random_name),sizeof(RANDOM_SPACE)));
 
-    struct two_electron_integrals_job_parameters parameters1 = {"sto-3g", geometry1, WQC_PRECISION_UNKNOWN, "angstrom"};
+    struct two_electron_integrals_job_parameters parameters1 = {"sto-3g", geometry1,
+            WQC_PRECISION_UNKNOWN, "angstrom",  0};
 
     SECTION("Do REST Call") {
 

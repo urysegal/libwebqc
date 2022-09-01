@@ -265,7 +265,8 @@ bool set_eri_job_parameters(WQC *handler, const struct two_electron_integrals_jo
             {"basis_set_name",   WQC_STRING_TYPE, { .str_value=job_parameters->basis_set_name} },
             {"xyz_file_content", WQC_STRING_TYPE, { .str_value=job_parameters->geometry} },
             {"geometry_precision", WQC_REAL_TYPE, { .real_value=job_parameters->geometry_precision} },
-            {"geometry_units", WQC_STRING_TYPE, { .str_value=job_parameters->geometry_units} }
+            {"geometry_units", WQC_STRING_TYPE, { .str_value=job_parameters->geometry_units} },
+            {"shell_sets_per_file", WQC_REAL_TYPE, { .real_value=job_parameters->shell_set_per_file} },
     };
     rv = set_POST_fields(handler, two_e_parameters_pairs, ARRAY_SIZE(two_e_parameters_pairs));
 

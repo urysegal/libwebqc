@@ -176,6 +176,7 @@ struct two_electron_integrals_job_parameters {
     const char *geometry; /// XYZ-file formatted molecular system. See for example https://openbabel.org/wiki/XYZ_(format)
     wqc_real geometry_precision;  /// A number between 0 to 1 specifying how accurate the geometry is
     const char *geometry_units; /// What units are the geometry X/Y/Z positions in.
+    int shell_set_per_file; /// How many shell sets to store in a file. 0 means the default (set at the server side).
 } ;
 
 

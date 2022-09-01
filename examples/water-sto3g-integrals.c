@@ -36,7 +36,8 @@ main()
         .basis_set_name = "sto-3g",
         .geometry = water_xyz_geometry,
         .geometry_precision = WQC_PRECISION_UNKNOWN,
-        .geometry_units = "angstrom"
+        .geometry_units = "angstrom",
+        .shell_set_per_file = 0
         };
 
     // Submit the request to perform the calculation
