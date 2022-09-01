@@ -224,32 +224,42 @@ static void shell_index_to_eri_index(WQC *handler, const int *shell_index, eri_i
     }
 }
 
-bool read_ERI_values_from_file(WQC *handler, FILE *fp, const int *begin_shell_index, const int *end_shell_index)
+static bool allocate_memory_for_ERIs(WQC *handler, const int *begin_shell_index, const int *end_shell_index, int *no_of_values)
 {
-    bool rv = false;
-
-    if ( handler->eri_info.eri_values.eri_values ) {
-        free(handler->eri_info.eri_values.eri_values);
-        handler->eri_info.eri_values.eri_values = NULL;
-    }
-
+    bool rv = true;
     shell_index_to_eri_index(handler, begin_shell_index, &handler->eri_info.eri_values.begin_eri_index);
     shell_index_to_eri_index(handler, end_shell_index, &handler->eri_info.eri_values.end_eri_index);
 
     unsigned int first_available_function = eri_index_to_memory_position(handler, &handler->eri_info.eri_values.begin_eri_index);
     unsigned int end_available_function = eri_index_to_memory_position(handler, &handler->eri_info.eri_values.end_eri_index);
-    int no_of_values = end_available_function - first_available_function;
+    *no_of_values = end_available_function - first_available_function;
 
-    handler->eri_info.eri_values.eri_values = malloc (sizeof(double) * no_of_values);
+    free(handler->eri_info.eri_values.eri_values);
 
-    if (fread(handler->eri_info.eri_values.eri_values, sizeof(double), no_of_values, fp) != no_of_values ) {
-        wqc_set_error_with_message(handler, WEBQC_IO_ERROR, "Cannot read ERI values from downloaded file");
-    } else {
-        rv = true;
+    handler->eri_info.eri_values.eri_values = malloc (sizeof(double) * (*no_of_values));
+
+    if ( ! handler->eri_info.eri_values.eri_values ) {
+        wqc_set_error_with_message(handler, WEBQC_OUT_OF_MEMORY, "Not enough memory to read ERI values"); //LCOV_EXCL_LINE
+        rv = false; //LCOV_EXCL_LINE
     }
 
     return rv;
 }
+
+bool read_ERI_values_from_file(WQC *handler, FILE *fp, const int *begin_shell_index, const int *end_shell_index)
+{
+    int no_of_values = 0;
+    bool rv = allocate_memory_for_ERIs(handler, begin_shell_index, end_shell_index, &no_of_values);
+
+    if ( rv ) {
+        if (fread(handler->eri_info.eri_values.eri_values, sizeof(double), no_of_values, fp) != no_of_values) {
+            wqc_set_error_with_message(handler, WEBQC_IO_ERROR, "Cannot read ERI values from downloaded file");
+            rv = false;
+        }
+    }
+    return rv;
+}
+
 
 // {"begin": [0, 0, 0, 0], "end": [5, 0, 0, 0], "raw_data_url": "https://cloudcompchem.s3.amazonaws.com/public/c08d1e03-4982-4f15-bc99-d4a11bb98e55_56120fe7-16f6-44e9-9fc8-2b4abe34ef25_0_0_0_0_5_0_0_0.eri"}
 

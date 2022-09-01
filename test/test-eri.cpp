@@ -145,6 +145,7 @@ TEST_CASE( "submit integrals job and wait for it to finish", "[eri]" ) {
             CHECK( wqc_get_eri_value(handler, &eri_index, &eri_value, &eri_precision) == true );
         }
 
+        // Read ERIs from a file that is too shprt
         int begin_shell_index[4] = {1,2,3,4};
         int end_shell_index[4] = {4,2,2,2};
 
