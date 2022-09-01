@@ -15,6 +15,75 @@ static const char *water_xyz_geometry =
 
 struct two_electron_integrals_job_parameters parameters = {"sto-3g", water_xyz_geometry, WQC_PRECISION_UNKNOWN, "angstrom"};
 
+TEST_CASE("Parse Illegal integrals info replies", "[eri]") {
+    WQC *handler = wqc_init();
+    REQUIRE(handler != NULL);
+
+    SECTION("Parse illegal integrals info") {
+
+        const char *illegals_replies[] = {
+            R"json(
+{ "system": {
+     "number_of_atoms":1,
+     "number_of_electrons" : 3,
+     "number_of_functions" : 3,
+     "number_of_integrals" : 13,
+     "number_of_shells" : 5,
+     "number_of_primitives" : 13,
+     "functions": [
+        { "origin":[1,2,"FOO"] ,
+          "angular_moment_symbol" : "s",
+          "element_name" : "element_name",
+          "element_symbol" : "element_symbol",
+          "function_label" : "function_label",
+          "angular_moment_l" : 0,
+          "atom_index" : 0,
+          "shell_index" : 0,
+          "atomic_number":3,
+          "number_of_primitives":1,
+          "spherical":true,
+          "primitives":[ { "exponent:":1, "coefficient":5 } ]
+        }
+      ]
+    }
+}
+            )json"
+            
+            
+            ,
+
+            "{\"system\": {} }",
+            "{\"functions\": [{}]}",
+            "{\"system\": {\"number_of_functions\":3, \"functions\": [{}]}}",
+            "{\"system\": { \"number_of_atoms\":1, \"number_of_electrons\":3, \"number_of_functions\":3, \"number_of_integrals\":13, \"number_of_shells\":5, \"number_of_primitives\":13,\"functions\": [{}]}}",
+
+            NULL
+        };
+
+        handler->job_type = WQC_JOB_TWO_ELECTRONS_INTEGRALS;
+        strncpy(handler->job_id, "job-a", sizeof(handler->job_id));
+
+        for ( int  i = 0 ; illegals_replies[i] ; ++i ) {
+            const char *weird_ERI_reply = illegals_replies[i];
+
+            size_t total_size = strlen(weird_ERI_reply);
+
+            CHECK(wqc_set_downloaded_data((void *)weird_ERI_reply, total_size, &handler->web_call_info.web_reply) ==
+                  total_size);
+
+            struct wqc_return_value error_structure = init_webqc_return_value();
+
+            CHECK(update_eri_details(handler) == false);
+
+            CHECK(wqc_get_last_error(handler, &error_structure) == true);
+            CHECK(error_structure.error_code != 0);
+            CHECK(error_structure.error_message[0] != '\0');
+        }
+    }
+
+    wqc_cleanup(handler);
+}
+
 TEST_CASE( "submit integrals job and wait for it to finish", "[eri]" ) {
     WQC *handler = wqc_init();
     REQUIRE(handler != NULL);
