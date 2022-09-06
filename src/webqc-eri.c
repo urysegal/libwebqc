@@ -1,6 +1,13 @@
 #include <string.h>
 #include <errno.h>
+
+#ifdef __APPLE__
+#include <malloc/malloc.h>
+#include <stdlib.h>
+#else
 #include <malloc.h>
+#endif
+
 #include "webqc-handler.h"
 #include "webqc-web-access.h"
 #include "webqc-json.h"

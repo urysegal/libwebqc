@@ -24,11 +24,14 @@ find_package(CURL REQUIRED)
 include_directories(${CURL_INCLUDE_DIR})
 include_directories(${libwebqc_SOURCE_DIR} ${libwebqc_SOURCE_DIR}/include)
 
+find_package(cJSON REQUIRED)
+include_directories(${CJSON_INCLUDE_DIR})
+
 add_library(libwebqc SHARED src/libwebqc.c src/webqc-options.c src/webqc-errors.c src/web_access.c src/reply_parsers.c include/webqc-json.h src/info-reply-parser.c src/webqc-eri.c)
 
 target_compile_options(libwebqc PUBLIC ${COMPILE_FLAGS})
 target_link_options(libwebqc PUBLIC ${LINK_FLAGS})
-target_link_libraries(libwebqc ${CURL_LIBRARIES} -lcjson)
+target_link_libraries(libwebqc ${CURL_LIBRARIES} ${CJSON_LIBRARIES})
 
 add_executable(water-sto3g-integrals examples/water-sto3g-integrals.c)
 add_dependencies(water-sto3g-integrals libwebqc)
