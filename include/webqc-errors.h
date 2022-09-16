@@ -6,14 +6,16 @@ typedef struct webqc_handler_t WQC;
 
 #define MAX_WEBQC_ERROR_MESSAGE_LEN (1024) ///< Maximum size of error message in webqc_return_value_t;
 
-#define WEBQC_SUCCESS (0) ///< Call was successful
-#define WEBQC_ERROR_UNKNOWN_OPTION (1) ///< An unknown option was passed to the API
-#define WEBQC_BAD_OPTION_VALUE (2) ///< An illegal option value was passed
-#define WEBQC_NOT_IMPLEMENTED (3) ///< The operation is not yet implemented
-#define WEBQC_OUT_OF_MEMORY (4) ///< Run out of memory
-#define WEBQC_WEB_CALL_ERROR (5) ///< Error calling a web service
-#define WEBQC_NOT_FETCHED (6) ///< A value called for was not yet fetched from the WQC server
-#define WEBQC_IO_ERROR (7) ///< A Some file-related error
+enum webqc_errors {
+ WEBQC_SUCCESS = 0, ///< Call was successful
+ WEBQC_ERROR_UNKNOWN_OPTION  = 1, ///< An unknown option was passed to the API
+ WEBQC_BAD_OPTION_VALUE = 2, ///< An illegal option value was passed
+ WEBQC_NOT_IMPLEMENTED = 3, ///< The operation is not yet implemented
+ WEBQC_OUT_OF_MEMORY = 4, ///< Run out of memory
+ WEBQC_WEB_CALL_ERROR = 5, ///< Error calling a web service
+ WEBQC_NOT_FETCHED = 6, ///< A value called for was not yet fetched from the WQC server
+ WEBQC_IO_ERROR = 7 ///< A Some file-related error
+} ;
 
 typedef uint64_t error_code_t; ///< Numerical error code
 

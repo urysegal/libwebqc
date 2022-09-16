@@ -261,8 +261,6 @@ bool read_ERI_values_from_file(WQC *handler, FILE *fp, const int *begin_shell_in
 }
 
 
-// {"begin": [0, 0, 0, 0], "end": [5, 0, 0, 0], "raw_data_url": "https://cloudcompchem.s3.amazonaws.com/public/c08d1e03-4982-4f15-bc99-d4a11bb98e55_56120fe7-16f6-44e9-9fc8-2b4abe34ef25_0_0_0_0_5_0_0_0.eri"}
-
 static bool download_ERI_values(WQC *handler, const char *URL, const int *begin_shell_index, const int *end_shell_index)
 {
     bool rv = false;
