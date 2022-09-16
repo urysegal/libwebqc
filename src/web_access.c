@@ -316,7 +316,7 @@ bool wqc_download_file(WQC *handler, const char *URL, FILE *fp)
 {
     bool rv = false;
     CURL *curl = curl_easy_init();
-    CURLcode res;
+    CURLcode res = CURLE_OK;
 
     if (curl) {
         curl_easy_setopt(curl, CURLOPT_URL, URL);
