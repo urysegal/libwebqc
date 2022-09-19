@@ -11,8 +11,9 @@
 #endif
 
 #include "webqc-handler.h"
+#include "webqc-json.h"
 
-bool get_string_from_JSON(cJSON *json, const char *field_name, char *dest, unsigned int max_size)
+bool get_string_from_JSON(const cJSON *json, const char *field_name, char *dest, unsigned int max_size)
 {
     bool rv = false;
     cJSON *job_id = cJSON_GetObjectItemCaseSensitive(json, field_name);
@@ -23,7 +24,7 @@ bool get_string_from_JSON(cJSON *json, const char *field_name, char *dest, unsig
     return rv;
 }
 
-bool get_object_from_reply(cJSON *json, const char *field_name, cJSON **obj)
+bool get_object_from_reply(const cJSON *json, const char *field_name, cJSON **obj)
 {
     bool rv = false;
     *obj = cJSON_GetObjectItemCaseSensitive(json, field_name);
@@ -33,26 +34,50 @@ bool get_object_from_reply(cJSON *json, const char *field_name, cJSON **obj)
     return rv;
 }
 
-bool get_array_from_reply(cJSON *json, const char *field_name, cJSON **array)
+bool get_array_from_JSON(const cJSON *json, const char *field_name, cJSON **obj)
 {
     bool rv = false;
-    *array = cJSON_GetObjectItemCaseSensitive(json, field_name);
-    if (*array && cJSON_IsArray(*array) ) {
+    *obj = cJSON_GetObjectItemCaseSensitive(json, field_name);
+    if (*obj && cJSON_IsArray(*obj) ) {
         rv = true;
     }
     return rv;
 }
 
-bool get_int_from_JSON(cJSON *json, const char *field_name, int *dest)
+bool get_int_from_JSON(const cJSON *json, const char *field_name, int *dest)
 {
     bool rv = false;
-    cJSON *job_id = cJSON_GetObjectItemCaseSensitive(json, field_name);
-    if (cJSON_IsNumber(job_id) ) {
-        *dest = job_id->valueint;
+    cJSON *i = cJSON_GetObjectItemCaseSensitive(json, field_name);
+    if (cJSON_IsNumber(i) ) {
+        *dest = i->valueint;
         rv = true;
     }
     return rv;
 }
+
+bool get_number_from_JSON(const cJSON *json, const char *field_name, double *dest)
+{
+    bool rv = false;
+    cJSON *n = cJSON_GetObjectItemCaseSensitive(json, field_name);
+    if (cJSON_IsNumber(n) ) {
+        *dest = n->valuedouble;
+        rv = true;
+    }
+    return rv;
+}
+
+
+bool get_bool_from_JSON(const cJSON *json, const char *field_name, bool *dest)
+{
+    bool rv = false;
+    cJSON *f = cJSON_GetObjectItemCaseSensitive(json, field_name);
+    if (cJSON_IsBool(f) ) {
+        *dest = cJSON_IsTrue(f);
+        rv = true;
+    }
+    return rv;
+}
+
 
 
 bool parse_JSON_reply(WQC *handler, cJSON **reply_json)
@@ -177,36 +202,45 @@ bool update_job_details(WQC *handler)
     return rv;
 }
 
+bool
+parse_int_array(WQC *handler, const cJSON *array_json, int *array_out, int array_size)
+{
+    cJSON *array_iterator = NULL;
+    int i = 0;
+    bool rv = true;
+
+    cJSON_ArrayForEach(array_iterator, array_json) {
+
+        if (cJSON_IsNumber(array_iterator)) {
+            array_out[i++] = array_iterator->valueint;
+        } else {
+            rv = false;
+        }
+
+        if (!rv || ( (array_size != -1) && i == array_size) ) {
+            break;
+        }
+   }
+
+    if ( ( (array_size != -1) && i != array_size)  ) {
+        rv = false;
+        wqc_set_error_with_message(handler, WEBQC_WEB_CALL_ERROR, "Wrong array size in reply");
+    }
+
+    return rv;
+}
+
 static bool
 parse_eri_integral_range(WQC *handler, cJSON *item, const char *field_name, int *range)
 {
     cJSON *range_array = NULL;
-    int i = 0;
 
-    bool rv = get_array_from_reply(item, field_name, &range_array);
+    bool rv = get_array_from_JSON(item, field_name, &range_array);
 
     if (rv && range_array) {
-        cJSON *array_iterator = NULL;
-
-        cJSON_ArrayForEach(array_iterator, range_array) {
-
-            if (cJSON_IsNumber(array_iterator)) {
-                range[i++] = array_iterator->valueint;
-            } else {
-                rv = false;
-            }
-
-            if (!rv || i == 4) {
-                break;
-            }
-        }
+        rv = parse_int_array(handler, range_array, range, 4);
     } else {
         wqc_set_error_with_message(handler, WEBQC_WEB_CALL_ERROR, "Cannot find range array in ERI reply");
-    }
-
-    if ( i != 4 ) {
-        rv = false;
-        wqc_set_error_with_message(handler, WEBQC_WEB_CALL_ERROR, "Not enough indices in ERI reply range");
     }
 
     return rv;
@@ -311,7 +345,7 @@ update_eri_job_status(WQC *handler)
     rv = parse_JSON_reply(handler, &reply_json);
 
     if ( rv ) {
-        rv = get_array_from_reply(reply_json, "items", &eri_items);
+        rv = get_array_from_JSON(reply_json, "items", &eri_items);
         if (rv && eri_items) {
             rv = parse_eri_status_array(handler, eri_items);
         } else {
@@ -325,3 +359,4 @@ update_eri_job_status(WQC *handler)
 
     return rv;
 }
+

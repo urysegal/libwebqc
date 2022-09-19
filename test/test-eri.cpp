@@ -13,7 +13,101 @@ static const char *water_xyz_geometry =
         "H 0.83020871 0.00000000  0.53109206\n"
         "H 0.00000000 0.53109206  0.56568542\n";
 
-struct two_electron_integrals_job_parameters parameters = {"sto-3g", water_xyz_geometry, WQC_PRECISION_UNKNOWN, "angstrom"};
+struct two_electron_integrals_job_parameters parameters = {"sto-3g", water_xyz_geometry, WQC_PRECISION_UNKNOWN, "angstrom", 0};
+
+TEST_CASE("Parse Illegal integrals info replies", "[eri]") {
+    WQC *handler = wqc_init();
+    REQUIRE(handler != NULL);
+
+    SECTION("Parse illegal integrals info") {
+
+        const char *illegals_replies[] = {
+            R"json(
+{ "system": {
+     "number_of_atoms":1,
+     "number_of_electrons" : 3,
+     "number_of_functions" : 3,
+     "number_of_integrals" : 13,
+     "number_of_shells" : 5,
+     "number_of_primitives" : 13,
+     "functions": [
+        { "origin":[1,2,3] ,
+          "angular_moment_symbol" : "s",
+          "element_name" : "element_name",
+          "element_symbol" : "element_symbol",
+          "function_label" : "function_label",
+          "angular_moment_l" : 0,
+          "atom_index" : 0,
+          "shell_index" : 0,
+          "atomic_number":3,
+          "number_of_primitives":1,
+          "spherical":true,
+          "primitives":[  { "exponent:":1, "coCOefficient":5 }]
+        }
+      ]
+    }
+}
+            )json",
+            R"json(
+{ "system": {
+     "number_of_atoms":1,
+     "number_of_electrons" : 3,
+     "number_of_functions" : 3,
+     "number_of_integrals" : 13,
+     "number_of_shells" : 5,
+     "number_of_primitives" : 13,
+     "functions": [
+        { "origin":[1,2,"FOO"] ,
+          "angular_moment_symbol" : "s",
+          "element_name" : "element_name",
+          "element_symbol" : "element_symbol",
+          "function_label" : "function_label",
+          "angular_moment_l" : 0,
+          "atom_index" : 0,
+          "shell_index" : 0,
+          "atomic_number":3,
+          "number_of_primitives":1,
+          "spherical":true,
+          "primitives":[ { "exponent:":1, "coefficient":5 } ]
+        }
+      ]
+    }
+}
+            )json",
+
+
+
+            "{\"system\": {} }",
+            "{\"functions\": [{}]}",
+            "{\"system\": {\"number_of_functions\":3, \"functions\": [{}]}}",
+            "{\"system\": { \"number_of_atoms\":1, \"number_of_electrons\":3, \"number_of_functions\":3, \"number_of_integrals\":13, \"number_of_shells\":5, \"number_of_primitives\":13,\"functions\": [{}]}}",
+
+            NULL
+        };
+
+        handler->job_type = WQC_JOB_TWO_ELECTRONS_INTEGRALS;
+        strncpy(handler->job_id, "job-a", sizeof(handler->job_id));
+
+        for ( int  i = 0 ; illegals_replies[i] ; ++i ) {
+            const char *weird_ERI_reply = illegals_replies[i];
+
+            size_t total_size = strlen(weird_ERI_reply);
+
+            CHECK(wqc_set_downloaded_data((void *)weird_ERI_reply, total_size, &handler->web_call_info.web_reply) ==
+                  total_size);
+
+            struct wqc_return_value error_structure = init_webqc_return_value();
+
+            CHECK(update_eri_details(handler) == false);
+
+            CHECK(wqc_get_last_error(handler, &error_structure) == true);
+            CHECK(error_structure.error_code != 0);
+            CHECK(error_structure.error_message[0] != '\0');
+        }
+    }
+
+    wqc_cleanup(handler);
+}
 
 TEST_CASE( "submit integrals job and wait for it to finish", "[eri]" ) {
     WQC *handler = wqc_init();
@@ -22,9 +116,48 @@ TEST_CASE( "submit integrals job and wait for it to finish", "[eri]" ) {
     SECTION("Do REST Call") {
 
         CHECK(wqc_get_status(handler) == false );
-        CHECK(wqc_submit_job(handler, WQC_JOB_TWO_ELECTRONS_INTEGRALS, &parameters) == true);
-        CHECK(wqc_wait_for_job(handler, 20) == true );
+        struct two_electron_integrals_job_parameters multifile =  parameters;
+        multifile.shell_set_per_file = 125;
+        CHECK(wqc_submit_job(handler, WQC_JOB_TWO_ELECTRONS_INTEGRALS, &multifile) == true);
+        CHECK(wqc_wait_for_job(handler, 60000) == true );
+        wqc_reset(handler);
+        CHECK(wqc_get_integrals_details(handler) == true);
+        wqc_print_integrals_details(handler, stdout);
+        wqc_reset(handler);
+        eri_index_t eri_range_begin = { 1,1,0,3 };
+        eri_index_t eri_range_end = { 7,0,0,0 };
+        CHECK(wqc_fetch_ERI_values(handler, &eri_range_begin, &eri_range_end) == true );
+        double eri_value = 0;
+        double eri_precision = WQC_PRECISION_UNKNOWN;
 
+        eri_index_t out_of_range_eri_index = { 7,0,0,0};
+        CHECK(wqc_get_eri_value(handler, &out_of_range_eri_index, &eri_value, &eri_precision) == false);
+
+        struct wqc_return_value error_structure = init_webqc_return_value();
+        CHECK(wqc_get_last_error(handler, &error_structure) == true );
+        CHECK(error_structure.error_code == WEBQC_NOT_FETCHED );
+        CHECK(error_structure.error_message[0] != '\0');
+
+        for (
+            eri_index_t eri_index = { eri_range_begin[0], eri_range_begin[1], eri_range_begin[2], eri_range_begin[3]} ;
+            ! wqc_eri_indices_equal(&eri_index, &eri_range_end)  ;
+            wqc_next_eri_index(handler, &eri_index)
+            ) {
+
+            CHECK( wqc_get_eri_value(handler, &eri_index, &eri_value, &eri_precision) == true );
+        }
+
+        // Read ERIs from a file that is too shprt
+        int begin_shell_index[4] = {1,2,3,4};
+        int end_shell_index[4] = {4,2,2,2};
+
+        FILE *emptyfile= tmpfile();
+        CHECK(read_ERI_values_from_file(handler, emptyfile, begin_shell_index, end_shell_index) == false);
+        CHECK(wqc_get_last_error(handler, &error_structure) == true );
+        CHECK(error_structure.error_code == WEBQC_IO_ERROR );
+        CHECK(error_structure.error_message[0] != '\0');
+
+        fclose(emptyfile);
     }
     wqc_cleanup(handler);
 }
@@ -39,6 +172,7 @@ TEST_CASE( "submit integrals job and get status", "[eri]" ) {
 
         CHECK(wqc_get_status(handler) == false );
         CHECK(wqc_submit_job(handler, WQC_JOB_TWO_ELECTRONS_INTEGRALS, &parameters) == true);
+        CHECK(wqc_get_parameter_set_id(handler) != NULL);
         CHECK(wqc_job_done(handler) == false);
         CHECK(wqc_get_status(handler) == true );
 
@@ -200,7 +334,8 @@ TEST_CASE( "submit duplicate job", "[eri]" ) {
 
     memcpy(geometry1+2, random_name, std::min(strlen(random_name),sizeof(RANDOM_SPACE)));
 
-    struct two_electron_integrals_job_parameters parameters1 = {"sto-3g", geometry1, WQC_PRECISION_UNKNOWN, "angstrom"};
+    struct two_electron_integrals_job_parameters parameters1 = {"sto-3g", geometry1,
+            WQC_PRECISION_UNKNOWN, "angstrom",  0};
 
     SECTION("Do REST Call") {
 

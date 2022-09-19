@@ -2,6 +2,10 @@
 #include <stdbool.h>
 #include "libwebqc.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 //! Prepare a CURL object to make a call to the WebQC server
 //! \param handler handler to make a call with
 //! \param web_endpoint specific service on the WebQC server
@@ -80,6 +84,18 @@ bool prepare_get_parameter(
 );
 
 
+//! Download a file into an open file pointer
+//! \param handler Hanlder to set error on, in case of error
+//! \param URL URL of the file to download
+//! \param fp file pointer to write the data into. Should be opened with "wb" attributes
+//! \return true if all went well. If not, false, and set error on the handler
+bool wqc_download_file(
+    WQC *handler,
+    const char *URL,
+    FILE *fp
+);
+
+
 //! Set up the web access library
 void web_access_init();
 
@@ -90,3 +106,6 @@ void web_access_cleanup();
 //! \param handler  handler to initialize
 void wqc_init_web_calls(WQC *handler);
 
+#ifdef __cplusplus
+} // "extern C"
+#endif

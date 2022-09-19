@@ -54,6 +54,7 @@ struct webqc_handler_t {
     enum job_status_t job_status; /// Last known status of job as require by the WebQC server
     struct ERI_item_status *eri_status; /// List of all ERI sub-jobs status...
     int ERI_items_count;    /// How many ERI sub-jobs there are
+    struct ERI_information eri_info;  /// Full ERI information
 };
 
 
@@ -87,6 +88,23 @@ size_t wqc_set_downloaded_data
                 size_t total_size,
                 struct web_reply_buffer *buf
         );
+
+
+
+//! Read ERI values from an open file. If you have a local file with ERI values, use this funcitons to embed them in the
+///! handler.
+//! \param handler Handler to store the ERI values on
+//! \param fp File pointer,opened for read and positioned on the first ERI to read
+//! \param begin_shell_index index of the first shell in the file (not function - shell index )
+//! \param end_shell_index index of the end ( one after last) shell to read
+//! \return true on success, If not, false, and set error on the handler
+bool read_ERI_values_from_file(
+        WQC *handler,
+        FILE *fp,
+        const int *begin_shell_index,
+        const int *end_shell_index
+);
+
 
 #ifdef __cplusplus
 } // "extern C"

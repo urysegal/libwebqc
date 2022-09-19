@@ -123,6 +123,7 @@ prepare_web_call(WQC *handler, const char *web_endpoint)
     if (handler->web_call_info.curl_handler) {
 
         curl_easy_setopt(handler->web_call_info.curl_handler, CURLOPT_USERAGENT, "curl/7.68.0");
+        curl_easy_setopt(handler->web_call_info.curl_handler, CURLOPT_FOLLOWLOCATION, 1L);
 
         prepare_curl_reply_buffers(handler);
 
@@ -264,7 +265,8 @@ bool set_eri_job_parameters(WQC *handler, const struct two_electron_integrals_jo
             {"basis_set_name",   WQC_STRING_TYPE, { .str_value=job_parameters->basis_set_name} },
             {"xyz_file_content", WQC_STRING_TYPE, { .str_value=job_parameters->geometry} },
             {"geometry_precision", WQC_REAL_TYPE, { .real_value=job_parameters->geometry_precision} },
-            {"geometry_units", WQC_STRING_TYPE, { .str_value=job_parameters->geometry_units} }
+            {"geometry_units", WQC_STRING_TYPE, { .str_value=job_parameters->geometry_units} },
+            {"shell_sets_per_file", WQC_REAL_TYPE, { .real_value=job_parameters->shell_set_per_file} },
     };
     rv = set_POST_fields(handler, two_e_parameters_pairs, ARRAY_SIZE(two_e_parameters_pairs));
 
@@ -310,8 +312,41 @@ bool prepare_get_parameter( WQC *handler, const char *param_name, const char *pa
     return rv;
 }
 
+bool wqc_download_file(WQC *handler, const char *URL, FILE *fp)
+{
+    bool rv = false;
+    CURL *curl = curl_easy_init();
+    CURLcode res = CURLE_OK;
 
-    void web_access_init()
+    if (curl) {
+        curl_easy_setopt(curl, CURLOPT_URL, URL);
+        curl_easy_setopt(curl, CURLOPT_WRITEDATA, fp);
+        curl_easy_setopt(curl, CURLOPT_ERRORBUFFER, handler->web_call_info.web_error_bufffer);
+
+
+        res = curl_easy_perform(curl);
+
+        if (res) {
+            const char *additional_messages[] = {
+                URL,
+                handler->web_call_info.web_error_bufffer,
+                curl_easy_strerror(res),
+                NULL
+            };
+            wqc_set_error_with_messages(handler, WEBQC_WEB_CALL_ERROR,
+                                        additional_messages); //need some more error information
+        } else {
+            rv = true;
+        }
+
+        curl_easy_cleanup(curl);
+    }
+    return rv;
+}
+
+
+
+void web_access_init()
 {
     curl_global_init(CURL_GLOBAL_DEFAULT);
 }

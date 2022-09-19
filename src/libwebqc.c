@@ -27,6 +27,46 @@ struct wqc_return_value init_webqc_return_value()
     return rv;
 }
 
+static void init_ERI_info(WQC *handler)
+{
+    bzero(&handler->eri_info, sizeof(handler->eri_info));
+    handler->eri_info.basis_functions = NULL;
+    handler->eri_info.basis_function_primitives = NULL;
+    handler->eri_info.shell_to_function = NULL;
+    handler->eri_info.number_of_primitives = 0;
+    handler->eri_info.next_function = 0;
+    handler->eri_info.next_primitive = 0;
+    bzero(&handler->eri_info.eri_values, sizeof(struct ERI_values));
+    handler->eri_info.eri_values.eri_precision = WQC_PRECISION_UNKNOWN;
+}
+
+static void cleanup_ERI_info(WQC *handler)
+{
+    if (handler->eri_info.basis_functions) {
+        free(handler->eri_info.basis_functions);
+        handler->eri_info.basis_functions = NULL;
+    }
+    if (handler->eri_info.basis_function_primitives) {
+        free(handler->eri_info.basis_function_primitives);
+        handler->eri_info.basis_function_primitives = NULL;
+    }
+    if (handler->eri_info.shell_to_function) {
+        free(handler->eri_info.shell_to_function);
+        handler->eri_info.shell_to_function = NULL;
+    }
+
+    handler->eri_info.basis_functions = NULL;
+    handler->eri_info.basis_function_primitives = NULL;
+
+    if ( handler->eri_info.eri_values.eri_values ) {
+        free(handler->eri_info.eri_values.eri_values);
+        handler->eri_info.eri_values.eri_values = NULL;
+    }
+    bzero(&handler->eri_info.eri_values, sizeof(struct ERI_values));
+    handler->eri_info.eri_values.eri_precision = WQC_PRECISION_UNKNOWN;
+}
+
+
 WQC *wqc_init()
 {
     WQC *handler = malloc(sizeof(struct webqc_handler_t));
@@ -42,6 +82,7 @@ WQC *wqc_init()
     handler->job_status = WQC_JOB_STATUS_UNKNOWN;
     handler->eri_status = NULL;
     handler->ERI_items_count = 0;
+    init_ERI_info(handler);
 
     wqc_init_web_calls(handler);
 
@@ -76,6 +117,7 @@ void wqc_cleanup(WQC *handler)
             free(handler->eri_status);
         }
         free(handler->webqc_server_name);
+        cleanup_ERI_info(handler);
         free(handler);
     }
 }
@@ -189,6 +231,27 @@ bool wqc_submit_job(WQC *handler, enum wqc_job_type job_type, void *job_paramete
     return rv ;
 }
 
+bool
+wqc_get_integrals_details(WQC *handler)
+{
+    bool rv = false;
+
+    rv = prepare_web_call(handler, "int_info");
+
+    if ( rv ) {
+        rv = prepare_get_parameter(handler, "set_id", handler->parameter_set_id);
+    }
+    if ( rv ) {
+        rv = make_web_call(handler);
+    }
+
+    if (rv) {
+        rv = update_eri_details(handler);
+        wqc_reset(handler);
+    }
+
+    return rv;
+}
 
 static bool
 get_eri_job_status(WQC *handler)
@@ -270,11 +333,16 @@ bool wqc_wait_for_job( WQC *handler, int64_t milliseconds_to_wait)
         rv = wqc_get_status(handler);
         if ( rv ) {
             rv = wqc_job_done(handler);
-            if (! rv ) {
-            }
         }
     }
     return rv;
+}
+
+
+const char *
+wqc_get_parameter_set_id(WQC *handler)
+{
+    return handler->parameter_set_id;
 }
 
 
