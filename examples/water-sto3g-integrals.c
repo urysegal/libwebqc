@@ -48,8 +48,7 @@ main()
     ) ;
 
 
-    if ( ! res )
-    {
+    if ( ! res ) {
         // There was an error submitting the job. Print what has happened.
         struct wqc_return_value error;
         wqc_get_last_error(handler, &error);

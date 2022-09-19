@@ -184,6 +184,26 @@ func_index_to_shell_index(WQC *handler, const eri_index_t *func_range, unsigned 
     }
 }
 
+static bool
+make_ERI_request_URI_parameters(WQC *handler, unsigned int *shell_range_begin,
+                                unsigned int *shell_range_end)
+{
+    bool rv = false;
+    char URL_with_options[MAX_URL_SIZE];
+
+    if (snprintf(URL_with_options, MAX_URL_SIZE, "%s?%s=%s&%s=%u_%u_%u_%u&%s=%u_%u_%u_%u", handler->web_call_info.full_URL,
+                 "set_id", handler->parameter_set_id,
+                 "begin", shell_range_begin[0], shell_range_begin[1], shell_range_begin[2], shell_range_begin[3],
+                 "end",  shell_range_end[0], shell_range_end[1], shell_range_end[2], shell_range_end[3]
+    ) < MAX_URL_SIZE) {
+        strncpy(handler
+        ->web_call_info.full_URL, URL_with_options, MAX_URL_SIZE);
+        curl_easy_setopt(handler->web_call_info.curl_handler, CURLOPT_URL, handler->web_call_info.full_URL);
+        rv = true;
+        }
+
+    return rv;
+}
 
 bool
 wqc_fetch_ERI_values(WQC *handler, const eri_index_t *eri_range_begin, const eri_index_t *eri_range_end)
@@ -193,22 +213,15 @@ wqc_fetch_ERI_values(WQC *handler, const eri_index_t *eri_range_begin, const eri
     rv = prepare_web_call(handler, "eri_values");
 
     if ( rv ) {
-        char URL_with_options[MAX_URL_SIZE];
         unsigned int shell_range_begin[4];
         unsigned int shell_range_end[4];
 
         func_index_to_shell_index(handler, eri_range_begin, shell_range_begin);
         func_index_to_shell_index(handler, eri_range_end, shell_range_end);
 
-        if (snprintf(URL_with_options, MAX_URL_SIZE, "%s?%s=%s&%s=%u_%u_%u_%u&%s=%u_%u_%u_%u", handler->web_call_info.full_URL,
-                     "set_id", handler->parameter_set_id,
-                     "begin", shell_range_begin[0], shell_range_begin[1], shell_range_begin[2], shell_range_begin[3],
-                     "end",  shell_range_end[0], shell_range_end[1], shell_range_end[2], shell_range_end[3]
-                     ) < MAX_URL_SIZE) {
-            strncpy(handler->web_call_info.full_URL, URL_with_options, MAX_URL_SIZE);
-            curl_easy_setopt(handler->web_call_info.curl_handler, CURLOPT_URL, handler->web_call_info.full_URL);
-            rv = true;
-        } else {
+        rv = make_ERI_request_URI_parameters(handler, shell_range_begin, shell_range_end );
+
+        if (! rv ) {
             wqc_set_error(handler, WEBQC_OUT_OF_MEMORY); // LCOV_EXCL_LINE
         }
     }
