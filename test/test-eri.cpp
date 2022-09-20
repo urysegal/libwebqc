@@ -124,13 +124,13 @@ TEST_CASE( "submit integrals job and wait for it to finish", "[eri]" ) {
         CHECK(wqc_get_integrals_details(handler) == true);
         wqc_print_integrals_details(handler, stdout);
         wqc_reset(handler);
-        eri_index_t eri_range_begin = { 1,1,0,3 };
-        eri_index_t eri_range_end = { 7,0,0,0 };
+        eri_shell_index_t eri_range_begin = {1, 1, 0, 3 };
+        eri_shell_index_t eri_range_end = {7, 0, 0, 0 };
         CHECK(wqc_fetch_ERI_values(handler, &eri_range_begin, &eri_range_end) == true );
         double eri_value = 0;
         double eri_precision = WQC_PRECISION_UNKNOWN;
 
-        eri_index_t out_of_range_eri_index = { 7,0,0,0};
+        eri_shell_index_t out_of_range_eri_index = {7, 0, 0, 0};
         CHECK(wqc_get_eri_value(handler, &out_of_range_eri_index, &eri_value, &eri_precision) == false);
 
         struct wqc_return_value error_structure = init_webqc_return_value();
@@ -139,8 +139,8 @@ TEST_CASE( "submit integrals job and wait for it to finish", "[eri]" ) {
         CHECK(error_structure.error_message[0] != '\0');
 
         for (
-            eri_index_t eri_index = { eri_range_begin[0], eri_range_begin[1], eri_range_begin[2], eri_range_begin[3]} ;
-            ! wqc_eri_indices_equal(&eri_index, &eri_range_end)  ;
+            eri_shell_index_t eri_index = {eri_range_begin[0], eri_range_begin[1], eri_range_begin[2], eri_range_begin[3]} ;
+            !wqc_indices_equal(&eri_index, &eri_range_end)  ;
             wqc_next_eri_index(handler, &eri_index)
             ) {
 

@@ -92,7 +92,7 @@ void wqc_print_integrals_details( WQC *handler, FILE *fp)
 }
 
 
-bool wqc_eri_indices_equal( const eri_index_t *eri_index_a, const eri_index_t *eri_index_b)
+bool wqc_indices_equal(const eri_shell_index_t *eri_index_a, const eri_shell_index_t *eri_index_b)
 {
     bool rv = true ;
     for ( unsigned int i =0 ; rv && i < 4 ; ++i ) {
@@ -105,9 +105,9 @@ bool wqc_eri_indices_equal( const eri_index_t *eri_index_a, const eri_index_t *e
 
 
 static int
-eri_index_to_memory_position(WQC *handler, const eri_index_t *eri_index)
+shell_index_to_shell_order(WQC *handler, const eri_shell_index_t *eri_index)
 {
-    unsigned int n = handler->eri_info.number_of_functions;
+    unsigned int n = handler->eri_info.number_of_shells;
     unsigned int offset = 1;
     unsigned int pos = 0;
 
@@ -120,49 +120,46 @@ eri_index_to_memory_position(WQC *handler, const eri_index_t *eri_index)
 }
 
 static bool
-eri_available_in_handler(WQC *handler, const eri_index_t *eri_index)
+shell_available_in_handler(WQC *handler, const eri_shell_index_t *eri_index)
 {
-    unsigned int first_available_function = eri_index_to_memory_position(handler, &handler->eri_info.eri_values.begin_eri_index);
-    unsigned int end_available_function = eri_index_to_memory_position(handler, &handler->eri_info.eri_values.end_eri_index);
-    unsigned int idx_position = eri_index_to_memory_position(handler, eri_index);
-    return idx_position >= first_available_function && idx_position < end_available_function;
+    unsigned int first_shell_position = shell_index_to_shell_order(handler, &handler->eri_info.eri_values.begin_eri_index);
+    unsigned int end_shell_position = shell_index_to_shell_order(handler, &handler->eri_info.eri_values.end_eri_index);
+    unsigned int idx_position = shell_index_to_shell_order(handler, eri_index);
+    return idx_position >= first_shell_position && idx_position < end_shell_position;
 }
 
-bool wqc_next_eri_index(
+
+bool wqc_next_shell_index(
     WQC *handler,
-    eri_index_t *eri_index
+    eri_shell_index_t *eri_index
 )
 {
-    unsigned int number_of_functions = handler->eri_info.number_of_functions;
+    unsigned int number_of_shells = handler->eri_info.number_of_shells;
     (*eri_index)[3]++;
-    if ( (*eri_index)[3] == number_of_functions ) {
+    if ( (*eri_index)[3] == number_of_shells ) {
         (*eri_index)[3] = 0;
         (*eri_index)[2]++;
-        if ( (*eri_index)[2] == number_of_functions ) {
+        if ( (*eri_index)[2] == number_of_shells ) {
             (*eri_index)[2] = 0;
             (*eri_index)[1]++;
-            if ((*eri_index)[1] == number_of_functions) {
+            if ((*eri_index)[1] == number_of_shells) {
                 (*eri_index)[1] = 0;
                 (*eri_index)[0]++;
             }
         }
     }
 
-    return eri_available_in_handler(handler, eri_index);
+    return shell_available_in_handler(handler, eri_index);
 }
 
 
 bool
-wqc_get_eri_value(  WQC *handler,  const eri_index_t *eri_index, double *eri_value, double *eri_precision)
+wqc_get_eri_values(WQC *handler, const double **eri_values, double *eri_precision)
 {
     bool rv = false;
-
-    if ( eri_available_in_handler(handler, eri_index )) {
-        unsigned int idx_position = eri_index_to_memory_position(handler, eri_index);
-        unsigned int first_available_function = eri_index_to_memory_position(handler, &handler->eri_info.eri_values.begin_eri_index);
-
+    if ( handler->eri_info.eri_values.eri_values) {
         *eri_precision = handler->eri_info.eri_values.eri_precision;
-        *eri_value = handler->eri_info.eri_values.eri_values[idx_position-first_available_function];
+        *eri_values = handler->eri_info.eri_values.eri_values;
         rv = true;
     }  else {
         wqc_set_error_with_message(handler, WEBQC_NOT_FETCHED , "Reading ERI value that was not retrieved from the WQC server");
@@ -173,7 +170,7 @@ wqc_get_eri_value(  WQC *handler,  const eri_index_t *eri_index, double *eri_val
 
 
 static void
-func_index_to_shell_index(WQC *handler, const eri_index_t *func_range, unsigned int *shell_index)
+func_index_to_shell_index(WQC *handler, const eri_shell_index_t *func_range, unsigned int *shell_index)
 {
     for ( unsigned int i = 0U ; i < 4 ; ++i ) {
         if ((*func_range)[i] == handler->eri_info.number_of_functions) {
@@ -206,7 +203,7 @@ make_ERI_request_URI_parameters(WQC *handler, unsigned int *shell_range_begin,
 }
 
 bool
-wqc_fetch_ERI_values(WQC *handler, const eri_index_t *eri_range_begin, const eri_index_t *eri_range_end)
+wqc_fetch_ERI_values(WQC *handler, const eri_shell_index_t *eri_range_begin, const eri_shell_index_t *eri_range_end)
 {
     bool rv = false;
 
@@ -237,7 +234,7 @@ wqc_fetch_ERI_values(WQC *handler, const eri_index_t *eri_range_begin, const eri
     return rv;
 }
 
-static void shell_index_to_eri_index(WQC *handler, const int *shell_index, eri_index_t *eri_index)
+static void shell_index_to_eri_index(WQC *handler, const int *shell_index, eri_shell_index_t *eri_index)
 {
     for ( int i = 0 ; i < 4 ; i++ ) {
         (*eri_index)[i] = handler->eri_info.shell_to_function[shell_index[i]];

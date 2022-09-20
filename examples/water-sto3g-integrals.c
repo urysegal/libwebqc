@@ -77,33 +77,35 @@ main()
         // Make another call on the same handler, to get some ERI values
         wqc_reset(handler);
 
-        eri_index_t eri_range_begin = { 1,1,0,3 };
-        eri_index_t eri_range_end = { 3,0,2,2 };
+        eri_shell_index_t eri_range_begin = {1, 1, 0, 3};
+        eri_shell_index_t eri_range_end = {3, 0, 2, 2};
         res = wqc_fetch_ERI_values(handler, &eri_range_begin, &eri_range_end);
 
         if (res) {
             // Print out the integrals received and their accuracy
-            double eri_value = 0;
+            const double *eri_values = NULL;
             double eri_precision = WQC_PRECISION_UNKNOWN;
 
-            for (
-                eri_index_t eri_index = { eri_range_begin[0], eri_range_begin[1], eri_range_begin[2], eri_range_begin[3]} ;
-                 ! wqc_eri_indices_equal(&eri_index, &eri_range_end)  ;
-                 wqc_next_eri_index(handler, &eri_index)
-                )
-            {
+            eri_shell_index_t eri_shell_index, eri_shell_range_end;
 
-                res = wqc_get_eri_value(handler, &eri_index, &eri_value, &eri_precision);
-                if ( res ) {
+            wqc_get_shell_set_range(handler, &eri_shell_index, &eri_shell_range_end);
+
+            res = wqc_get_eri_values(handler, &eri_values, &eri_precision);
+            if (res) {
+
+                for (; !wqc_indices_equal(&eri_shell_index, &eri_shell_range_end);
+                       wqc_next_shell_index(handler, &eri_shell_index)
+                    ) {
+
                     printf("[ %u %u | %u %u ] = %.9e (error: %f )\n",
                            eri_index[0], eri_index[1], eri_index[2], eri_index[3],
                            eri_value, eri_precision);
-                } else {
-                    struct wqc_return_value error;
-                    wqc_get_last_error(handler, &error);
-                    fprintf(stderr, "Error retrieving ERI value : %s", error.error_message);
-                    break;
                 }
+            } else {
+                struct wqc_return_value error;
+                wqc_get_last_error(handler, &error);
+                fprintf(stderr, "Error retrieving ERI values : %s", error.error_message);
+                break;
             }
         } else {
             struct wqc_return_value error;
@@ -111,6 +113,7 @@ main()
             fprintf(stderr, "Error downloading ERI values : %s", error.error_message);
         }
     }
+
 
     // Clean up the handler
     wqc_cleanup(handler);
