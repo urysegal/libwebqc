@@ -113,6 +113,16 @@ TEST_CASE( "submit integrals job and wait for it to finish", "[eri]" ) {
     WQC *handler = wqc_init();
     REQUIRE(handler != NULL);
 
+    SECTION("premature information get") {
+        const double *eri_values = nullptr;
+        double eri_precision = WQC_PRECISION_UNKNOWN;
+        eri_shell_index_t eri_shell_index, eri_shell_range_end;
+        CHECK(wqc_get_shell_set_range(handler, &eri_shell_index, &eri_shell_range_end) == false );
+        CHECK(wqc_get_eri_values(handler, &eri_values, &eri_precision) == false);
+        int shells_count[4];
+        CHECK(wqc_get_number_of_functions_in_shells(handler, eri_shell_index, shells_count , 4) == false);
+    }
+
     SECTION("Do REST Call") {
 
         CHECK(wqc_get_status(handler) == false );
@@ -125,34 +135,42 @@ TEST_CASE( "submit integrals job and wait for it to finish", "[eri]" ) {
         wqc_print_integrals_details(handler, stdout);
         wqc_reset(handler);
         eri_shell_index_t eri_range_begin = {1, 1, 0, 3 };
-        eri_shell_index_t eri_range_end = {7, 0, 0, 0 };
-        CHECK(wqc_fetch_ERI_values(handler, &eri_range_begin, &eri_range_end) == true );
-        double eri_value = 0;
+        CHECK(wqc_fetch_ERI_values(handler, &eri_range_begin) == true );
+        const double *eri_values = nullptr;
         double eri_precision = WQC_PRECISION_UNKNOWN;
 
-        eri_shell_index_t out_of_range_eri_index = {7, 0, 0, 0};
-        CHECK(wqc_get_eri_value(handler, &out_of_range_eri_index, &eri_value, &eri_precision) == false);
 
-        struct wqc_return_value error_structure = init_webqc_return_value();
-        CHECK(wqc_get_last_error(handler, &error_structure) == true );
-        CHECK(error_structure.error_code == WEBQC_NOT_FETCHED );
-        CHECK(error_structure.error_message[0] != '\0');
+        eri_shell_index_t eri_shell_index, eri_shell_range_end;
+        CHECK(wqc_get_shell_set_range(handler, &eri_shell_index, &eri_shell_range_end) == true );
+        CHECK(wqc_get_eri_values(handler, &eri_values, &eri_precision));
 
-        for (
-            eri_shell_index_t eri_index = {eri_range_begin[0], eri_range_begin[1], eri_range_begin[2], eri_range_begin[3]} ;
-            !wqc_indices_equal(&eri_index, &eri_range_end)  ;
-            wqc_next_eri_index(handler, &eri_index)
+
+        int dpos = 0;
+        for (; !wqc_indices_equal(&eri_shell_index, &eri_shell_range_end);
+               wqc_next_shell_index(handler, &eri_shell_index)
             ) {
 
-            CHECK( wqc_get_eri_value(handler, &eri_index, &eri_value, &eri_precision) == true );
-        }
+            int shells_count[4];
+            wqc_get_number_of_functions_in_shells(handler, eri_shell_index, shells_count , 4);
 
-        // Read ERIs from a file that is too shprt
-        int begin_shell_index[4] = {1,2,3,4};
-        int end_shell_index[4] = {4,2,2,2};
+            for (int b1 = 0U; b1 < shells_count[0]; b1++) {
+                for (int b2 = 0U; b2 < shells_count[1]; b2++) {
+                    for (int k1 = 0U; k1 < shells_count[2]; k1++) {
+                        for (int k2 = 0U; k2 < shells_count[3]; k2++) {
+                            CHECK(eri_values[dpos++] <  10000);
+                        }
+                    }
+                }
+            }
+        }
+        CHECK(dpos == 7*7*7*7);
+
+        // Read ERIs from a file that is too short
+
+        struct wqc_return_value error_structure = init_webqc_return_value();
 
         FILE *emptyfile= tmpfile();
-        CHECK(read_ERI_values_from_file(handler, emptyfile, begin_shell_index, end_shell_index) == false);
+        CHECK(read_ERI_values_from_file(handler, emptyfile) == false);
         CHECK(wqc_get_last_error(handler, &error_structure) == true );
         CHECK(error_structure.error_code == WEBQC_IO_ERROR );
         CHECK(error_structure.error_message[0] != '\0');

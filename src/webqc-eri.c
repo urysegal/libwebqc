@@ -153,10 +153,30 @@ bool wqc_next_shell_index(
 }
 
 
+bool wqc_get_number_of_functions_in_shells(WQC *handler, const int *shells, int *number_of_functions, int n)
+{
+    bool rv = true;
+
+    if ( handler->eri_info.eri_values.eri_values) {
+        int i;
+        for ( i = 0 ; i < n ; i ++ ) {
+            number_of_functions[i] = handler->eri_info.shell_to_function[shells[i]+1]  - handler->eri_info.shell_to_function[shells[i]] ;
+        }
+        rv = true;
+    }  else {
+        rv = false;
+        wqc_set_error_with_message(handler, WEBQC_NOT_FETCHED , "Reading ERI value that was not retrieved from the WQC server");
+    }
+
+    return rv;
+}
+
+
 bool
 wqc_get_eri_values(WQC *handler, const double **eri_values, double *eri_precision)
 {
     bool rv = false;
+
     if ( handler->eri_info.eri_values.eri_values) {
         *eri_precision = handler->eri_info.eri_values.eri_precision;
         *eri_values = handler->eri_info.eri_values.eri_values;
@@ -168,30 +188,27 @@ wqc_get_eri_values(WQC *handler, const double **eri_values, double *eri_precisio
     return rv;
 }
 
-
-static void
-func_index_to_shell_index(WQC *handler, const eri_shell_index_t *func_range, unsigned int *shell_index)
+bool
+wqc_get_shell_set_range(WQC *handler, eri_shell_index_t *begin, eri_shell_index_t *end)
 {
-    for ( unsigned int i = 0U ; i < 4 ; ++i ) {
-        if ((*func_range)[i] == handler->eri_info.number_of_functions) {
-            shell_index[i] = handler->eri_info.number_of_shells;
-        } else {
-            shell_index[i] = handler->eri_info.basis_functions[(*func_range)[i]].shell_index;
-        }
+    bool res = false;
+    if ( handler->eri_info.eri_values.eri_values ) {
+        memcpy(begin, handler->eri_info.eri_values.begin_eri_index, sizeof(eri_shell_index_t));
+        memcpy(end, handler->eri_info.eri_values.end_eri_index, sizeof(eri_shell_index_t));
+        res = true;
     }
+    return res;
 }
 
 static bool
-make_ERI_request_URI_parameters(WQC *handler, unsigned int *shell_range_begin,
-                                unsigned int *shell_range_end)
+make_ERI_request_URI_parameters(WQC *handler, const eri_shell_index_t *shell_range)
 {
     bool rv = false;
     char URL_with_options[MAX_URL_SIZE];
 
-    if (snprintf(URL_with_options, MAX_URL_SIZE, "%s?%s=%s&%s=%u_%u_%u_%u&%s=%u_%u_%u_%u", handler->web_call_info.full_URL,
+    if (snprintf(URL_with_options, MAX_URL_SIZE, "%s?%s=%s&%s=%u_%u_%u_%u", handler->web_call_info.full_URL,
                  "set_id", handler->parameter_set_id,
-                 "begin", shell_range_begin[0], shell_range_begin[1], shell_range_begin[2], shell_range_begin[3],
-                 "end",  shell_range_end[0], shell_range_end[1], shell_range_end[2], shell_range_end[3]
+                 "begin", (*shell_range)[0], (*shell_range)[1], (*shell_range)[2], (*shell_range)[3]
     ) < MAX_URL_SIZE) {
         strncpy(handler
         ->web_call_info.full_URL, URL_with_options, MAX_URL_SIZE);
@@ -203,20 +220,15 @@ make_ERI_request_URI_parameters(WQC *handler, unsigned int *shell_range_begin,
 }
 
 bool
-wqc_fetch_ERI_values(WQC *handler, const eri_shell_index_t *eri_range_begin, const eri_shell_index_t *eri_range_end)
+wqc_fetch_ERI_values(WQC *handler, const eri_shell_index_t *shell_index)
 {
     bool rv = false;
 
     rv = prepare_web_call(handler, "eri_values");
 
     if ( rv ) {
-        unsigned int shell_range_begin[4];
-        unsigned int shell_range_end[4];
 
-        func_index_to_shell_index(handler, eri_range_begin, shell_range_begin);
-        func_index_to_shell_index(handler, eri_range_end, shell_range_end);
-
-        rv = make_ERI_request_URI_parameters(handler, shell_range_begin, shell_range_end );
+        rv = make_ERI_request_URI_parameters(handler, shell_index );
 
         if (! rv ) {
             wqc_set_error(handler, WEBQC_OUT_OF_MEMORY); // LCOV_EXCL_LINE
@@ -234,26 +246,14 @@ wqc_fetch_ERI_values(WQC *handler, const eri_shell_index_t *eri_range_begin, con
     return rv;
 }
 
-static void shell_index_to_eri_index(WQC *handler, const int *shell_index, eri_shell_index_t *eri_index)
-{
-    for ( int i = 0 ; i < 4 ; i++ ) {
-        (*eri_index)[i] = handler->eri_info.shell_to_function[shell_index[i]];
-    }
-}
 
-static bool allocate_memory_for_ERIs(WQC *handler, const int *begin_shell_index, const int *end_shell_index, int *no_of_values)
+static bool allocate_memory_for_ERIs(WQC *handler)
 {
     bool rv = true;
-    shell_index_to_eri_index(handler, begin_shell_index, &handler->eri_info.eri_values.begin_eri_index);
-    shell_index_to_eri_index(handler, end_shell_index, &handler->eri_info.eri_values.end_eri_index);
-
-    unsigned int first_available_function = eri_index_to_memory_position(handler, &handler->eri_info.eri_values.begin_eri_index);
-    unsigned int end_available_function = eri_index_to_memory_position(handler, &handler->eri_info.eri_values.end_eri_index);
-    *no_of_values = end_available_function - first_available_function;
 
     free(handler->eri_info.eri_values.eri_values);
 
-    handler->eri_info.eri_values.eri_values = malloc (sizeof(double) * (*no_of_values));
+    handler->eri_info.eri_values.eri_values = malloc (handler->eri_info.eri_values.eri_data_size);
 
     if ( ! handler->eri_info.eri_values.eri_values ) {
         wqc_set_error_with_message(handler, WEBQC_OUT_OF_MEMORY, "Not enough memory to read ERI values"); //LCOV_EXCL_LINE
@@ -263,10 +263,11 @@ static bool allocate_memory_for_ERIs(WQC *handler, const int *begin_shell_index,
     return rv;
 }
 
-bool read_ERI_values_from_file(WQC *handler, FILE *fp, const int *begin_shell_index, const int *end_shell_index)
+bool read_ERI_values_from_file(WQC *handler, FILE *fp)
 {
-    int no_of_values = 0;
-    bool rv = allocate_memory_for_ERIs(handler, begin_shell_index, end_shell_index, &no_of_values);
+    int no_of_values = handler->eri_info.eri_values.eri_data_size/(sizeof (double));
+
+    bool rv = allocate_memory_for_ERIs(handler);
 
     if ( rv ) {
         if (fread(handler->eri_info.eri_values.eri_values, sizeof(double), no_of_values, fp) != no_of_values) {
@@ -278,7 +279,7 @@ bool read_ERI_values_from_file(WQC *handler, FILE *fp, const int *begin_shell_in
 }
 
 
-static bool download_ERI_values(WQC *handler, const char *URL, const int *begin_shell_index, const int *end_shell_index)
+static bool download_ERI_values(WQC *handler, const char *URL)
 {
     bool rv = false;
     FILE *fp = tmpfile();
@@ -293,7 +294,7 @@ static bool download_ERI_values(WQC *handler, const char *URL, const int *begin_
                 const char * messages[] = { "Cannot rewind temporary ERI values file" , strerror(errno), NULL}; // LCOV_EXCL_LINE
                 wqc_set_error_with_messages(handler, WEBQC_IO_ERROR, messages);// LCOV_EXCL_LINE
             } else {
-                rv = read_ERI_values_from_file(handler, fp, begin_shell_index, end_shell_index);
+                rv = read_ERI_values_from_file(handler, fp);
             }
         }
         fclose(fp);
@@ -319,24 +320,23 @@ bool update_eri_values(WQC *handler)
             {"begin",        WQC_JSON_ARRAY,  &begin_info},
             {"end",          WQC_JSON_ARRAY,  &end_info},
             {"precision",    WQC_JSON_NUMBER, &handler->eri_info.eri_values.eri_precision},
+            {"size",    WQC_JSON_INT, &handler->eri_info.eri_values.eri_data_size},
             {NULL}
         };
 
         rv = extract_json_fields(handler, reply_json, fields);
     }
 
-    int begin_shell_index[4];
-    int end_shell_index[4];
     if (rv) {
-        rv = parse_int_array(handler, begin_info, begin_shell_index, 4);
+        rv = parse_int_array(handler, begin_info, handler->eri_info.eri_values.begin_eri_index, 4);
     }
 
     if ( rv ) {
-        rv = parse_int_array(handler, end_info, end_shell_index , 4);
+        rv = parse_int_array(handler, end_info, handler->eri_info.eri_values.end_eri_index , 4);
     }
 
     if ( rv ) {
-        rv = download_ERI_values(handler, ERI_URL, begin_shell_index, end_shell_index);
+        rv = download_ERI_values(handler, ERI_URL);
     }
 
     if ( reply_json ) {
