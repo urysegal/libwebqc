@@ -314,6 +314,10 @@ parse_eri_status_array(WQC *handler, cJSON *eri_items)
     bool rv = false;
     cJSON *iterator = NULL;
 
+    free(handler->eri_status);
+    handler->eri_status = NULL;
+    handler->ERI_items_count=0;
+
     cJSON_ArrayForEach(iterator, eri_items) {
         if (cJSON_IsObject(iterator)) {
             struct ERI_item_status status;
