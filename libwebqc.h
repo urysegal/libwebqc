@@ -46,7 +46,7 @@ typedef struct webqc_handler_t WQC; ///< A handler to a WQC operation. When star
 
 typedef double wqc_location_t[3]; /// A 3D location in the system
 
-typedef int eri_index_t[4]; /// An index of an ERI
+typedef int eri_shell_index_t[4]; /// An index of an ERI
 
 
 /// List of all the possible calls to WecQC service
@@ -77,8 +77,9 @@ struct ERI_item_status {
 
 /// information about ERI values, and the values fetched from the server
 struct ERI_values {
-    eri_index_t begin_eri_index; /// Index of first ERI value we have in RAM
-    eri_index_t end_eri_index; /// Index of end ERI (one after last) value we have in RAM
+    eri_shell_index_t begin_eri_index; /// Index of first ERI value we have in RAM
+    eri_shell_index_t end_eri_index; /// Index of end ERI (one after last) value we have in RAM
+    size_t eri_data_size; /// How much memory is used, in bytes, for storing the ERIs
     double *eri_values; /// The ERI values themselves, in C ordering
     double eri_precision; /// Precision of the ERIs in RAM
 };
@@ -94,7 +95,7 @@ struct ERI_information {
     struct basis_function_instance *basis_functions; /// All basis functions instances
     struct radial_function_info *basis_function_primitives; /// All the primitives involved in the system
     unsigned int *shell_to_function; /// Map shell index to function index
-    struct ERI_values eri_values; ///  ERI values fetched fromthe WQC server
+    struct ERI_values eri_values; ///  ERI values fetched from the WQC server
     unsigned int next_primitive; /// Next primitive to fill up
     unsigned int next_function; /// Next function to fill up
 };
@@ -289,27 +290,26 @@ wqc_print_integrals_details(
     FILE *fp
 );
 
-//! Fetch from the WQC server the [eri_range_begin, eri_range_end) range of ERI that were calculated using the handler.
+//! Fetch from the WQC server some range of ERI that were calculated using the handler, that was calculated for
+//! the functions at eri_index.
 //! \param handler A handler where a ERI calculation was submitted on
-//! \param eri_range_begin First ERI to fetch
-//! \param eri_range_end end of the ERI integrals to fetch
+//! \param eri_index the 4 centers for which to fetch the ERI
 //! \return true on success, false on failure and set up the error description in the handler
 bool
 wqc_fetch_ERI_values(
     WQC *handler,
-    const eri_index_t *eri_range_begin,
-    const eri_index_t *eri_range_end
+    const eri_shell_index_t *eri_index
 );
 
 
-//! When iterating over ERIs sequantialy, use this function to increment the ERI index to the next position.
+//! When iterating over shells sequentially, use this function to increment the shell index to the next position.
 //! \param handler Handler where a call to calculate ERIs was made on
 //! \param eri_index  in - Current index ; out - next index position
 //! \return true if the index reached is actually stored in the handler.
 bool
-wqc_next_eri_index(
+wqc_next_shell_index(
     WQC *handler,
-    eri_index_t *eri_index
+    eri_shell_index_t *eri_index
 );
 
 
@@ -318,23 +318,45 @@ wqc_next_eri_index(
 //! \param eri_index_b second index to compare
 //! \return true if the indices are equal.
 bool
-wqc_eri_indices_equal(
-    const eri_index_t *eri_index_a,
-    const eri_index_t *eri_index_b
+wqc_indices_equal(
+    const eri_shell_index_t *eri_index_a,
+    const eri_shell_index_t *eri_index_b
 );
 
-//! Get the value of an ERI, after it was fetched from the WQC server
+/// Get the begin position and end position of the ERI that were calculated and downloaded.
+/// \param handler Handler the ERI calculation was called on
+/// \param begin output - first shell index whose ERI are available to use
+/// \param end output - end shell index whose ERI are available to use
+//! \return false if there were now ERIs downloaded at all. Else, returns true.
+bool wqc_get_shell_set_range(WQC *handler,
+     eri_shell_index_t *begin,
+     eri_shell_index_t *end);
+
+
+//! Get the values of the ERIs, after it was fetched from the WQC server
 //! \param handler Handler the ERI calculation was called on
-//! \param eri_index which ERI to fetch , in chemist's notation [ij|kl]
-//! \param eri_value output - the value of the integral
+//! \param eri_value output - the values of the integrals - all possible orientations in each shell (see documentation)
 //! \param eri_precision output - the precision of the value returned
 //! \return true if the integral value exists in the handler and is returned. False otherwise, and error set the handler
 bool
-wqc_get_eri_value(
+wqc_get_eri_values(
     WQC *handler,
-    const eri_index_t *eri_index,
-    double *eri_value,
+    const double **eri_values,
     double *eri_precision
+);
+
+/// Get the number of functions that are in each of the n shell. For example, in a p shell there are 3. This shell indices
+/// are listen in the ERI information structure.
+/// \param handler Handler the ERI calculation was called on
+/// \param shells List of shell indices that you are interested in
+/// \param number_of_functions output - per each shell, how many functions
+/// \param n how many shells you are interested in getting information about
+/// \return true if the information was fetched from the WQC server and all shell sized found. False otherwise
+bool wqc_get_number_of_functions_in_shells(
+    WQC *handler,
+    const int *shells,
+    int *number_of_functions,
+    int n
 );
 
 #ifdef __cplusplus

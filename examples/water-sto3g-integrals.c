@@ -77,33 +77,45 @@ main()
         // Make another call on the same handler, to get some ERI values
         wqc_reset(handler);
 
-        eri_index_t eri_range_begin = { 1,1,0,3 };
-        eri_index_t eri_range_end = { 3,0,2,2 };
-        res = wqc_fetch_ERI_values(handler, &eri_range_begin, &eri_range_end);
+        eri_shell_index_t eri_index = {1, 1, 0, 3};
+        res = wqc_fetch_ERI_values(handler, &eri_index);
 
         if (res) {
             // Print out the integrals received and their accuracy
-            double eri_value = 0;
+            const double *eri_values = NULL;
             double eri_precision = WQC_PRECISION_UNKNOWN;
 
-            for (
-                eri_index_t eri_index = { eri_range_begin[0], eri_range_begin[1], eri_range_begin[2], eri_range_begin[3]} ;
-                 ! wqc_eri_indices_equal(&eri_index, &eri_range_end)  ;
-                 wqc_next_eri_index(handler, &eri_index)
-                )
-            {
+            eri_shell_index_t eri_shell_index, eri_shell_range_end;
 
-                res = wqc_get_eri_value(handler, &eri_index, &eri_value, &eri_precision);
-                if ( res ) {
-                    printf("[ %u %u | %u %u ] = %.9e (error: %f )\n",
-                           eri_index[0], eri_index[1], eri_index[2], eri_index[3],
-                           eri_value, eri_precision);
-                } else {
-                    struct wqc_return_value error;
-                    wqc_get_last_error(handler, &error);
-                    fprintf(stderr, "Error retrieving ERI value : %s", error.error_message);
-                    break;
+            wqc_get_shell_set_range(handler, &eri_shell_index, &eri_shell_range_end);
+
+            res = wqc_get_eri_values(handler, &eri_values, &eri_precision);
+            if (res) {
+                int dpos = 0;
+
+                for (; !wqc_indices_equal(&eri_shell_index, &eri_shell_range_end);
+                       wqc_next_shell_index(handler, &eri_shell_index)
+                    ) {
+
+                    int shells_count[4];
+                    wqc_get_number_of_functions_in_shells(handler, eri_shell_index, shells_count , 4);
+
+                    for (int b1 = 0U; b1 < shells_count[0]; b1++) {
+                        for (int b2 = 0U; b2 < shells_count[1]; b2++) {
+                            for (int k1 = 0U; k1 < shells_count[2]; k1++) {
+                                for (int k2 = 0U; k2 < shells_count[3]; k2++) {
+                                    fprintf(stdout," %.9e\n", eri_values[dpos++]);
+                                }
+                            }
+                        }
+                    }
+
                 }
+
+            } else {
+                struct wqc_return_value error;
+                wqc_get_last_error(handler, &error);
+                fprintf(stderr, "Error retrieving ERI values : %s", error.error_message);
             }
         } else {
             struct wqc_return_value error;
@@ -111,6 +123,7 @@ main()
             fprintf(stderr, "Error downloading ERI values : %s", error.error_message);
         }
     }
+
 
     // Clean up the handler
     wqc_cleanup(handler);
